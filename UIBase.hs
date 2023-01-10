@@ -16,10 +16,8 @@ import Numeric           (showFFloat)
 import System.CPUTime    (getCPUTime)
 import System.IO
 import System.Time
-#ifdef FREEARC_UNIX
 import System.Posix.IO
 import System.Posix.Terminal
-#endif
 
 import Utils
 import Errors
@@ -404,13 +402,6 @@ foreign import ccall safe "Compression/Common.h Taskbar_Resume"
 -- |Win7+ taskbar: remove progress indicator
 foreign import ccall safe "Compression/Common.h Taskbar_Done"
   taskbar_Done :: IO ()
-
-#ifdef FREEARC_WIN
--- |Returns Windows HWND of top-level window having the provided title
-foreign import ccall safe "Compression/Common.h FindWindowHandleByTitle"
-  findWindowHandleByTitle :: Ptr CChar -> IO (Ptr ())
-#endif
-
 
 
 {-

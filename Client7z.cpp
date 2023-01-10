@@ -12,16 +12,12 @@
 #define LOCALE_IS_UTF8
 
 
-#ifdef FREEARC_WIN
-#  include <initguid.h>
-#else
    // Because IID_IUnknown is already defined in LZMA code
-#  define __COMMON_MYINITGUID_H
-#  define INITGUID
-#  include "Common/MyGuidDef.h"
+#define __COMMON_MYINITGUID_H
+#define INITGUID
+#include "Common/MyGuidDef.h"
 
-#  define ENV_UNIX
-#endif
+#define ENV_UNIX
 
 #include "Common/IntToString.h"
 #include "Common/StringConvert.h"
@@ -61,14 +57,8 @@
 #include "Windows/FileFind.cpp"
 #include "Windows/FileName.cpp"
 #include "Windows/Time.cpp"
-#ifdef FREEARC_WIN
-#include "Windows/Registry.cpp"
-#else
 #include "myWindows/wine_date_and_time.cpp"
-#endif
-#ifndef FREEARC_WIN
 #include "../C/Threads.c"
-#endif
 #include "7zip/Common/FileStreams.cpp"
 #include "7zip/Common/StreamUtils.cpp"
 #include "7zip/Common/ProgressUtils.cpp"
@@ -185,9 +175,7 @@ static void szInitLibrary()
 
   if (!codecs)
   {
-#ifndef FREEARC_WIN
     global_use_utf16_conversion = 1;
-#endif
     codecs = new CCodecs;
     CMyComPtr<ICompressCodecsInfo> *compressCodecsInfo = new CMyComPtr<ICompressCodecsInfo> (codecs);
     HRESULT result = codecs->Load();

@@ -412,24 +412,8 @@ PROCESS::PROCESS (COMMAND* _cmd, BASEUI* _UI, uint64 &total_files, uint64 &origs
 // Для SFX пробует соответствующий .arc файл если SFX-модуль не содержит архива
 void PROCESS::OpenArchive()
 {
-#ifdef FREEARC_SFX
-  SET_JMP_POINT_GOTO(try_arc);
-try_exe:
-#endif
   arcinfo.arcfile.open (cmd->arcname, READ_MODE);            // Откроем файл архива
   arcinfo.read_structure (global_GenerateDecryption, this);  // Прочитаем структуру архива
-#ifdef FREEARC_SFX
-  RESET_JMP_POINT();
-  return;
-
-try_arc:                                                     // Откроем файл с тем же именем что SFX, но расширением .arc
-  SET_JMP_POINT_GOTO(try_exe);                               // При ошибке с .arc снова попытаемся открыть .exe чтобы вывести сообщение об ошибке с .exe
-  arcinfo.arcfile.setname (cmd->arcname);
-  arcinfo.arcfile.change_executable_ext (FREEARC_FILE_EXTENSION);
-  arcinfo.arcfile.open (READ_MODE);
-  arcinfo.read_structure (global_GenerateDecryption, this);
-  RESET_JMP_POINT();
-#endif
 }
 
 

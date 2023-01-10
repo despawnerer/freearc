@@ -236,10 +236,8 @@ szListArchive arcname callback = do
 
 -- |Open archive
 szOpenArchive command_or_callback arcname = do
-#if !defined(FREEARC_WIN)
   sz_so <- findOrCreateFile libraryFilePlaces "7z.so"
   mySetEnv "P7ZIP_HOME_DIR" (dropFileName sz_so) True      -- set directory to search for 7z.so (system-wide 7z.so may be incompatible with our program!!!)
-#endif
   withCWString arcname $ \c_arcname -> do
   alloca $ \archive -> do
   szCallback <- case command_or_callback of

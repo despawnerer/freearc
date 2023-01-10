@@ -19,9 +19,7 @@ import Data.List
 import Data.Maybe
 import System.Mem
 import System.IO
-#if defined(FREEARC_UNIX)
 import System.Posix.Files hiding (fileExist)
-#endif
 
 import Utils
 import Files
@@ -357,14 +355,12 @@ renameArchiveAsSFX command arcname = do
   when (newname/=arcname) $ do
     condPrintLineLn "n"$ "Renaming "++arcname++" to "++newname
     fileRename arcname newname
-#if defined(FREEARC_UNIX)
   -- Добавить или убрать "+x" из атрибутов файла, если его sfx-префикс изменился
   when (opt_sfx command /= "--") $ do
     let isSFX   = opt_sfx command /= "-"
     oldmode    <- fmap fileMode (fileGetStatus newname)
     let newmode = foldl (iif isSFX unionFileModes removeFileModes) oldmode executeModes
     fileSetMode newname newmode
-#endif
 
 -- |Протестировать только что созданный архив, находящийся в файле по имени `temp_arcname`
 testArchive command temp_arcname pretestArchive = do

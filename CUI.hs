@@ -16,13 +16,8 @@ import Numeric           (showFFloat)
 import System.CPUTime    (getCPUTime)
 import System.IO
 import System.Time
-#ifdef FREEARC_WIN
-import System.Win32.Types
-#endif
-#ifdef FREEARC_UNIX
 import System.Posix.IO
 import System.Posix.Terminal
-#endif
 
 import Utils
 import Charsets
@@ -192,17 +187,6 @@ getHiddenLine = go ""
                     c    -> go (s++[c])
 
 
-#ifdef FREEARC_WIN
-
--- |Перевести консоль в режим невидимого ввода
-withoutEcho = id
--- |Ввести символ без эха
-getHiddenChar = liftM (chr.fromEnum) c_getch
-foreign import ccall unsafe "conio.h getch"
-   c_getch :: IO CInt
-
-#else
-
 getHiddenChar = getChar
 
 withoutEcho action = do
@@ -216,8 +200,6 @@ withoutEcho action = do
                        return origAttr
   --
   bracketCtrlBreak "restoreEcho" disableEcho setAttr (\_ -> action)
-
-#endif
 
 {-# NOINLINE ask_passwords #-}
 
@@ -249,12 +231,8 @@ uiInputArcComment old_comment = syncUI $ pauseEverything $ do
 ----- External functions ---------------------------------------------------------------------------
 ----------------------------------------------------------------------------------------------------
 
-#ifdef FREEARC_WIN
-type TString = Ptr TCHAR
-#else
 withTString  = withCString
 type TString = CString
-#endif
 
 
 -- |Set console title

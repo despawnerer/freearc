@@ -2,7 +2,7 @@
 exe=4x4
 ctempdir=/tmp/out/FreeArc
 tempdir=$ctempdir$1$2$3
-defines="-DFREEARC_UNIX -DFREEARC_INTEL_BYTE_ORDER -optc-DFREEARC_UNIX -optc-DFREEARC_INTEL_BYTE_ORDER"
+defines="-DFREEARC_INTEL_BYTE_ORDER -optc-DFREEARC_INTEL_BYTE_ORDER"
 # ****** -DFREEARC_MOTOROLA_BYTE_ORDER -DFREEARC_ONLY_ALIGNED_ACCESS *******
 mkdir $ctempdir
 cd ..

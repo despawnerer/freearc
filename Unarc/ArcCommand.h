@@ -1,10 +1,4 @@
-// SFX module is just unarc.cpp compiled with FREEARC_SFX defined
-#ifdef FREEARC_SFX
-#define NAME           "SFX"
-#else
 #define NAME           "unpacker"
-#endif
-
 #define HEADER1        "FreeArc 0.67 "
 #define HEADER2        "  http://freearc.org  2014-03-16\n"
 
@@ -14,11 +8,7 @@
 ******************************************************************************/
 class COMMAND;
 
-#if defined(FREEARC_WIN) && defined(FREEARC_GUI)
-typedef CFILENAME MYFILENAME;
-#else
 typedef  FILENAME MYFILENAME;
-#endif
 
 class BASEUI
 {
@@ -128,23 +118,6 @@ void RegisterExternalCompressors (char *progname, char *cfg_option)
 ******************************************************************************/
 COMMAND::COMMAND (int argc, char *argv[])
 {
-#if defined(FREEARC_WIN) && !defined(FREEARC_LIBRARY)
-  // Instead of those ANSI-codepage encoded argv[] strings provide true UTF-8 data!
-  WCHAR **argv_w = CommandLineToArgvW (GetCommandLineW(), &argc);
-  argv_w[0] = (WCHAR*) malloc (MY_FILENAME_MAX * 4);
-  GetExeName (argv_w[0], MY_FILENAME_MAX * 2);
-
-  argv = (char**) malloc ((argc+1) * sizeof(*argv));
-  for (int i=0; i<argc; i++)
-  {
-    argv[i] = (char*) malloc (_tcslen (argv_w[i]) * 4 + 1);
-    utf16_to_utf8 (argv_w[i], argv[i]);
-    argv[i] = (char*) realloc (argv[i], strlen(argv[i]) + 1);
-  }
-  argv[argc] = NULL;
-  free (argv_w[0]);
-#endif
-
   // Default options
   noarcext  = FALSE;
   nooptions = FALSE;
@@ -164,107 +137,6 @@ COMMAND::COMMAND (int argc, char *argv[])
   int error = 0;
   char *cfg = NULL;
   char *progname = argv[0];
-#ifdef FREEARC_SFX
-  arcname = argv[0];
-  cmd     = 'x';
-
-#ifdef FREEARC_INSTALLER
-  // Installer by default extracts itself into some temp directory, runs setup.exe and then removes the directory's contents
-  if (argv[1] == NULL)
-  {
-      silent = 2;
-
-      // Create unique tempdir
-      if (!outpath.create_tempdir()) {
-#ifdef FREEARC_GUI
-        MessageBoxW (NULL, _T("Error creating temporary directory"), _T("Extraction impossible"), MB_OK | MB_ICONERROR);
-#else
-        printf("Error creating temporary directory");
-#endif
-        ok = false;
-        return;
-      }
-      tempdir = TRUE;
-
-      // Run setup.exe from this dir
-      runme.setname (outpath, "setup.exe");
-
-#ifndef FREEARC_INSTALLER_NODELETE
-      // Delete extracted files afterwards
-      wipeoutdir = TRUE;
-#endif
-  }
-#endif // FREEARC_INSTALLER
-
-  // Parse SFX options
-  for (ok=TRUE; ok && *++argv; )
-  {
-    if (!nooptions && (argv[0][0]=='-' || strequ(argv[0],"/?") || strequ(argv[0],"/help")))
-    {
-           if (strequ(argv[0],"-l"))       cmd = 'l', silent = silent || 2;
-      else if (strequ(argv[0],"-v"))       cmd = 'v', silent = silent || 2;
-      else if (strequ(argv[0],"-e"))       cmd = 'e', silent = silent || 2;
-      else if (strequ(argv[0],"-x"))       cmd = 'x', silent = silent || 2;
-      else if (strequ(argv[0],"-t"))       cmd = 't', silent = silent || 2;
-      else if (strequ(argv[0],"-y"))       yes = TRUE;
-      else if (strequ(argv[0],"-n"))       no  = TRUE;
-      else if (start_with(argv[0],"-d"))   outpath.setname(argv[0]+2);
-      else if (start_with(argv[0],"-w"))   workdir.setname(argv[0]+2);
-      else if (start_with(argv[0],"-p"))   strncopy (pwd, argv[0]+2, PASSWORDBUF_SIZE);
-      else if (start_with(argv[0],"-ap"))  strcpy (arc_base_dir, argv[0]+3),  (arc_base_dir[0]  &&  is_path_char(last_char(arc_base_dir))  &&  (last_char(arc_base_dir) = '\0'));
-      else if (strequ(argv[0],"-ld-"))     noLimitMem = TRUE;
-      else if (start_with(argv[0],"-ld"))  limitMem = parseMem(argv[0]+3, &error, 'm'), ok=!error;
-      else if (start_with(argv[0],"-cfg")) cfg = argv[0]+4,  (strequ(cfg,"-")  &&  (cfg = ""));
-      else if (strequ(argv[0],"-s"))       silent = 1;
-      else if (strequ(argv[0],"-s0"))      silent = 0;
-      else if (strequ(argv[0],"-s1"))      silent = 1;
-      else if (strequ(argv[0],"-s2"))      silent = 2;
-      else if (strequ(argv[0],"--"))       nooptions=TRUE;
-      else ok=FALSE;
-    }
-    else break;
-  }
-
-  filenames = argv;            // the rest of arguments are filenames
-  if (ok)  {RegisterExternalCompressors (progname, cfg);  return;}
-
-  // Display help
-  char *helpMsg = (char*) malloc_msg(1000+strlen(arcname));
-  sprintf (helpMsg,
-#ifdef FREEARC_GUI
-         HEADER1 NAME HEADER2
-#else
-         HEADER2
-#endif
-         "Usage: %s [options] [filenames...]\n"
-         "Available options:\n"
-#ifndef FREEARC_GUI
-         "  -l          - display archive listing\n"
-         "  -v          - display verbose archive listing\n"
-#endif
-         "  -x          - extract files\n"
-         "  -e          - extract files without pathnames\n"
-         "  -t          - test archive integrity\n"
-         "  -ap{Path}   - set base directory inside archive\n"
-         "  -d{Path}    - set destination path\n"
-         "  -w{Path}    - set temporary files directory\n"
-         "  -p{Pwd}     - set decryption password\n"
-         "  -ld{Mem}    - limit memory used for decompression (-ld- means no limit)\n"
-         "  -y          - answer Yes on all overwrite queries\n"
-         "  -n          - answer No  on all overwrite queries\n"
-         "  -s[1,2]     - silent mode\n"
-         "  -cfg{Path}  - config file name (default: arc.ini, -cfg- means no config)\n"
-         "  --          - no more options\n"
-         , drop_dirname(arcname));
-#ifdef FREEARC_GUI
-  MessageBoxW (NULL, MYFILE(helpMsg).displayname(), _T("Command-line help"), MB_OK | MB_ICONERROR);
-#else
-  printf("%s", MYFILE(helpMsg).displayname());
-#endif
-
-
-#else  // !FREEARC_SFX
-
 
   // Parse unarc.exe/unarc.dll options
   cmd     = ' ';
@@ -315,7 +187,6 @@ COMMAND::COMMAND (int argc, char *argv[])
          "  -cfg{Path}  - config file name (default: arc.ini, -cfg- means no config)\n"
          "  --          - no more options\n");
 #endif // FREEARC_LIBRARY
-#endif
 }
 
 

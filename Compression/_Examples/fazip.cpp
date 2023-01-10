@@ -350,11 +350,6 @@ int main(int argc, char *argv[])
     else if (strequ(argv[1], "-i1"))    indicator = INDICATOR_ONLY_ERROR;
     else if (strequ(argv[1], "-i2"))    indicator = INDICATOR_ONLY_LAST;
     else if (strequ(argv[1], "-i3"))    indicator = INDICATOR_FULL;
-#ifdef FREEARC_WIN
-    else if (strequ(argv[1], "-slp-"))  DefaultLargePageMode = DISABLE;
-    else if (strequ(argv[1], "-slp" ))  DefaultLargePageMode = TRY;
-    else if (strequ(argv[1], "-slp+"))  DefaultLargePageMode = FORCE;
-#endif
     else if (strequ(argv[1], "-delete"))   delete_input_file = true;
     else if (strequ(argv[1], "-nocrc"))    checksum_type = CHECKSUM_TYPE_NONEE,  nocrc = true;
     else if (start_with(argv[1], "-rem"))  /* ignore option */;
@@ -399,10 +394,6 @@ int main(int argc, char *argv[])
             "  -i0: print nothing\n"
             "  -i1: print only error messages\n"
             "  -i2: print only errors and final stats\n"
-#ifdef FREEARC_WIN
-            "  -slp-: don't alloc large pages (2mb/4mb)\n"
-            "  -slp+: alloc only large pages (2mb/4mb)\n"
-#endif
             "  -rem...: command-line remark\n"
             "\n"
             "Notes: all FreeArc compression methods are supported, for example rep:512m+delta+tempfile+4x4:lzma:8\n"

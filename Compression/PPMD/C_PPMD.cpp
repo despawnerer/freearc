@@ -45,13 +45,9 @@ void _STDCALL PrintInfo (_PPMD_FILE* DecodedFile, _PPMD_FILE* EncodedFile)      
 #define _USE_THREAD_KEYWORD
 
 namespace PPMD_de_compression {
-#if defined(PPMD_MT) || defined(FREEARC_UNIX)
 #include "Model.cpp"
 INSERT(ppmd_de_compress,(void)0)
 #undef _PPMD_H_
-#else
-static FARPROC ppmd_de_compress = NULL;
-#endif
 }
 
 

@@ -92,11 +92,6 @@ static void start_print_stats (Results &r)
   r.insize = r.outsize = r.progress_insize = r.progress_outsize = r.last_insize = r.last_outsize = 0;
   r.show_exact_percent = FALSE;
   r.start_time = r.lasttime = r.lasttime2 = GetSomeTime();
-#ifdef FREEARC_WIN
-  if (strequ (r.filename, "-"))   // On windows, get_flen cannot return real filesize in situations like "type file|tor"
-      r.filesize = -1;
-  else
-#endif
       r.filesize = get_flen(r.fin);
   sprintf(r.method_name, r.mode==_COMPRESS? "-%d: " : "", r.method.number);
 }
@@ -327,11 +322,6 @@ int main (int argc, char **argv)
             else if (strcasecmp(param,"s+")==0)     r.method.hash3 = 1;
             else if (strcasecmp(param,"s-")==0)     r.method.hash3 = 0;
             else if (start_with(param,"fb"))        r.method.fast_bytes = check_parse_int (param+2, MIN_FAST_BYTES, MAX_FAST_BYTES, *argv_ptr);
-#ifdef FREEARC_WIN
-            else if (strcasecmp(param,"slp-")==0)   DefaultLargePageMode = DISABLE;
-            else if (strcasecmp(param,"slp" )==0)   DefaultLargePageMode = TRY;
-            else if (strcasecmp(param,"slp+")==0)   DefaultLargePageMode = FORCE;
-#endif
             else if (start_with(param,"rem"))       /* ignore option */;
             else if (isdigit(*param))            ; // -1..-16 option is already processed :)
             else switch( tolower(*param++) ) {
@@ -415,9 +405,6 @@ check_for_errors:
 #else
                 "   -q      -- be quiet; -q[thpr]* disables title/header/progress/results individually\n"
                 "   -cpu    -- compute raw CPU time (for benchmarking)\n"
-#endif
-#ifdef FREEARC_WIN
-                "   -slp[+/-/]   -- force/disable/try(default) large pages support (2mb/4mb)\n"
 #endif
                 "   -rem... -- command-line remark\n"
                 "   -h      -- display this help\n"

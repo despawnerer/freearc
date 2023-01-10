@@ -45,35 +45,7 @@ bool CUI::AllowProcessing (char cmd, int silent, FILENAME arcname, char* comment
   printf (". %s archive: %s\n",                       // Выведем имя обрабатываемого архива
     cmd=='l'||cmd=='v'? "Listing" : cmd=='t' ? "Testing" : "Extracting", drop_dirname(arcname));
   if (cmtsize>0)                                      // Выведем архивный комментарий
-#ifdef FREEARC_WIN
-{
-    // Convert comment from UTF-8 to OEM encoding before printing
-    char *oemname = (char*) malloc(cmtsize+1);
-    strncpy (oemname, comment, cmtsize);
-    oemname[cmtsize] = 0;
-    utf8_to_oem (oemname, oemname);
-    printf ("%s\n", oemname);
-    free (oemname);
-}
-#else
     printf("%*.*s\n", cmtsize, cmtsize, comment);
-#endif
-
-#ifdef FREEARC_SFX
-  // В SFX необходимо запросить согласие пользователя перед началом распаковки
-  if (!silent)
-  {
-    char answer[256];
-    printf ("Continue extraction (y/n)? ");
-    gets (answer);
-    if (! (strequ(answer,"y") || strequ(answer,"Y")))
-    {
-      printf ("Extraction aborted!\n");
-      return FALSE;
-    }
-    printf("\n");
-  }
-#endif
   return TRUE;
 }
 

@@ -29,9 +29,6 @@ import FileInfo
 import Compression
 import Arhive7zLib
 import Options
-#if defined(FREEARC_WIN)
-import System.Win32.File    (fILE_ATTRIBUTE_ARCHIVE)
-#endif
 
 
 -- |Разбирает командную строку и возвращает список заданных в ней команд в виде структур Command.
@@ -116,12 +113,9 @@ parseCmdline cmdline  =  (`mapMaybeM` split ";" cmdline) $ \args -> do
   -----------------------------------------------------------------------------------------------------------
   -----------------------------------------------------------------------------------------------------------
 
-  -- Настройки, сделанные в GUI Settings dialog
-  gui_options <- not no_configs &&& readGuiOptions
-
   -- Добавим в начало командной строки опции по умолчанию для всех команд, опции из freearc.ini (в GUI-версии),
   -- опции по умолчанию для этой команды и содержимое переменной среды
-  let additional_args  =  words config_1st_line ++ gui_options ++ words default_cmd_options ++ words env_options
+  let additional_args  =  words config_1st_line ++ words default_cmd_options ++ words env_options
 
   -- Разберём командную строку, получив набор опций и список "свободных аргументов"
   (o, freeArgs)  <-  parseOptions (additional_args++args) option_checks [] []
@@ -506,13 +500,7 @@ parseCmdline cmdline  =  (`mapMaybeM` split ";" cmdline) $ \args -> do
   let match_included  =  orig_include_list &&& [match_filespecs match_with include_list]
       match_excluded  =  exclude_list      &&& [match_filespecs match_with exclude_list]
 
-#if defined(FREEARC_WIN)
-  -- Отбор файлов по атрибутам
-  let attrib_filter | select_archive_bit = [\attr -> attr.&.fILE_ATTRIBUTE_ARCHIVE /= 0]
-                    | otherwise          = []
-#else
   let attrib_filter = []
-#endif
 
   -- Отбор файлов по размеру
   let size_filter _  "--"   = []

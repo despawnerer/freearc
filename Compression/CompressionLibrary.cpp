@@ -850,39 +850,10 @@ COMPRESSION_METHOD *ParseCompressionMethod (char* method)
 // Loading compression methods from external DLLs                                                                             *
 // ****************************************************************************************************************************
 
-#ifdef FREEARC_WIN
-HINSTANCE hinstUnarcDll = NULL;   // unarc.dll instance
-static bool loaded = FALSE;
-static HMODULE dll = NULL,  mt_dll = NULL;
-#endif
-
 // Load accelerated function either from facompress.dll or facompress_mt.dll
 FARPROC LoadFromDLL (char *funcname, int only_facompress_mt)
 {
-#ifdef FREEARC_WIN  // Non-Windows platforms aren't yet supported
-  if (!loaded)
-  {
-    loaded = TRUE;
-
-    // Get program's executable filename
-    wchar_t path[MY_FILENAME_MAX];
-    GetModuleFileNameW (hinstUnarcDll, path, MY_FILENAME_MAX);
-
-    // Load facompress.dll from the same directory as executable/unarc.dll
-    wchar_t *basename = _tcsrchr (path,L'\\')+1;
-    _tcscpy (basename, L"facompress.dll");
-    dll = LoadLibraryW(path);
-
-    // Load facompress_mt.dll from the same directory as executable/unarc.dll
-    _tcscpy (basename, L"facompress_mt.dll");
-    mt_dll = LoadLibraryW(path);
-  }
-
-  FARPROC f = GetProcAddress (dll, funcname);
-  return f && !only_facompress_mt? f : GetProcAddress (mt_dll, funcname);
-#else
   return NULL;
-#endif
 }
 
 
@@ -894,11 +865,6 @@ void (*BeforeUnloadDLL)() = &NOP;
 void UnloadDLL (void)
 {
   (*BeforeUnloadDLL)();
-#ifdef FREEARC_WIN
-  loaded = FALSE;
-  FreeLibrary(dll);        dll = NULL;
-  FreeLibrary(mt_dll);  mt_dll = NULL;
-#endif
 }
 
 // This function cleans up the Compression Library

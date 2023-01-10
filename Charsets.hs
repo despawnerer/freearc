@@ -38,9 +38,6 @@ import System.Time
 import System.Process
 import System.Directory
 import System.Environment
-#if defined(FREEARC_WIN)
-import System.Win32
-#endif
 
 import Utils
 import Files
@@ -74,24 +71,7 @@ setGlobalCharsets charsets = do
 
 
 -- Получение командной строки
-#ifdef FREEARC_WIN
-myGetArgs = do
-   alloca $ \p_argc -> do
-   p_argv_w <- commandLineToArgvW getCommandLineW p_argc
-   argc     <- peek p_argc
-   argv_w   <- peekArray (i argc) p_argv_w
-   mapM peekTString argv_w >>== tail
-
-foreign import stdcall unsafe "windows.h GetCommandLineW"
-  getCommandLineW :: LPTSTR
-
-foreign import stdcall unsafe "windows.h CommandLineToArgvW"
-  commandLineToArgvW :: LPCWSTR -> Ptr CInt -> IO (Ptr LPWSTR)
-
-#else
 myGetArgs = getArgs >>= mapM cmdline2str
-#endif
-
 
 ---------------------------------------------------------------------------------------------------
 ---- Парсер опции командной строки -sc/--charset --------------------------------------------------
@@ -207,8 +187,6 @@ aCHARSETS = [ ('0', TRANSLATION id               id)
             ] ++ aLOCAL_CHARSETS
 
 
-#ifdef FREEARC_UNIX
-
 aLOCAL_CHARSETS = []
 
 -- |Default charsets for various domains
@@ -220,8 +198,6 @@ aCHARSET_DEFAULTS = [ ('f','8')  -- filenames in filesystem: UTF-8
                     , ('p','8')  -- program arguments: UTF-8
                     , ('i','8')  -- ini/group files: UTF-8
                     ]
-
-#else
 
 -- |Windows-specific charsets
 aLOCAL_CHARSETS = [ ('o', TRANSLATION oem2unicode  unicode2oem)
@@ -300,9 +276,6 @@ foreign import stdcall unsafe "winuser.h OemToCharBuffA"
 
 foreign import stdcall unsafe "winuser.h CharToOemBuffA"
   c_AnsiToOemBuff :: CString -> CString -> DWORD -> IO Bool
-
-#endif
-
 
 ---------------------------------------------------------------------------------------------------
 ---- UTF-8, UTF-16 codecs; URL encoding -----------------------------------------------------------

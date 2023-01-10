@@ -1,7 +1,6 @@
 include ../common.mak
 
-windows: mkdir unarc.exe unarc.dll FreeArc.fmt arc.sfx arc-mini.sfx arc-tiny.sfx freearc.sfx freearc-mini.sfx freearc-tiny.sfx freearc-installer.sfx freearc-installer-nodelete.sfx
-unix: mkdir unarc arc.linux.sfx arc-mini.linux.sfx arc-tiny.linux.sfx
+unix: mkdir unarc
 
 Extractor_DEFINES = -DFREEARC_DECOMPRESS_ONLY -D_NO_EXCEPTIONS -DUNARC
 OBJDIR  = $(TEMPDIR)-unarc
@@ -12,17 +11,14 @@ LINKOBJ_MINI = $(LINKOBJ_TINY) $(OBJDIR)/C_REP.o $(OBJDIR)/C_LZP.o $(OBJDIR)/C_P
 LINKOBJ      = $(LINKOBJ_MINI) $(OBJDIR)/C_MM.o $(OBJDIR)/C_TTA.o $(OBJDIR)/C_Tornado.o $(OBJDIR)/C_GRZip.o $(OBJDIR)/C_4x4.o \
                                $(OBJDIR)/C_DisPack.o $(OBJDIR)/C_LZ4.o $(OBJDIR)/C_Encryption.o $(OBJDIR)/C_CLS.o
 
-FAR_PLUGIN = FarPlugin.cpp ArcStructure.h
 UNARC = ArcStructure.h ArcCommand.h ArcProcess.h
 CUI = CUI.h
-GUI = gui\gui.h gui\gui.cpp
 HEADERS =  ../Compression/Compression.h ../Compression/Common.h
 
 LINK_FLAGS = -L$(LIBDIR) -Xlinker --large-address-aware -lstdc++ -s
 UNIX_LINK_FLAGS = -L$(LIBDIR) -lstdc++ -lrt -lpthread -s
 
 CONSOLE_LINK_FLAGS = $(LINK_FLAGS) -lole32
-GUI_LINK_FLAGS     = $(LINK_FLAGS) -lole32 -lcomctl32 -mwindows
 
 
 CODE_FLAGS  = -fno-exceptions -fno-rtti -Wall \
@@ -41,110 +37,14 @@ UPX = cmd /c rem
 mkdir:
 	-mkdir $(OBJDIR)
 
-
-
-# Windows executables
-unarc.exe: $(OBJDIR)/unarc.o $(LINKOBJ)
-	$(GCC) $^ $(CONSOLE_LINK_FLAGS) -o $@
-
-unarc.dll: unarcdll.cpp unarcdll.h $(UNARC) $(HEADERS) $(LINKOBJ)
-	$(GCC) -c $(CFLAGS) -DFREEARC_LIBRARY -DUNARC_DECRYPTION -o $(OBJDIR)/unarcdll.o $<
-	$(DLLWRAP) --driver-name $(GCC_EXE) $(OBJDIR)/unarcdll.o $(LINKOBJ) -lstdc++ -lole32 -def unarc.def -s -o $@
-
-FreeArc.fmt: $(OBJDIR)/FarPlugin.o FarPlugin.def $(LINKOBJ_FAR_PLUGIN)
-	$(DLLWRAP) --driver-name $(GCC_EXE) $< $(LINKOBJ_FAR_PLUGIN) -lstdc++ -lole32 -def FarPlugin.def -s -o $@
-
-arc.sfx: $(OBJDIR)/ArcSFX.o $(LINKOBJ)
-	$(GCC) $^ $(CONSOLE_LINK_FLAGS) -o $@
-	$(UPX) $@
-
-arc-mini.sfx: $(OBJDIR)/ArcMiniSFX.o $(LINKOBJ_MINI)
-	$(GCC) $^ $(CONSOLE_LINK_FLAGS) -o $@
-	$(UPX) $@
-
-arc-tiny.sfx: $(OBJDIR)/ArcTinySFX.o $(LINKOBJ_TINY)
-	$(GCC) $^ $(CONSOLE_LINK_FLAGS) -o $@
-	$(UPX) $@
-
-freearc.sfx: $(OBJDIR)/FreeArcSFX.o $(OBJDIR)/res.o $(LINKOBJ)
-	$(GCC) $^ $(GUI_LINK_FLAGS) -o $@
-	$(UPX) $@
-
-freearc-mini.sfx: $(OBJDIR)/FreeArcMiniSFX.o $(OBJDIR)/res-small.o $(LINKOBJ_MINI)
-	$(GCC) $^ $(GUI_LINK_FLAGS) -o $@
-	$(UPX) $@
-
-freearc-tiny.sfx: $(OBJDIR)/FreeArcTinySFX.o $(OBJDIR)/res-small.o $(LINKOBJ_TINY)
-	$(GCC) $^ $(GUI_LINK_FLAGS) -o $@
-	$(UPX) $@
-
-freearc-installer.sfx: $(OBJDIR)/FreeArcInstaller.o $(OBJDIR)/res.o $(LINKOBJ)
-	$(GCC) $^ $(GUI_LINK_FLAGS) -o $@
-	$(UPX) $@
-
-freearc-installer-nodelete.sfx: $(OBJDIR)/FreeArcInstallerNoDelete.o $(OBJDIR)/res.o $(LINKOBJ)
-	$(GCC) $^ $(GUI_LINK_FLAGS) -o $@
-	$(UPX) $@
-
-
-
-# Linux executables
+# Executable
 unarc: $(OBJDIR)/unarc.o $(LINKOBJ)
 	$(GCC) $< $(LINKOBJ) $(UNIX_LINK_FLAGS) -o $@
 
-arc.linux.sfx: $(OBJDIR)/ArcSFX.o $(LINKOBJ)
-	$(GCC) $< $(LINKOBJ)      $(UNIX_LINK_FLAGS) -o $@
-	chmod -x $@
-
-arc-mini.linux.sfx: $(OBJDIR)/ArcSFX.o $(LINKOBJ_MINI)
-	$(GCC) $< $(LINKOBJ_MINI) $(UNIX_LINK_FLAGS) -o $@
-	chmod -x $@
-
-arc-tiny.linux.sfx: $(OBJDIR)/ArcTinySFX.o $(LINKOBJ_TINY)
-	$(GCC) $< $(LINKOBJ_TINY) $(UNIX_LINK_FLAGS) -o $@
-#	upx -9 --lzma arc*.linux.sfx
-	chmod -x $@
-
-
 
 # Object files
-$(OBJDIR)/res.o: gui/main.rc gui/common.rc
-	$(WINDRES) -Igui $< $@
-	$(WINDRES) -Igui gui\icon.rc gui\icon.o
-
-$(OBJDIR)/res-small.o: gui/main-small.rc gui/common.rc
-	$(WINDRES) -Igui $< $@
-
-$(OBJDIR)/FarPlugin.o: $(FAR_PLUGIN) $(HEADERS)
-	$(GCC) -c $(CFLAGS) -IHeaders.c -o $*.o $<
-
 $(OBJDIR)/unarc.o: unarc.cpp $(UNARC) $(CUI) $(HEADERS)
 	$(GCC) -c $(CFLAGS) -DUNARC_DECRYPTION -o $*.o $<
-
-$(OBJDIR)/ArcSFX.o: unarc.cpp $(UNARC) $(CUI) $(HEADERS)
-	$(GCC) -c $(CFLAGS1) -DFREEARC_SFX -DUNARC_DECRYPTION -o $*.o $<
-
-$(OBJDIR)/ArcMiniSFX.o: unarc.cpp $(UNARC) $(CUI) $(HEADERS)
-	$(GCC) -c $(CFLAGS1) -DFREEARC_SFX -o $*.o $<
-
-$(OBJDIR)/ArcTinySFX.o: unarc.cpp $(UNARC) $(CUI) $(HEADERS)
-	$(GCC) -c $(CFLAGS1) -DFREEARC_SFX -DFREEARC_TINY -o $*.o $<
-
-$(OBJDIR)/FreeArcSFX.o: unarc.cpp $(UNARC) $(GUI) $(HEADERS)
-	$(GCC) -c $(CFLAGS1) -DFREEARC_SFX -DFREEARC_GUI -DUNARC_DECRYPTION -Igui -o $*.o $<
-
-$(OBJDIR)/FreeArcMiniSFX.o: unarc.cpp $(UNARC) $(GUI) $(HEADERS)
-	$(GCC) -c $(CFLAGS1) -DFREEARC_SFX -DFREEARC_GUI -Igui -o $*.o $<
-
-$(OBJDIR)/FreeArcTinySFX.o: unarc.cpp $(UNARC) $(GUI) $(HEADERS)
-	$(GCC) -c $(CFLAGS1) -DFREEARC_SFX -DFREEARC_TINY -DFREEARC_GUI -Igui -o $*.o $<
-
-$(OBJDIR)/FreeArcInstaller.o: unarc.cpp $(UNARC) $(GUI) $(HEADERS)
-	$(GCC) -c $(CFLAGS1) -DFREEARC_SFX -DFREEARC_INSTALLER -DFREEARC_GUI -DUNARC_DECRYPTION -Igui -o $*.o $<
-
-$(OBJDIR)/FreeArcInstallerNoDelete.o: unarc.cpp $(UNARC) $(GUI) $(HEADERS)
-	$(GCC) -c $(CFLAGS1) -DFREEARC_SFX -DFREEARC_INSTALLER -DFREEARC_INSTALLER_NODELETE -DFREEARC_GUI -DUNARC_DECRYPTION -Igui -o $*.o $<
-
 
 $(OBJDIR)/Environment.o: ../Environment.cpp ../Environment.h $(HEADERS)
 	$(GCC) -c $(CFLAGS1) -o $*.o $<

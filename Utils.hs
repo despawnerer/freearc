@@ -30,23 +30,13 @@ import CompressionLib (MemSize,b,kb,mb,gb,tb)
 ---- Проверим define's ----------------------------------------------------------------------------
 ---------------------------------------------------------------------------------------------------
 
-#if !defined(FREEARC_WIN) && !defined(FREEARC_UNIX)
-#error "You must define OS!"
-#endif
-
 #if !defined(FREEARC_INTEL_BYTE_ORDER) && !defined(FREEARC_MOTOROLA_BYTE_ORDER)
 #error "You must define byte order!"
 #endif
 
-#ifndef HAMSTER
 aFreeArc = "FreeArc"
 aFreeArcExt = aFreeArcInternalExt
 aFreeArcExtensions = [aFreeArcExt]
-#else
-aFreeArc = "Hamster Free Archiver"
-aFreeArcExt = aZipExt
-aFreeArcExtensions = [] :: [String]
-#endif
 
 aFreeArcInternalExt = "arc"
 aZipExt             = "zip"
@@ -341,11 +331,7 @@ bg action = do
   forkIO (action >>= putMVar resultVar)
   takeMVar resultVar
 
-#ifdef FREEARC_GUI
-isGUI = True
-#else
 isGUI = False
-#endif
 
 {-# NOINLINE foreverM #-}
 {-# NOINLINE repeat_while #-}

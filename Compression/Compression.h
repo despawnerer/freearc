@@ -322,10 +322,6 @@ extern void (*BeforeUnloadDLL)();
 // This function unloads DLLs containing accelerated compression functions
 void UnloadDLL (void);
 
-#ifdef FREEARC_WIN
-extern HINSTANCE hinstUnarcDll;   // unarc.dll instance
-#endif
-
 // This function should cleanup Compression Library
 void compressionLib_cleanup (void);
 

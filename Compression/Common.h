@@ -19,16 +19,6 @@
 #define FREEARC_64BIT
 #endif
 
-#ifdef FREEARC_WIN
-#  include <windows.h>
-#  include <direct.h>
-#  include <float.h>
-#  ifndef __GNUC__
-#    define logb       _logb
-#  endif
-#  define strcasecmp stricmp
-#endif
-
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -36,9 +26,6 @@ extern "C" {
 /******************************************************************************
 ** Базовые определения FREEARC ************************************************
 ******************************************************************************/
-#if !defined(FREEARC_WIN) && !defined(FREEARC_UNIX)
-#error "You must define OS!"
-#endif
 
 #if defined(FREEARC_INTEL_BYTE_ORDER)
 #if _BIG_ENDIAN
@@ -52,27 +39,12 @@ extern "C" {
 #error "You must define byte order!"
 #endif
 
-#ifdef FREEARC_WIN
-#define WINDOWS_ONLY
-#else
 #define WINDOWS_ONLY(_)
-#endif
-
-#ifdef FREEARC_UNIX
 #define UNIX_ONLY
-#else
-#define UNIX_ONLY(_)
-#endif
 
-#ifdef FREEARC_WIN
-#define UNSUPPORTED_PATH_DELIMITERS   "/"
-#define PATH_DELIMITER                '\\'
-#define STR_PATH_DELIMITER            "\\"
-#else
 #define UNSUPPORTED_PATH_DELIMITERS   ":\\"
 #define PATH_DELIMITER                '/'
 #define STR_PATH_DELIMITER            "/"
-#endif
 
 #define  DIRECTORY_DELIMITERS         "/\\"
 #define  ALL_PATH_DELIMITERS          ":/\\"
@@ -109,11 +81,7 @@ typedef unsigned __int8      uint8,  byte, BYTE;
 typedef size_t               MemSize;          // объём памяти
 typedef uint64               LongMemSize;
 #define MEMSIZE_MAX          UINT_MAX
-#ifdef FREEARC_WIN
-typedef int64                FILESIZE;         // размер файла
-#else
 typedef off_t                FILESIZE;
-#endif
 typedef char*                FILENAME;         // имя файла
 
 
@@ -203,45 +171,6 @@ static inline int is_subdir_of (char *subdir, char *dir)
 #define MY_FILENAME_MAX      65536              /* maximum length of filename */
 #define MAX_PATH_COMPONENTS  256                /* maximum number of directories in filename */
 
-#ifdef FREEARC_WIN
-
-#include <io.h>
-#include <fcntl.h>
-#include <tchar.h>
-#include <share.h>
-typedef TCHAR* CFILENAME;
-static inline int create_dir (CFILENAME name)   {return _tmkdir(name);}
-//The following definitions makes file open operations sometimes failing
-//#define file_open_read_binary(filename)         _fsopen ((filename), "rb", _SH_DENYWR)
-//#define file_open_write_binary(filename)        _fsopen ((filename), "wb", _SH_DENYWR)
-#ifndef __GNUC__
-#define file_seek(stream,pos)                   (_fseeki64(stream, (pos), SEEK_SET))
-#define file_seek_cur(stream,pos)               (_fseeki64(stream, (pos), SEEK_CUR))
-#else
-#define file_seek(stream,pos)                   (fseeko64(stream, (pos), SEEK_SET))
-#define file_seek_cur(stream,pos)               (fseeko64(stream, (pos), SEEK_CUR))
-#endif
-#define set_flen(stream,new_size)               (chsize( file_no(stream), new_size ))
-#define get_flen(stream)                        (_filelengthi64(fileno(stream)))
-#define myeof(file)                             (feof(file))
-#define get_ftime(stream,tstamp)                getftime( file_no(stream), (struct ftime *) &tstamp )
-#define set_ftime(stream,tstamp)                setftime( file_no(stream), (struct ftime *) &tstamp )
-#define set_binary_mode(file)                   setmode(fileno(file),O_BINARY)
-
-// Number of 100 nanosecond units from 01.01.1601 to 01.01.1970
-#define EPOCH_BIAS    116444736000000000ull
-
-static inline void WINAPI UnixTimeToFileTime( time_t time, FILETIME* ft )
-{
-  *(uint64*)ft = EPOCH_BIAS + time * 10000000ull;
-}
-
-
-#endif // FREEARC_WIN
-
-
-#ifdef FREEARC_UNIX
-
 #include <unistd.h>
 #include <fcntl.h>
 #include <sys/types.h>
@@ -281,8 +210,6 @@ static inline off_t myfilelength (int h)
   lseek (h, saved, SEEK_SET);
   return size<0? -1 : size;
 }
-
-#endif // FREEARC_UNIX
 
 #define file_open_read_binary(filename)         fopen ((filename), "rb")
 #define file_open_write_binary(filename)        fopen ((filename), "wb")
@@ -556,13 +483,7 @@ extern jmp_buf jumper;
 
 // Процедура сообщения о неожиданных ошибочных ситуациях
 #ifndef CHECK
-#  if defined(FREEARC_WIN) && defined(FREEARC_GUI)
-#    define CHECK(e,a,b)           {if (!(a))  {if (jmpready) longjmp(jumper,1);  char *s=(char*)malloc_msg(MY_FILENAME_MAX*4);  WCHAR *utf16=(WCHAR*) malloc_msg(MY_FILENAME_MAX*4);  sprintf b;  utf8_to_utf16(s,utf16);  MessageBoxW(NULL, utf16, L"Error encountered", MB_ICONERROR);  ON_CHECK_FAIL();  exit(FREEARC_EXIT_ERROR);}}
-#  elif defined(FREEARC_WIN)
-#    define CHECK(e,a,b)           {if (!(a))  {if (jmpready) longjmp(jumper,1);  char *s=(char*)malloc_msg(MY_FILENAME_MAX*4),  *oem=(char*)malloc_msg(MY_FILENAME_MAX*4);  sprintf b;  utf8_to_oem(s,oem);  printf("\n%s",oem);  ON_CHECK_FAIL();  exit(FREEARC_EXIT_ERROR);}}
-#  else
-#    define CHECK(e,a,b)           {if (!(a))  {if (jmpready) longjmp(jumper,1);  char s[MY_FILENAME_MAX*4];  sprintf b;  printf("\n%s",s);  ON_CHECK_FAIL();  exit(FREEARC_EXIT_ERROR);}}
-#  endif
+#  define CHECK(e,a,b)           {if (!(a))  {if (jmpready) longjmp(jumper,1);  char s[MY_FILENAME_MAX*4];  sprintf b;  printf("\n%s",s);  ON_CHECK_FAIL();  exit(FREEARC_EXIT_ERROR);}}
 #endif
 
 #ifndef ON_CHECK_FAIL
@@ -628,19 +549,10 @@ extern jmp_buf jumper;
 void *MyAlloc(size_t size) throw();
 void MyFree(void *address) throw();
 extern bool AllocTopDown;
-#ifdef FREEARC_WIN
-enum LPType {DEFAULT, FORCE, DISABLE, TRY};
-extern LPType DefaultLargePageMode;
-void *MidAlloc(size_t size) throw();
-void MidFree(void *address) throw();
-void *BigAlloc (int64 size, LPType LargePageMode=DEFAULT) throw();
-void BigFree(void *address) throw();
-#else
 #define MidAlloc(size) MyAlloc(size)
 #define MidFree(address) MyFree(address)
 #define BigAlloc(size) MyAlloc(size)
 #define BigFree(address) MyFree(address)
-#endif // !FREEARC_WIN
 
 
 // ****************************************************************************
@@ -789,14 +701,6 @@ static inline char int2char(int i) {return i>9? 'a'+(i-10) : '0'+i;}
 static inline int char2int(char c) {return isdigit(c)? c-'0' : tolower(c)-'a'+10;}
 static inline int buggy_char2int(char c) {return isdigit(c)? c-'0' : tolower(c)-'a';}
 
-#ifdef FREEARC_WIN
-// Windows charset conversion routines
-WCHAR *utf8_to_utf16 (const char  *utf8,  WCHAR *utf16);  // Converts UTF-8 string to UTF-16
-char  *utf16_to_utf8 (const WCHAR *utf16, char  *utf8);   // Converts UTF-16 string to UTF-8
-char  *utf8_to_oem   (const char  *utf8,  char  *oem);    // Converts UTF-8 string to OEM
-char  *oem_to_utf8   (const char  *oem,   char  *utf8);   // Converts OEM string to UTF-8
-#endif
-
 #ifndef FREEARC_NO_TIMING
 // Вывод заголовка окна
 void EnvSetConsoleTitle (CFILENAME title);  // Установить заголовок консольного окна
@@ -863,31 +767,12 @@ struct MYFILE
       strcat (utf8name, STR_PATH_DELIMITER);
     utf8lastname = str_end(utf8name);
   }
-
-#ifdef FREEARC_WIN
-#  ifdef FREEARC_GUI                 // Win32 GUI *****************************************
-  void setname (FILENAME _filename)  {strcpy (utf8lastname, _filename);
-                                      utf8_to_utf16 (utf8name, filename);}
-  CFILENAME displayname (void)       {return filename;}
-
-#  else                              // Win32 console *************************************
-  void setname (FILENAME _filename)  {strcpy (utf8lastname, _filename);
-                                      utf8_to_utf16 (utf8name, filename);
-                                      CharToOemW (filename, oemname);}
-  FILENAME displayname (void)        {return oemname;}
-#  endif
-
-#else                                // Linux *********************************************
   void setname (FILENAME _filename)  {strcpy (utf8lastname, _filename);  filename = utf8name;}
   FILENAME displayname (void)        {return utf8name;}
 
-#endif                               // END ***********************************************
 
   void init()                             {handle   = -1;
                                            is_temp  = FALSE;
-#ifdef FREEARC_WIN
-                                           filename = (TCHAR*) malloc_msg (MY_FILENAME_MAX*4);
-#endif
                                            oemname  = (char*)  malloc_msg (MY_FILENAME_MAX);
                                            utf8name = (char*)  malloc_msg (MY_FILENAME_MAX*4);
                                            utf8lastname = utf8name;
@@ -896,10 +781,6 @@ struct MYFILE
   void setname (MYFILE &base, FILENAME filename) {SetBaseDir (base.utf8name); setname (filename);}
 
   void change_executable_ext (FILENAME ext) {  // Changes extension of executable file (i.e. on Linux it probably has no extension, on Windows, in most cases - .exe)
-#ifdef FREEARC_WIN
-                                           char *p = strrchr(utf8lastname, '.');
-                                           if (p)  *p='\0';
-#endif
                                            strcat  (utf8lastname, ".");
                                            strcat  (utf8lastname, ext);
                                            setname (utf8lastname);}
@@ -917,20 +798,12 @@ struct MYFILE
   virtual bool exists ()                  {return file_exists(filename);}
   virtual bool rename (MYFILE &other)     {return rename_file(filename, other.filename);}
   virtual int  remove ()                  {return remove_file(filename);}
-#ifdef FREEARC_WIN
-  virtual int  remove_readonly_attrib ()  {return SetFileAttributes (filename, GetFileAttributes(filename) & ~FILE_ATTRIBUTE_READONLY & ~FILE_ATTRIBUTE_SYSTEM);}
-#else
   virtual int  remove_readonly_attrib ()  {/*struct stat buf; if (0==stat(filename, &buf))  chmod(filename, buf.st_mode & ~S_IWUSR & ~S_IWGRP & ~S_IWOTH);*/  return 0;}
-#endif
 
   bool tryOpen (MODE mode)    // Пытается открыть файл для чтения или записи
   {
     if (mode==WRITE_MODE)  BuildPathTo (filename);
-#ifdef FREEARC_WIN
-    handle = ::_wopen (filename, mode==READ_MODE? O_RDONLY|O_BINARY : O_WRONLY|O_BINARY|O_CREAT|O_TRUNC, S_IREAD|S_IWRITE);
-#else
     handle =   ::open (filename, mode==READ_MODE? O_RDONLY : O_WRONLY|O_CREAT|O_TRUNC, S_IREAD|S_IWRITE);
-#endif
     return handle>=0;
   }
 
@@ -956,15 +829,9 @@ struct MYFILE
   bool isopen()    {return handle>=0;}
   void tryClose()  {if (isopen()) close();}
 
-#ifdef FREEARC_WIN
-  FILESIZE size    ()                {return _filelengthi64 (handle);}            // Возвращает размер файла
-  FILESIZE curpos  ()                {return _lseeki64 (handle, 0,   SEEK_CUR);}  // Текущая позиция в файле
-  void     seek    (FILESIZE pos)    {CHECK (FREEARC_ERRCODE_READ,  _lseeki64 (handle, pos, SEEK_SET) == pos,  (s,"ERROR: file seek operation failed"));}       // Переходит на заданную позицию в файле
-#else
   FILESIZE size    ()                {return myfilelength (handle);}
   FILESIZE curpos  ()                {return lseek (handle, 0,   SEEK_CUR);}
   void     seek    (FILESIZE pos)    {CHECK (FREEARC_ERRCODE_READ,  lseek (handle, pos, SEEK_SET) == pos,  (s,"ERROR: file seek operation failed"));}
-#endif
 
   FILESIZE tryRead (void *buf, FILESIZE size)   {int result = ::read (handle, buf, size);  CHECK (FREEARC_ERRCODE_READ,  result>=0,  (s,"ERROR: file read operation failed"));  return result;}    // Возвращает кол-во прочитанных байт, которое может быть меньше запрошенного
   void     read    (void *buf, FILESIZE size)   {CHECK (FREEARC_ERRCODE_READ,   tryRead (buf, size) == size,  (s,"ERROR: can't read %lu bytes", (unsigned long)size));}                            // Возбуждает исключение, если не удалось прочесть указанное число байт
@@ -982,13 +849,7 @@ struct MYDIR : MYFILE
   // Make it a temporary directory, removed automatically by destructor
   bool create_tempdir()
   {
-#ifdef FREEARC_WIN
-    utf16_to_utf8 (GetTempDir(), utf8name);
-#elif defined(FREEARC_UNIX)
     strcpy(utf8name, GetTempDir());
-#else
-    ???
-#endif
     SetBaseDir (utf8name);
     for (unsigned i = time_based_random(), cnt=0; cnt<1000; cnt++)
     {
@@ -1031,10 +892,6 @@ struct Array
 // Windows 7 taskbar progress indicator ***************************************
 //*****************************************************************************
 
-#ifdef FREEARC_WIN
-HWND FindWindowHandleByTitle (char *title);
-void Taskbar_SetWindowProgressValue (HWND hwnd, uint64 ullCompleted, uint64 ullTotal);
-#endif
 void Taskbar_SetProgressValue (uint64 ullCompleted, uint64 ullTotal);
 void Taskbar_Normal();
 void Taskbar_Error ();
@@ -1046,73 +903,6 @@ void Taskbar_Done  ();
 // //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Memory-mapped files ******************************************************************************************************************************
 // //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-#ifdef FREEARC_WIN
-
-#include <io.h>
-#include <windows.h>
-
-struct MMAP_FILE
-{
-  bool   initialized;
-  FILE  *file;
-  char*  iomode;
-  FILESIZE filesize;
-  HANDLE mmapHandle;
-  char  *mmapPtr;
-
-  MMAP_FILE (bool use_mmap, FILE *_file, char* _iomode, FILESIZE _filesize) : initialized(!use_mmap), file(_file), iomode(_iomode), filesize(_filesize), mmapHandle(NULL), mmapPtr(NULL) {}
-
-  // Initialize only on first use
-  void initialize()
-  {
-    if (initialized) return;
-    initialized = true;
-
-    HANDLE osfhandle = (HANDLE) _get_osfhandle(fileno(file));
-    DWORD  access    = (strequ(iomode,"r")? PAGE_READONLY : PAGE_READWRITE);
-    mmapHandle = CreateFileMapping (osfhandle, NULL, access, 0, 0, NULL);
-
-    if (mmapHandle)
-    {
-      DWORD access = (strequ(iomode,"r")? FILE_MAP_READ :
-                     (strequ(iomode,"w")? FILE_MAP_WRITE :
-                                          FILE_MAP_ALL_ACCESS));
-      mmapPtr = (char*) MapViewOfFile (mmapHandle, access, 0, 0, 0);
-    }
-  }
-
-  // File was successully memory-mapped
-  bool mmapped()
-  {
-    initialize();
-    return (mmapHandle && mmapPtr);
-  }
-
-  // Read len bytes at offset pos; return number of bytes read
-  // Data are read either into internal buffer or into provided buf[];  this address placed into *ptr
-  int read (char **ptr, void *buf, FILESIZE pos, int len, FILE *f = NULL)
-  {
-    if (mmapped()) {                                           // File was successully memory-mapped, return memory address corresponding to pos
-      *ptr = mmapPtr+pos;
-      return pos>filesize? 0 : mymin (filesize-pos, len);
-    } else {                                                   // Memory-mapping isn't active, perform I/O operation into user-supplied buffer
-      *ptr = (char*) buf;
-      file_seek(f?f:file,pos);
-      return file_read(f?f:file,buf,len);
-    }
-  }
-
-  ~MMAP_FILE()
-  {
-    if (!initialized) return;
-    UnmapViewOfFile(mmapPtr);
-    CloseHandle(mmapHandle);
-  }
-};
-
-
-#else  //!FREEARC_WIN
 
 
 struct MMAP_FILE
@@ -1132,8 +922,6 @@ struct MMAP_FILE
     return file_read(f?f:file,buf,len);
   }
 };
-
-#endif
 
 
 // ****************************************************************************************************************************

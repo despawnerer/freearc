@@ -26,10 +26,6 @@ import Errors
 #ifdef FREEARC_PACKED_STRINGS
 import UTF8Z
 #endif
-#if defined(FREEARC_WIN)
-import Win32Files
-import System.Win32.File
-#endif
 
 
 ----------------------------------------------------------------------------------------------------
@@ -275,22 +271,9 @@ getDirectoryContents_FileInfo ff parent{-родительская структура FileInfo-} = do
                             (packFilePathPacked3 (fiStoredName   parent_or_root)  packedStored    name lcext)
                           where lcext  =  packext$ filenameLower$ getFileSuffix name
 
-#if !defined(FREEARC_WIN)
   (dirList (diskDirName|||".")) .$handleFindErrors diskDirName  -- Получим список файлов в каталоге, обрабатывая ошибки чтения каталога,
     >>== filter exclude_special_names                           -- Исключим из списка "." и ".."
     >>= (mapMaybeM $! make_names getFileInfo)                   -- Превратим имена файлов в структуры FileInfo и уберём из списка файлы, на которых споткнулся `stat`
-#else
-  withList $ \list -> do
-    handleFindErrors diskDirName $ do
-      wfindfiles (diskDirName </> reANY_FILE) $ \find -> do
-        name <- w_find_name find
-        when (exclude_special_names name) $ do
-          fiAttr  <- w_find_attrib     find
-          fiSize  <- w_find_size       find
-          fiTime  <- w_find_time_write find  >>==  fiTimeCorrect
-          fiIsDir <- w_find_isDir      find
-          (list <<=) $! make_names FileInfo name fiSize fiTime fiAttr fiIsDir fiUndefinedGroup
-#endif
 
 
 -- |Добавить exception handler, вызываемый при ошибках получения списка файлов в каталоге

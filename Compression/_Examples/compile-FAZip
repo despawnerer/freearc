@@ -1,7 +1,7 @@
 #Run Freearc "compile" first to establish compilation environment
 exe=fazip
 ctempdir=/tmp/out/FreeArc
-defines="-DFREEARC_UNIX -DFREEARC_INTEL_BYTE_ORDER -D_FILE_OFFSET_BITS=64 -O3 -I../_Encryption -I../_Encryption/headers -I../_Encryption/hashes -Wno-write-strings"
+defines="-DFREEARC_INTEL_BYTE_ORDER -D_FILE_OFFSET_BITS=64 -O3 -I../_Encryption -I../_Encryption/headers -I../_Encryption/hashes -Wno-write-strings"
 # ****** -DFREEARC_MOTOROLA_BYTE_ORDER -DFREEARC_ONLY_ALIGNED_ACCESS *******
 mkdir $ctempdir
 cd ..

@@ -4,25 +4,6 @@
 extern "C" {
 #endif
 
-#ifdef FREEARC_WIN
-
-#include <wininet.h>
-#define URL_BUFSIZE 4096
-typedef struct
-{
-    char *url;
-    int64 size;
-    int64 curpos;
-    HINTERNET hURL;
-    BOOL isFTP;
-    HINTERNET hConnect;
-    char *file;
-    bool IsCheckNews;
-    char buf[URL_BUFSIZE];  // First bytes in CheckNews contents are stored in this buffer
-} URL;
-
-#else // Unix
-
 #include <curl/curl.h>
 typedef struct
 {
@@ -31,8 +12,6 @@ typedef struct
     int64 curpos;
     CURL *curl_handle;
 } URL;
-
-#endif // Windows/Unix
 
 void  url_setup_proxy (char *_proxy);
 void  url_setup_bypass_list (char *_bypass_list);

@@ -32,13 +32,8 @@ PARM_DEBUG='-s'
 PARM_ENDIANNES='-DFREEARC_INTEL_BYTE_ORDER'
 PARM_FULL=''
 PARM_STAT=''
-if [ "$MSYSTEM" = 'MINGW32' ]; then
-	PARM_SYSTEM='-DFREEARC_WIN'
-	PARM_TIME=''
-else
-	PARM_SYSTEM='-DFREEARC_UNIX'
-	PARM_TIME='-lrt'
-fi
+PARM_SYSTEM=''
+PARM_TIME='-lrt'
 
 for P; do
 	if [ "$P" = "${P##-}" ]; then

@@ -51,9 +51,6 @@ import Arhive7zLib
 import ArcCreate
 import ArcExtract
 import ArcRecover
-#ifdef FREEARC_GUI
-import FileManager
-#endif
 
 
 -- |Главная функция программы
@@ -63,17 +60,11 @@ arc cmdline  =  doMain (words cmdline)
 
 -- |Превратить командную строку в набор команд и выполнить их
 doMain args  = do
-#ifdef FREEARC_GUI
-  bg $ do                           -- выполняем в новом треде, не являющемся bound thread
-#endif
   setUncaughtExceptionHandler handler
   setCtrlBreakHandler $ do          -- Организуем обработку ^Break
   ensureCtrlBreak "resetConsoleTitle" (resetConsoleTitle) $ do
   args <- processCmdfile args       -- Заменить @cmdfile в командной строке на его содержимое
   luaLevel "Program" [("command", args)] $ do
-#ifdef FREEARC_GUI
-  parseGUIcommands run args $ \args -> do  -- Обработка GUI-специфичных вариаций командной строки
-#endif
   uiStartProgram                    -- Открыть UI
   commands <- parseCmdline args     -- Превратить командную строку в список команд на выполнение
   mapM_ run commands                -- Выполнить каждую полученную команду
@@ -81,9 +72,6 @@ doMain args  = do
 
  where
   handler ex  = do
-#ifdef FREEARC_GUI
-    doNothing0
-#else
     whenM (val programFinished) $ do
       foreverM$ sleepSeconds 1      -- Если программа находится в shutdown, позволим ему завершить программу
     registerError$ GENERAL_ERROR$
@@ -91,7 +79,6 @@ doMain args  = do
         Deadlock    -> ["0011 No threads to run: infinite loop or deadlock?"]
         ErrorCall s -> [s]
         other       -> [show ex]
-#endif
 
 
 -- |Диспетчеризует команду и организует её повторение для каждого подходящего архива

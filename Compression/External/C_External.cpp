@@ -94,11 +94,7 @@ struct MYPIPE
     int GetFd()
     {
         int fdPipe[2];
-#ifdef FREEARC_WIN
-        if (_pipe(fdPipe, LARGE_BUFFER_SIZE, O_BINARY | O_NOINHERIT) == -1)
-#else
         if (pipe(fdPipe) != 0)
-#endif
                                                     return 1;  // Create the pipe
         fdDup = dup(fdStd);                                    // Duplicate stdXXX file descriptor (next line will close original)
         if (dup2 (fdPipe[mode], fdStd) != 0)        return 2;  // Duplicate MODE end of pipe to stdXXX file descriptor

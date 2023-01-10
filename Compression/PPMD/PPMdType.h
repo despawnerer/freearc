@@ -10,9 +10,6 @@
 
 #include <stdio.h>
 
-#ifdef FREEARC_WIN
-#include <windows.h>
-#else
 typedef int   BOOL;
 #define FALSE 0
 #define TRUE  1
@@ -20,7 +17,6 @@ typedef unsigned char  BYTE;
 typedef unsigned short WORD;
 typedef unsigned int   DWORD;
 typedef unsigned int   UINT;
-#endif
 
 const DWORD PPMdSignature=0x84ACAF8F, Variant='I';
 const int MIN_O=2;                           /* minimum allowed model order  */

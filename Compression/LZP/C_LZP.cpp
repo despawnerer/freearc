@@ -11,14 +11,7 @@ extern "C" {
 
 
 /* 32-bit Rotates */
-#if defined(FREEARC_WIN)
-
-/* intrinsic rotate */
-#include <stdlib.h>
-#pragma intrinsic(_lrotr,_lrotl)
-#define ROR(x,n) _lrotr(x,n)
-
-#elif !defined(__STRICT_ANSI__) && defined(__GNUC__) && (defined(__i386__) || defined(__x86_64__)) && !defined(INTEL_CC) && !defined(LTC_NO_ASM)
+#if !defined(__STRICT_ANSI__) && defined(__GNUC__) && (defined(__i386__) || defined(__x86_64__)) && !defined(INTEL_CC) && !defined(LTC_NO_ASM)
 
 static inline unsigned ROR(unsigned word, int i)
 {

@@ -97,11 +97,7 @@ isPosix = not isWindows
 
 -- | Is the operating system Windows like
 isWindows :: Bool
-#if defined(FREEARC_WIN)
-isWindows = True
-#else
 isWindows = False
-#endif
 
 
 

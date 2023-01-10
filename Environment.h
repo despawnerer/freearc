@@ -17,17 +17,6 @@ int PowerOffComputer();                                    // Инициировать выклю
 void GetOSDisplayString(char* buf);                        // Заполняет буфер строкой с описанием версии ОС
 void memxor (char *dest, char *src, uint size);            // От-xor-ить два блока данных
 
-#ifdef FREEARC_WIN
-// Operations on mutex shared by all FreeArc instances
-HANDLE myCreateMutex  (char*  name);
-void   myCloseMutex   (HANDLE hMutex);
-void   myWaitMutex    (HANDLE hMutex);
-void   myGrabMutex    (HANDLE hMutex);
-void   myReleaseMutex (HANDLE hMutex);
-
-DWORD RegistryDeleteTree(HKEY hStartKey, LPTSTR pKeyName);  // Delete entrire subtree from Windows Registry
-#endif
-
 // GuiEnvironment.cpp
 int BrowseForFolder(TCHAR *prompt, TCHAR *in_filename, TCHAR *out_filename);                      // Дать пользователю выбрать каталог
 int BrowseForFile(TCHAR *prompt, TCHAR *filters, TCHAR *in_filename, TCHAR *out_filename);        // Дать пользователю выбрать файл

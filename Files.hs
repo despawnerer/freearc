@@ -41,12 +41,7 @@ import System.Directory
 
 import Utils
 import FilePath
-#if defined(FREEARC_WIN)
-import Win32Files
-import System.Win32 hiding (try)
-#else
 import System.Posix.Files hiding (fileExist)
-#endif
 
 -- |Размер одного буфера, используемый в различных операциях
 aBUFFER_SIZE = 256*kb
@@ -81,13 +76,8 @@ file `dropParentDir` dir =
     _          -> error "Utils::dropParentDir: dir isn't prefix of file"
 
 
-#if defined(FREEARC_WIN)
--- |Для case-insensitive файловых систем
-filenameLower = strLower
-#else
 -- |Для case-sensitive файловых систем
 filenameLower = id
-#endif
 
 -- |Return False for special filenames like "." and ".." - used to filtering results of getDirContents
 exclude_special_names s  =  (s/=".")  &&  (s/="..")
@@ -168,43 +158,6 @@ findOrCreateFile possibleFilePlaces cfgfilename = do
 personalConfigFilePlaces filename = do dir <- myGetAppUserDataDirectory aFreeArc
                                        return [dir </> filename]
 
-#if defined(FREEARC_WIN)
--- Под Windows все дополнительные файлы по умолчанию лежат в одном каталоге с программой
-libraryFilePlaces = configFilePlaces
-configFilePlaces filename  =  do personal <- personalConfigFilePlaces filename
-                                 exe <- getExeName
-                                 return$ personal++
-                                         [takeDirectory exe </> filename]
-
--- |Имя исполняемого файла программы
-getExeName = do
-  allocaBytes (long_path_size*4) $ \pOutPath -> do
-    c_GetExeName pOutPath (fromIntegral long_path_size*2) >>= peekCWString
-
-foreign import ccall unsafe "Environment.h GetExeName"
-  c_GetExeName :: CWFilePath -> CInt -> IO CWFilePath
-
--- |Каталог где хранятся индивидуальные настройки пользователя для данной программы
-myGetAppUserDataDirectory :: String -> IO FilePath
-myGetAppUserDataDirectory appName = do
-  allocaBytes (long_path_size*4) $ \pOutPath -> do
-     r <- c_MyGetAppUserDataDirectory pOutPath
-     when (r<0) (fail$ "getAppUserDataDirectory")
-     s <- peekCWString pOutPath
-     return (s </> appName)
-
-foreign import ccall unsafe "MyGetAppUserDataDirectory"
-            c_MyGetAppUserDataDirectory :: CWString
-                                           -> IO CInt
-
-foreign import stdcall unsafe "SHGetFolderPathW"
-            c_SHGetFolderPath :: Ptr ()
-                              -> CInt
-                              -> Ptr ()
-                              -> CInt
-                              -> CWString
-                              -> IO CInt
-#else
 -- |Места для поиска конфиг-файлов
 configFilePlaces  filename  =  do personal <- personalConfigFilePlaces filename
                                   return$ personal++
@@ -227,8 +180,6 @@ foreign import ccall unsafe "Environment.h GetExeName"
 
 -- |Каталог где хранятся индивидуальные настройки пользователя для данной программы
 myGetAppUserDataDirectory = getAppUserDataDirectory
-
-#endif
 
 
 -- |Get temporary files directory
@@ -275,41 +226,6 @@ foreign import ccall safe "Environment.h RunCommand"
 unparseCommand  =  joinWith " " . map quote
 
 
-#if defined(FREEARC_WIN)
--- |Открыть HKEY и прочитать из Registry значение типа REG_SZ
-registryGetStr root branch key =
-  (bracket (regOpenKey root branch) regCloseKey
-     (\hk -> registryGetStringValue hk key))
-  `catch` (\e -> return Nothing)
-
--- |Создать HKEY и записать в Registry значение типа REG_SZ
-registrySetStr root branch key val =
-  bracket (regCreateKey root branch) regCloseKey
-    (\hk -> registrySetStringValue hk key val)
-
--- |Прочитать из Registry значение типа REG_SZ
-registryGetStringValue :: HKEY -> String -> IO (Maybe String)
-registryGetStringValue hk key = do
-  (regQueryValue hk (Just key) >>== Just)
-    `catch` (\e -> return Nothing)
-
--- |Записать в Registry значение типа REG_SZ
-registrySetStringValue :: HKEY -> String -> String -> IO ()
-registrySetStringValue hk key val =
-  withTString val $ \v ->
-  regSetValueEx hk key rEG_SZ v (length val*2)
-
--- |Удалить целую ветку из Registry
-registryDeleteTree :: HKEY -> String -> IO ()
-registryDeleteTree key subkey = do
-  handle (\e -> return ()) $ do
-  withForeignPtr key $ \ p_key -> do
-  withTString subkey $ \ c_subkey -> do
-  failUnlessSuccess "registryDeleteTree" $ c_RegistryDeleteTree p_key c_subkey
-foreign import ccall unsafe "Environment.h RegistryDeleteTree"
-  c_RegistryDeleteTree :: PKEY -> LPCTSTR -> IO ErrCode
-
-#else
 {- |The 'mySetEnv' function inserts or resets the environment variable name in
      the current environment list.  If the variable @name@ does not exist in the
      list, it is inserted with the given value.  If the variable does exist,
@@ -326,72 +242,16 @@ mySetEnv key value False = (getEnv key >> return ()) `catch`  (\e -> mySetEnv ke
 
 foreign import ccall unsafe "putenv"
    c_putenv :: CString -> IO CInt
-#endif
 
-
-#if defined(FREEARC_WIN)
--- |OS-specific thread id
-foreign import stdcall unsafe "windows.h GetCurrentThreadId"
-  getOsThreadId :: IO DWORD
-#else
 foreign import stdcall unsafe "pthread.h pthread_self"
   getOsThreadId :: IO Int
-#endif
 
-
-
-#if defined(FREEARC_WIN)
--- |OS version
-getWindowsVersion = unsafePerformIO$ allocaBytes 256 $ \buf -> do getOSDisplayString buf; peekCString buf
-
-foreign import ccall unsafe "Environment.h GetOSDisplayString"
-  getOSDisplayString :: Ptr CChar -> IO ()
-#endif
-
-
-#if defined(FREEARC_WIN)
--- Operations on mutex shared by all FreeArc instances
-foreign import ccall unsafe "Environment.h"  myCreateMutex   :: Ptr CChar -> IO HANDLE
-foreign import ccall unsafe "Environment.h"  myCloseMutex    :: HANDLE    -> IO ()
-foreign import ccall   safe "Environment.h"  myWaitMutex     :: HANDLE    -> IO ()
-foreign import ccall unsafe "Environment.h"  myGrabMutex     :: HANDLE    -> IO ()
-foreign import ccall unsafe "Environment.h"  myReleaseMutex  :: HANDLE    -> IO ()
-
-use_global_queue enabled mutexName = bracketOS_ (do m <- withCString mutexName myCreateMutex
-                                                    if enabled  then myWaitMutex m  else myGrabMutex m
-                                                    return m)
-                                                (\m -> do myReleaseMutex m
-                                                          myCloseMutex m)
-
--- |bracket_ с гарантией выполненифя пре- и пост-акции в одном треде
-bracketOS_ pre post action = do
-  [a,b,c] <- replicateM 3 newEmptyMVar
-  forkOS $ do m<-pre; putMVar a (); takeMVar b; post m; putMVar c ()
-  bracket_ (takeMVar a)  (do putMVar b (); takeMVar c)  action
-
-#else
 use_global_queue enabled mutexName = id
-#endif
-
 
 
 ----------------------------------------------------------------------------------------------------
 ---- Операции с неоткрытыми файлами и каталогами ---------------------------------------------------
 ----------------------------------------------------------------------------------------------------
-
-#if defined(FREEARC_WIN)
--- |Список дисков в системе с их типами
-getDrives = getLogicalDrives >>== unfoldr (\n -> Just (n `mod` 2, n `div` 2))
-                             >>== zipWith (\c n -> n>0 &&& [c:":"]) ['A'..'Z']
-                             >>== concat
-                             >>=  mapM (\d -> do t <- withCString d c_GetDriveType; return (d++"\t"++(driveTypes!!i t)))
-
-driveTypes = (split ',' "???,???,Removable,Fixed,Network,CD/DVD,Ramdisk") ++ repeat "???"
-
-foreign import stdcall unsafe "windows.h GetDriveTypeA"
-  c_GetDriveType :: LPCSTR -> IO CInt
-#endif
-
 
 -- |Create a hierarchy of directories
 createDirectoryHierarchy :: FilePath -> IO ()
@@ -451,20 +311,6 @@ forcedFileRemove filename = do
 myCanonicalizePath :: FilePath -> IO FilePath
 myCanonicalizePath fpath | isURL fpath = return fpath
                          | otherwise   =
-#if defined(FREEARC_WIN)
-  withCFilePath fpath $ \pInPath ->
-  allocaBytes (long_path_size*4) $ \pOutPath ->
-  alloca $ \ppFilePart ->
-    do c_myGetFullPathName pInPath (fromIntegral long_path_size*2) pOutPath ppFilePart
-       peekCFilePath pOutPath >>== dropTrailingPathSeparator
-
-foreign import stdcall unsafe "GetFullPathNameW"
-          c_myGetFullPathName :: CWString
-                              -> CInt
-                              -> CWString
-                              -> Ptr CWString
-                              -> IO CInt
-#else
   withCFilePath fpath $ \pInPath ->
   allocaBytes (long_path_size*4) $ \pOutPath ->
     do c_realpath pInPath pOutPath
@@ -474,7 +320,6 @@ foreign import ccall unsafe "realpath"
                    c_realpath :: CString
                               -> CString
                               -> IO CString
-#endif
 
 -- |Максимальная длина имени файла
 long_path_size  =  i c_long_path_size :: Int
@@ -482,20 +327,8 @@ foreign import ccall unsafe "Environment.h long_path_size"
   c_long_path_size :: CInt
 
 
-#if defined(FREEARC_WIN)
--- |Clear file's Archive bit
-clearArchiveBit filename = do
-    attr <- getFileAttributes filename
-    when (attr.&.fILE_ATTRIBUTE_ARCHIVE /= 0) $ do
-        setFileAttributes filename (attr - fILE_ATTRIBUTE_ARCHIVE)
--- |Clear all file's attributes (before deletion)
-clearFileAttributes filename = do
-    setFileAttributes filename 0
-#else
 clearArchiveBit     = doNothing
 clearFileAttributes = doNothing
-#endif
-
 
 -- |Set file's date/time
 setFileDateTime filename datetime  =  withCFilePath filename (`c_SetFileDateTime` datetime)
@@ -523,10 +356,8 @@ foreign import ccall unsafe "Environment.h FormatDateTime"
   c_FormatDateTime :: CString -> CInt -> CTime -> IO ()
 
 
-#if defined(FREEARC_UNIX)
 executeModes         =  [ownerExecuteMode, groupExecuteMode, otherExecuteMode]
 removeFileModes a b  =  a `intersectFileModes` (complement b)
-#endif
 
 -- Wait a few seconds (no more than half-hour due to Int overflow!)
 sleepSeconds secs = do let us = round (secs*1000000)
@@ -648,42 +479,6 @@ foreign import ccall safe "URL.h"  url_close  :: URL -> IO ()
 ----------------------------------------------------------------------------------------------------
 ---- Под Windows мне пришлось реализовать библиотеку в/в самому для поддержки файлов >4Gb и Unicode имён файлов
 ----------------------------------------------------------------------------------------------------
-#if defined(FREEARC_WIN)
-
-type FileOnDisk      = FD
-type CFilePath       = CWFilePath
-type FileAttributes  = FileAttributeOrFlag
-withCFilePath        = withCWFilePath
-peekCFilePath        = peekCWString
-fOpen       name     = wopen name (read_flags  .|. o_BINARY) 0o666
-fCreate     name     = wopen name (write_flags .|. o_BINARY .|. o_TRUNC) 0o666
-fCreateRW   name     = wopen name (rw_flags    .|. o_BINARY .|. o_TRUNC) 0o666
-fAppendText name     = wopen name (append_flags) 0o666
-fGetPos              = wtell
-fGetSize             = wfilelength
-fSeek   file pos     = wseek file pos sEEK_SET
-fReadBufSimple       = wread
-fWriteBufSimple      = wwrite
-fFlush  file         = return ()
-fClose               = wclose
-fExist               = wDoesFileExist
-fileRemove           = wunlink
-fileRename           = wrename
-fileWithStatus       = wWithFileStatus
-fileStdin            = 0
-stat_mode            = wst_mode
-stat_size            = wst_size
-raw_stat_mtime       = wst_mtime
-dirCreate            = wmkdir
-dirExist             = wDoesDirectoryExist
-dirRemove            = wrmdir
-dirList dir          = dirWildcardList (dir </> "*")
-dirWildcardList wc   = withList $ \list -> do
-                         wfindfiles wc $ \find -> do
-                           name <- w_find_name find
-                           list <<= name
-
-#else
 
 type FileOnDisk      = Handle
 type CFilePath       = CString
@@ -725,8 +520,6 @@ fileWithStatus loc name f = do
       withCFilePath name $ \s -> do
         throwErrnoIfMinus1Retry_ loc (c_stat s p)
 	f p
-
-#endif
 
 -- |Full names of files matching given wildcard
 dirWildcardFullnames wc = dirWildcardList wc >>== map (takeDirectory wc </>)

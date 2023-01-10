@@ -102,50 +102,6 @@ int AddClsCompressors()
 {
     Saved_BeforeUnloadDLL = BeforeUnloadDLL;
     BeforeUnloadDLL = &CLS_BeforeUnloadDLL;
-
-#ifdef FREEARC_WIN  // Non-Windows platforms aren't yet supported
-
-    // Get program's executable/unarc.dll filename
-    _MEMORY_BASIC_INFORMATION mbi;
-    VirtualQuery ((void*)AddClsCompressors, &mbi, sizeof(MEMORY_BASIC_INFORMATION));
-
-    TCHAR *path = new TCHAR[MY_FILENAME_MAX];  char *method_name = new char[MY_FILENAME_MAX];
-    GetModuleFileName ((HINSTANCE__*)mbi.AllocationBase, path, MY_FILENAME_MAX);
-
-    // Replace basename part with "cls-*.dll"
-    TCHAR *basename = _tcsrchr (path, _T('\\')) + 1;
-    _tcscpy (basename, _T("cls-*.dll"));
-
-    // Find all cls-*.dll from program's directory
-    WIN32_FIND_DATA FindData;
-    HANDLE ff = FindFirstFile(path, &FindData);
-    for (BOOL found = (ff!=INVALID_HANDLE_VALUE);  found;  found = FindNextFile(ff, &FindData))
-    {
-        // Put full DLL filename into `path`
-        _tcscpy (basename, FindData.cFileName);
-
-        // If DLL contains ClsMain() function - register it as dll-based compressor
-        HMODULE dll = LoadLibrary(path);
-        CLS_MAIN *ClsMain = (CLS_MAIN*) GetProcAddress (dll, "ClsMain");
-        if (ClsMain)
-        {
-            // Call CLS module self-initialization
-            ClsMain(CLS_INIT, 0, 0);
-
-            // Register new CLS method in the global list of compression methods, "cls-TeSt.dll" will be registered as "test" compression method
-            t_str_end(path)[-4] = _T('\0');            // remove ".dll" suffix
-            _tcslwr (basename);
-            utf16_to_utf8 (basename+4, method_name);   // skip "cls-" prefix
-            CLS_METHOD *cls = new CLS_METHOD (method_name, ClsMain);
-            AddExternalCompressionMethod (parse_CLS, cls);
-
-            // Save DLL handle for unloading
-            CLS_Handles[registered_methods] = dll;
-            registered_methods++;
-        }
-    }
-    delete[] path;  delete[] method_name;
-#endif
     return registered_methods;
 }
 

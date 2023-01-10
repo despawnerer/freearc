@@ -2,16 +2,8 @@
 ----------------------------------------------------------------------------------------------------
 ---- Сбор и отображение статистики работы программы (объём обработанных данных, скорость и т.д.) ---
 ----------------------------------------------------------------------------------------------------
-#ifdef FREEARC_GUI
-module UI (module UI, module UIBase, module GUI) where
-import GUI
-#elif defined(FREEARC_DLL)
-module UI (module UI, module UIBase, module DLLUI) where
-import DLLUI
-#else
 module UI (module UI, module UIBase, module CUI) where
 import CUI
-#endif
 
 import Prelude hiding (catch)
 import Control.Monad
@@ -152,13 +144,6 @@ uiStartScanning = do
 
 -- |Вызывается в ходе сканирования диска, files - список файлов, найденных в очередном каталоге
 uiScanning msg files = do  -- Пока это работает только в GUI
-#ifdef FREEARC_GUI
-  failOnTerminated
-  files_scanned += i(length files)
-  files_scanned' <- val files_scanned
-  msg <- i18n msg
-  uiStage$ format msg (show3 files_scanned')
-#endif
   return ()
 
 -- |Отметить начало упаковки/распаковки файлов

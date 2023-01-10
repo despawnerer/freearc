@@ -72,11 +72,7 @@ unpackPS (PS ba) = unpackFoldrUtf8# ba f [] where
 
 {-# INLINE comparePS #-}
 -- Выберем между strcmp и strcasecmp в зависмости от ОС
-#if defined(FREEARC_WIN)
-comparePS (PS x) (PS y) = case inlinePerformIO$ strcasecmp (unsafeCoerce# x) (unsafeCoerce# y) of
-#else
 comparePS (PS x) (PS y) = case inlinePerformIO$ strcmp (unsafeCoerce# x) (unsafeCoerce# y) of
-#endif
                            x | x<0       -> LT
                              | x>0       -> GT
                              | otherwise -> EQ

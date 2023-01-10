@@ -14,11 +14,7 @@ import Data.IORef
 import System.Exit
 import System.IO
 import System.IO.Unsafe
-#if defined(FREEARC_WIN)
-import GHC.ConsoleHandler
-#else
 import System.Posix.Signals
-#endif
 
 import CompressionLib   (compressionLib_cleanup)
 import Utils
@@ -85,14 +81,9 @@ throwSqlite = throwDyn
 setCtrlBreakHandler action = do
   --myThread <- myThreadId
   -- При выходе или возникновении исключения восстановим предыдущий обработчик событий
-#if defined(FREEARC_WIN)
-  bracket (installHandler$ Catch onBreak) (installHandler) $  \oldHandler -> do
-    action
-#else
   let catchSignals a  =  installHandler sigINT (CatchOnce$ onBreak undefined) Nothing
   bracket (catchSignals (CatchOnce$ onBreak (error "onBreak"))) (catchSignals) $  \oldHandler -> do
     action
-#endif
 
 -- |Вызвать fail, если установлен флаг аварийного завершения программы
 failOnTerminated = do
@@ -126,9 +117,7 @@ shutdown msg exitCode = do
         _ -> condPrintLineLn "n"$ "There were "++show w++" warning(s)"
       ignoreErrors (msg &&& condPrintLineLn "n" msg)
       condPrintLineLn "e" ""
-#if !defined(FREEARC_GUI)
     putStrLn ""
-#endif
 
     ignoreErrors$ closeLogFile
     ignoreErrors$ hFlush stdout
@@ -357,16 +346,10 @@ errcode _              = aEXIT_CODE_FATAL_ERROR
 ---- Ввод/вывод на экран в кодировке, заданной опцией -sct -----------------------------------------
 ----------------------------------------------------------------------------------------------------
 
-#if !defined(FREEARC_GUI) && !defined(FREEARC_DLL)
 myGetLine     = getLine >>= terminal2str
 myPutStr      = putStr   =<<. str2terminal
 myPutStrLn    = putStrLn =<<. str2terminal
 myFlushStdout = hFlush stdout
-#else
-myPutStr      = doNothing
-myPutStrLn    = doNothing
-myFlushStdout = doNothing0
-#endif
 
 
 ----------------------------------------------------------------------------------------------------
@@ -383,11 +366,9 @@ printLineC c str = do
       makeLower xs                    =  xs
   let handle "w" = stderr
       handle _   = stdout
-#if !defined(FREEARC_GUI) && !defined(FREEARC_DLL)
   hPutStr (handle oldc) =<< str2terminal separator
   hPutStr (handle c)    =<< str2terminal ((oldc=="h" &&& makeLower) str)
   hFlush  (handle c)
-#endif
   separator' =: (c,"")
 
 -- |Напечатать строку с разделителем строк после неё
