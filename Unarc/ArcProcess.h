@@ -1,63 +1,63 @@
 /******************************************************************************
-** Процесс выполнения команды *************************************************
+** РџСЂРѕС†РµСЃСЃ РІС‹РїРѕР»РЅРµРЅРёСЏ РєРѕРјР°РЅРґС‹ *************************************************
 ******************************************************************************/
 class PROCESS
 {
 public:
-  COMMAND *cmd;            // Выполняемая команда
+  COMMAND *cmd;            // Р’С‹РїРѕР»РЅСЏРµРјР°СЏ РєРѕРјР°РЅРґР°
   BASEUI  *UI;
   ARCHIVE arcinfo;
 
-  // Переменные, отражающие состояние процесса чтения входных данных
-  MYFILE *infile;          // Файл архива, из которого идёт чтение
-  FILESIZE bytes_left;     // Кол-во байт, которое осталось прочитать до исчерпания упакованных данных этого солид-блока
+  // РџРµСЂРµРјРµРЅРЅС‹Рµ, РѕС‚СЂР°Р¶Р°СЋС‰РёРµ СЃРѕСЃС‚РѕСЏРЅРёРµ РїСЂРѕС†РµСЃСЃР° С‡С‚РµРЅРёСЏ РІС…РѕРґРЅС‹С… РґР°РЅРЅС‹С…
+  MYFILE *infile;          // Р¤Р°Р№Р» Р°СЂС…РёРІР°, РёР· РєРѕС‚РѕСЂРѕРіРѕ РёРґС‘С‚ С‡С‚РµРЅРёРµ
+  FILESIZE bytes_left;     // РљРѕР»-РІРѕ Р±Р°Р№С‚, РєРѕС‚РѕСЂРѕРµ РѕСЃС‚Р°Р»РѕСЃСЊ РїСЂРѕС‡РёС‚Р°С‚СЊ РґРѕ РёСЃС‡РµСЂРїР°РЅРёСЏ СѓРїР°РєРѕРІР°РЅРЅС‹С… РґР°РЅРЅС‹С… СЌС‚РѕРіРѕ СЃРѕР»РёРґ-Р±Р»РѕРєР°
 
-  // Переменные, отражающие состояние процесса записи распакованных данных
-  DIRECTORY_BLOCK *dir;     // Каталог, которому принадлежат распаковываемые файлы
-  int curfile;              //   Номер в каталоге текущего распаковываемого файла
-  BOOL included;            //   Текущий файл включён в обработку или мы просто пропускаем его?
-  int extractUntil;         //   Номер последнего файла, который нужно извлечь из этого солид-блока
-  MYFILE outfile;           // Файл, извлекаемый из архива
-  MYFILE auxfile;           // Вспомогательная переменная для хранения имени файла в том виде как оно выводится на экран
-  char fullname[MY_FILENAME_MAX*4]; // Полное имя распаковываемого сейчас файла
-  FILESIZE bytes_to_write;  // Сколько байт в текущем файле осталось записать
-  FILESIZE writtenBytes;    // Сколько байт всего было распаковано в текущем архиве
-  FILESIZE archive_pos;     // Текущая позиция в архиве
-  CRC crc;                  // CRC данных, записанных в файл
-  enum PASS {FIRST_PASS, SECOND_PASS};  // Первый/второй проход по солид-блоку (первый - распаковка каталогов и пустых файлов, второй - всех остальных)
+  // РџРµСЂРµРјРµРЅРЅС‹Рµ, РѕС‚СЂР°Р¶Р°СЋС‰РёРµ СЃРѕСЃС‚РѕСЏРЅРёРµ РїСЂРѕС†РµСЃСЃР° Р·Р°РїРёСЃРё СЂР°СЃРїР°РєРѕРІР°РЅРЅС‹С… РґР°РЅРЅС‹С…
+  DIRECTORY_BLOCK *dir;     // РљР°С‚Р°Р»РѕРі, РєРѕС‚РѕСЂРѕРјСѓ РїСЂРёРЅР°РґР»РµР¶Р°С‚ СЂР°СЃРїР°РєРѕРІС‹РІР°РµРјС‹Рµ С„Р°Р№Р»С‹
+  int curfile;              //   РќРѕРјРµСЂ РІ РєР°С‚Р°Р»РѕРіРµ С‚РµРєСѓС‰РµРіРѕ СЂР°СЃРїР°РєРѕРІС‹РІР°РµРјРѕРіРѕ С„Р°Р№Р»Р°
+  BOOL included;            //   РўРµРєСѓС‰РёР№ С„Р°Р№Р» РІРєР»СЋС‡С‘РЅ РІ РѕР±СЂР°Р±РѕС‚РєСѓ РёР»Рё РјС‹ РїСЂРѕСЃС‚Рѕ РїСЂРѕРїСѓСЃРєР°РµРј РµРіРѕ?
+  int extractUntil;         //   РќРѕРјРµСЂ РїРѕСЃР»РµРґРЅРµРіРѕ С„Р°Р№Р»Р°, РєРѕС‚РѕСЂС‹Р№ РЅСѓР¶РЅРѕ РёР·РІР»РµС‡СЊ РёР· СЌС‚РѕРіРѕ СЃРѕР»РёРґ-Р±Р»РѕРєР°
+  MYFILE outfile;           // Р¤Р°Р№Р», РёР·РІР»РµРєР°РµРјС‹Р№ РёР· Р°СЂС…РёРІР°
+  MYFILE auxfile;           // Р’СЃРїРѕРјРѕРіР°С‚РµР»СЊРЅР°СЏ РїРµСЂРµРјРµРЅРЅР°СЏ РґР»СЏ С…СЂР°РЅРµРЅРёСЏ РёРјРµРЅРё С„Р°Р№Р»Р° РІ С‚РѕРј РІРёРґРµ РєР°Рє РѕРЅРѕ РІС‹РІРѕРґРёС‚СЃСЏ РЅР° СЌРєСЂР°РЅ
+  char fullname[MY_FILENAME_MAX*4]; // РџРѕР»РЅРѕРµ РёРјСЏ СЂР°СЃРїР°РєРѕРІС‹РІР°РµРјРѕРіРѕ СЃРµР№С‡Р°СЃ С„Р°Р№Р»Р°
+  FILESIZE bytes_to_write;  // РЎРєРѕР»СЊРєРѕ Р±Р°Р№С‚ РІ С‚РµРєСѓС‰РµРј С„Р°Р№Р»Рµ РѕСЃС‚Р°Р»РѕСЃСЊ Р·Р°РїРёСЃР°С‚СЊ
+  FILESIZE writtenBytes;    // РЎРєРѕР»СЊРєРѕ Р±Р°Р№С‚ РІСЃРµРіРѕ Р±С‹Р»Рѕ СЂР°СЃРїР°РєРѕРІР°РЅРѕ РІ С‚РµРєСѓС‰РµРј Р°СЂС…РёРІРµ
+  FILESIZE archive_pos;     // РўРµРєСѓС‰Р°СЏ РїРѕР·РёС†РёСЏ РІ Р°СЂС…РёРІРµ
+  CRC crc;                  // CRC РґР°РЅРЅС‹С…, Р·Р°РїРёСЃР°РЅРЅС‹С… РІ С„Р°Р№Р»
+  enum PASS {FIRST_PASS, SECOND_PASS};  // РџРµСЂРІС‹Р№/РІС‚РѕСЂРѕР№ РїСЂРѕС…РѕРґ РїРѕ СЃРѕР»РёРґ-Р±Р»РѕРєСѓ (РїРµСЂРІС‹Р№ - СЂР°СЃРїР°РєРѕРІРєР° РєР°С‚Р°Р»РѕРіРѕРІ Рё РїСѓСЃС‚С‹С… С„Р°Р№Р»РѕРІ, РІС‚РѕСЂРѕР№ - РІСЃРµС… РѕСЃС‚Р°Р»СЊРЅС‹С…)
 
-  // Методы
-  bool outfile_open (PASS pass);                         // Открыть очередной выходной файл и напечатать сообщение о его распаковке
-  bool outfile_write (void *buf, int size);              // Записать данные в выходной файл
-  bool outfile_close();                                  // Закрыть выходной файл
-  int  DecompressCallback (const char *what, void *buf, int size);  // Callback-функция чтения/записи для распаковщика
+  // РњРµС‚РѕРґС‹
+  bool outfile_open (PASS pass);                         // РћС‚РєСЂС‹С‚СЊ РѕС‡РµСЂРµРґРЅРѕР№ РІС‹С…РѕРґРЅРѕР№ С„Р°Р№Р» Рё РЅР°РїРµС‡Р°С‚Р°С‚СЊ СЃРѕРѕР±С‰РµРЅРёРµ Рѕ РµРіРѕ СЂР°СЃРїР°РєРѕРІРєРµ
+  bool outfile_write (void *buf, int size);              // Р—Р°РїРёСЃР°С‚СЊ РґР°РЅРЅС‹Рµ РІ РІС‹С…РѕРґРЅРѕР№ С„Р°Р№Р»
+  bool outfile_close();                                  // Р—Р°РєСЂС‹С‚СЊ РІС‹С…РѕРґРЅРѕР№ С„Р°Р№Р»
+  int  DecompressCallback (const char *what, void *buf, int size);  // Callback-С„СѓРЅРєС†РёСЏ С‡С‚РµРЅРёСЏ/Р·Р°РїРёСЃРё РґР»СЏ СЂР°СЃРїР°РєРѕРІС‰РёРєР°
 
-  // Если алгоритм сжатия включает алгоритм(ы) шифрования, то добавляет к ним информацию о пароле
+  // Р•СЃР»Рё Р°Р»РіРѕСЂРёС‚Рј СЃР¶Р°С‚РёСЏ РІРєР»СЋС‡Р°РµС‚ Р°Р»РіРѕСЂРёС‚Рј(С‹) С€РёС„СЂРѕРІР°РЅРёСЏ, С‚Рѕ РґРѕР±Р°РІР»СЏРµС‚ Рє РЅРёРј РёРЅС„РѕСЂРјР°С†РёСЋ Рѕ РїР°СЂРѕР»Рµ
   char *GenerateDecryption (char *compressor, char *new_compressor);
 
-  // Распаковать или протестировать файлы из солид-блока с номером block_num каталога dirblock
+  // Р Р°СЃРїР°РєРѕРІР°С‚СЊ РёР»Рё РїСЂРѕС‚РµСЃС‚РёСЂРѕРІР°С‚СЊ С„Р°Р№Р»С‹ РёР· СЃРѕР»РёРґ-Р±Р»РѕРєР° СЃ РЅРѕРјРµСЂРѕРј block_num РєР°С‚Р°Р»РѕРіР° dirblock
   void ExtractFiles (DIRECTORY_BLOCK *dirblock, int block_num);
 
-  // Получить информацию об архиве
+  // РџРѕР»СѓС‡РёС‚СЊ РёРЅС„РѕСЂРјР°С†РёСЋ РѕР± Р°СЂС…РёРІРµ
   PROCESS (COMMAND* _cmd, BASEUI* _UI, uint64 &total_files, uint64 &origsize, uint64 &compsize);
 
-  // Читает структуру архива и вызывает в зависимости от выполняемой команды
-  // ListFiles для каждого блока каталога или ExtractFiles для каждого солид-блока
+  // Р§РёС‚Р°РµС‚ СЃС‚СЂСѓРєС‚СѓСЂСѓ Р°СЂС…РёРІР° Рё РІС‹Р·С‹РІР°РµС‚ РІ Р·Р°РІРёСЃРёРјРѕСЃС‚Рё РѕС‚ РІС‹РїРѕР»РЅСЏРµРјРѕР№ РєРѕРјР°РЅРґС‹
+  // ListFiles РґР»СЏ РєР°Р¶РґРѕРіРѕ Р±Р»РѕРєР° РєР°С‚Р°Р»РѕРіР° РёР»Рё ExtractFiles РґР»СЏ РєР°Р¶РґРѕРіРѕ СЃРѕР»РёРґ-Р±Р»РѕРєР°
   PROCESS(COMMAND* _cmd, BASEUI* _UI);
   void OpenArchive();
 
-  // Процедура экстренного выхода
+  // РџСЂРѕС†РµРґСѓСЂР° СЌРєСЃС‚СЂРµРЅРЅРѕРіРѕ РІС‹С…РѕРґР°
   bool quit (int errcode, char* errmsg);
 } *CurrentProcess;
 
 
 /*************************************************************************************************
-** Нижеследующие процедуры предоставляют абстрактные средства работы с текущим выходным файлом, **
-** скрывающие такие детали, как различия команд e/x/t, различие между каталогами и файлами,     **
-** и то, что часть файлов может быть исключена из обработки                                     **
+** РќРёР¶РµСЃР»РµРґСѓСЋС‰РёРµ РїСЂРѕС†РµРґСѓСЂС‹ РїСЂРµРґРѕСЃС‚Р°РІР»СЏСЋС‚ Р°Р±СЃС‚СЂР°РєС‚РЅС‹Рµ СЃСЂРµРґСЃС‚РІР° СЂР°Р±РѕС‚С‹ СЃ С‚РµРєСѓС‰РёРј РІС‹С…РѕРґРЅС‹Рј С„Р°Р№Р»РѕРј, **
+** СЃРєСЂС‹РІР°СЋС‰РёРµ С‚Р°РєРёРµ РґРµС‚Р°Р»Рё, РєР°Рє СЂР°Р·Р»РёС‡РёСЏ РєРѕРјР°РЅРґ e/x/t, СЂР°Р·Р»РёС‡РёРµ РјРµР¶РґСѓ РєР°С‚Р°Р»РѕРіР°РјРё Рё С„Р°Р№Р»Р°РјРё,     **
+** Рё С‚Рѕ, С‡С‚Рѕ С‡Р°СЃС‚СЊ С„Р°Р№Р»РѕРІ РјРѕР¶РµС‚ Р±С‹С‚СЊ РёСЃРєР»СЋС‡РµРЅР° РёР· РѕР±СЂР°Р±РѕС‚РєРё                                     **
 *************************************************************************************************/
 
-// Открыть очередной выходной файл и напечатать сообщение о его распаковке
+// РћС‚РєСЂС‹С‚СЊ РѕС‡РµСЂРµРґРЅРѕР№ РІС‹С…РѕРґРЅРѕР№ С„Р°Р№Р» Рё РЅР°РїРµС‡Р°С‚Р°С‚СЊ СЃРѕРѕР±С‰РµРЅРёРµ Рѕ РµРіРѕ СЂР°СЃРїР°РєРѕРІРєРµ
 bool PROCESS::outfile_open (PASS pass)
 {
   crc = INIT_CRC;
@@ -65,7 +65,7 @@ bool PROCESS::outfile_open (PASS pass)
   if (pass==SECOND_PASS && bytes_to_write==0  ||  !cmd->ok)
     return cmd->ok;  // Directories and empty files were extracted in first pass; don't create outfile if we are in the process of aborting extraction
   included = cmd->accept_file (dir, curfile);
-  // Имя выходного файла (помимо каталога, указанного в -dp)
+  // РРјСЏ РІС‹С…РѕРґРЅРѕРіРѕ С„Р°Р№Р»Р° (РїРѕРјРёРјРѕ РєР°С‚Р°Р»РѕРіР°, СѓРєР°Р·Р°РЅРЅРѕРіРѕ РІ -dp)
   char *xname = cmd->cmd=='e'? dir->name[curfile]
                              : dir->fullname (curfile, fullname)  +  (strequ(cmd->arc_base_dir,"")?  0  :  strlen (cmd->arc_base_dir)+1);
   outfile.setname (xname);
@@ -94,8 +94,8 @@ bool PROCESS::outfile_open (PASS pass)
        if (included)  {if(outfile_exists)  outfile.remove_readonly_attrib();  outfile.open (WRITE_MODE);}
       }
 
-  if (pass==FIRST_PASS || dir->size[curfile]>0)   // Не писать повторно о распаковке каталогов/пустых файлов
-    if (!(dir->isdir[curfile] && cmd->cmd!='x'))  // Не сообщать о тестировании каталогов ;)
+  if (pass==FIRST_PASS || dir->size[curfile]>0)   // РќРµ РїРёСЃР°С‚СЊ РїРѕРІС‚РѕСЂРЅРѕ Рѕ СЂР°СЃРїР°РєРѕРІРєРµ РєР°С‚Р°Р»РѕРіРѕРІ/РїСѓСЃС‚С‹С… С„Р°Р№Р»РѕРІ
+    if (!(dir->isdir[curfile] && cmd->cmd!='x'))  // РќРµ СЃРѕРѕР±С‰Р°С‚СЊ Рѕ С‚РµСЃС‚РёСЂРѕРІР°РЅРёРё РєР°С‚Р°Р»РѕРіРѕРІ ;)
     {
       auxfile.setname (dir->fullname (curfile, fullname));
       if (!UI->ProgressFile (dir->isdir[curfile], included? (cmd->cmd=='t'? "Testing":"Extracting"):"Skipping", auxfile.displayname(), bytes_to_write))
@@ -105,7 +105,7 @@ bool PROCESS::outfile_open (PASS pass)
   return cmd->ok;
 }
 
-// Записать данные в выходной файл
+// Р—Р°РїРёСЃР°С‚СЊ РґР°РЅРЅС‹Рµ РІ РІС‹С…РѕРґРЅРѕР№ С„Р°Р№Р»
 bool PROCESS::outfile_write (void *buf, int size)
 {
   if (!cmd->ok)
@@ -118,7 +118,7 @@ bool PROCESS::outfile_write (void *buf, int size)
   return cmd->ok;
 }
 
-// Закрыть выходной файл
+// Р—Р°РєСЂС‹С‚СЊ РІС‹С…РѕРґРЅРѕР№ С„Р°Р№Р»
 bool PROCESS::outfile_close()
 {
   if (!cmd->ok)
@@ -136,10 +136,10 @@ bool PROCESS::outfile_close()
 
 
 /******************************************************************************
-** Реализация команд распаковки и тестирования архивов ************************
+** Р РµР°Р»РёР·Р°С†РёСЏ РєРѕРјР°РЅРґ СЂР°СЃРїР°РєРѕРІРєРё Рё С‚РµСЃС‚РёСЂРѕРІР°РЅРёСЏ Р°СЂС…РёРІРѕРІ ************************
 ******************************************************************************/
 
-// Callback-функция чтения/записи для распаковщика
+// Callback-С„СѓРЅРєС†РёСЏ С‡С‚РµРЅРёСЏ/Р·Р°РїРёСЃРё РґР»СЏ СЂР°СЃРїР°РєРѕРІС‰РёРєР°
 int PROCESS::DecompressCallback (const char *what, void *buf, int size)
 {
   if (strequ (what, "read")) {
@@ -152,19 +152,19 @@ int PROCESS::DecompressCallback (const char *what, void *buf, int size)
 
   } else if (strequ (what, "write")) {
     int origsize = size;
-    if (curfile > extractUntil)  return FREEARC_ERRCODE_NO_MORE_DATA_REQUIRED;   // Нам попался тупой распаковщик, не способный завершить распаковку по требованию :(
+    if (curfile > extractUntil)  return FREEARC_ERRCODE_NO_MORE_DATA_REQUIRED;   // РќР°Рј РїРѕРїР°Р»СЃСЏ С‚СѓРїРѕР№ СЂР°СЃРїР°РєРѕРІС‰РёРє, РЅРµ СЃРїРѕСЃРѕР±РЅС‹Р№ Р·Р°РІРµСЂС€РёС‚СЊ СЂР°СЃРїР°РєРѕРІРєСѓ РїРѕ С‚СЂРµР±РѕРІР°РЅРёСЋ :(
     while (size>0) {
-      int n = mymin (bytes_to_write, size);   // Записываем сколько осталось до конца файла или сколько осталось данных в буфере - смотря что меньше
+      int n = mymin (bytes_to_write, size);   // Р—Р°РїРёСЃС‹РІР°РµРј СЃРєРѕР»СЊРєРѕ РѕСЃС‚Р°Р»РѕСЃСЊ РґРѕ РєРѕРЅС†Р° С„Р°Р№Р»Р° РёР»Рё СЃРєРѕР»СЊРєРѕ РѕСЃС‚Р°Р»РѕСЃСЊ РґР°РЅРЅС‹С… РІ Р±СѓС„РµСЂРµ - СЃРјРѕС‚СЂСЏ С‡С‚Рѕ РјРµРЅСЊС€Рµ
       if (!outfile_write (buf,n))        return FREEARC_ERRCODE_OPERATION_TERMINATED;
       bytes_to_write -= n;
-      if (bytes_to_write==0) {                // Если файл записан до конца - перейдём к следующему
+      if (bytes_to_write==0) {                // Р•СЃР»Рё С„Р°Р№Р» Р·Р°РїРёСЃР°РЅ РґРѕ РєРѕРЅС†Р° - РїРµСЂРµР№РґС‘Рј Рє СЃР»РµРґСѓСЋС‰РµРјСѓ
         if (!outfile_close())            return FREEARC_ERRCODE_OPERATION_TERMINATED;
-        if (++curfile > extractUntil)    return FREEARC_ERRCODE_NO_MORE_DATA_REQUIRED;   // Если все файлы, которые мы должны распаковать из этого блока, уже извлечены, то попросить распаковщик завершить распаковку
+        if (++curfile > extractUntil)    return FREEARC_ERRCODE_NO_MORE_DATA_REQUIRED;   // Р•СЃР»Рё РІСЃРµ С„Р°Р№Р»С‹, РєРѕС‚РѕСЂС‹Рµ РјС‹ РґРѕР»Р¶РЅС‹ СЂР°СЃРїР°РєРѕРІР°С‚СЊ РёР· СЌС‚РѕРіРѕ Р±Р»РѕРєР°, СѓР¶Рµ РёР·РІР»РµС‡РµРЅС‹, С‚Рѕ РїРѕРїСЂРѕСЃРёС‚СЊ СЂР°СЃРїР°РєРѕРІС‰РёРє Р·Р°РІРµСЂС€РёС‚СЊ СЂР°СЃРїР°РєРѕРІРєСѓ
         if (!outfile_open(SECOND_PASS))  return FREEARC_ERRCODE_OPERATION_TERMINATED;
       }
       buf=(uint8*)buf+n; size-=n;
     }
-    return origsize;     // Сигнализировать успешную запись и попросить продолжить распаковку
+    return origsize;     // РЎРёРіРЅР°Р»РёР·РёСЂРѕРІР°С‚СЊ СѓСЃРїРµС€РЅСѓСЋ Р·Р°РїРёСЃСЊ Рё РїРѕРїСЂРѕСЃРёС‚СЊ РїСЂРѕРґРѕР»Р¶РёС‚СЊ СЂР°СЃРїР°РєРѕРІРєСѓ
 
   } else return FREEARC_ERRCODE_NOT_IMPLEMENTED;
 }
@@ -172,13 +172,13 @@ int PROCESS::DecompressCallback (const char *what, void *buf, int size)
 
 
 // Insert "tempfile" into compressors chain where required
-// При этом производятся достаточно хитроумные манипуляции чтобы REP и другие алгоритмы с SparseDecompression
-//   (способные разбивать память для распаковки на небольшие блоки) ограничивались лишь общим объёмом памяти, а остальные алгоритмы -
-//   размером наибольшего НЕПРЕРЫВНОГО свободного блока. В частности, GetTotalMemoryToAlloc() игнорирует блоки размером меньше 10 мб.
-//   Но гарантий надёжной работы этого алгоритма всё равно нет. В большинстве случаев он будет работать оптимально.
+// РџСЂРё СЌС‚РѕРј РїСЂРѕРёР·РІРѕРґСЏС‚СЃСЏ РґРѕСЃС‚Р°С‚РѕС‡РЅРѕ С…РёС‚СЂРѕСѓРјРЅС‹Рµ РјР°РЅРёРїСѓР»СЏС†РёРё С‡С‚РѕР±С‹ REP Рё РґСЂСѓРіРёРµ Р°Р»РіРѕСЂРёС‚РјС‹ СЃ SparseDecompression
+//   (СЃРїРѕСЃРѕР±РЅС‹Рµ СЂР°Р·Р±РёРІР°С‚СЊ РїР°РјСЏС‚СЊ РґР»СЏ СЂР°СЃРїР°РєРѕРІРєРё РЅР° РЅРµР±РѕР»СЊС€РёРµ Р±Р»РѕРєРё) РѕРіСЂР°РЅРёС‡РёРІР°Р»РёСЃСЊ Р»РёС€СЊ РѕР±С‰РёРј РѕР±СЉС‘РјРѕРј РїР°РјСЏС‚Рё, Р° РѕСЃС‚Р°Р»СЊРЅС‹Рµ Р°Р»РіРѕСЂРёС‚РјС‹ -
+//   СЂР°Р·РјРµСЂРѕРј РЅР°РёР±РѕР»СЊС€РµРіРѕ РќР•РџР Р•Р Р«Р’РќРћР“Рћ СЃРІРѕР±РѕРґРЅРѕРіРѕ Р±Р»РѕРєР°. Р’ С‡Р°СЃС‚РЅРѕСЃС‚Рё, GetTotalMemoryToAlloc() РёРіРЅРѕСЂРёСЂСѓРµС‚ Р±Р»РѕРєРё СЂР°Р·РјРµСЂРѕРј РјРµРЅСЊС€Рµ 10 РјР±.
+//   РќРѕ РіР°СЂР°РЅС‚РёР№ РЅР°РґС‘Р¶РЅРѕР№ СЂР°Р±РѕС‚С‹ СЌС‚РѕРіРѕ Р°Р»РіРѕСЂРёС‚РјР° РІСЃС‘ СЂР°РІРЅРѕ РЅРµС‚. Р’ Р±РѕР»СЊС€РёРЅСЃС‚РІРµ СЃР»СѓС‡Р°РµРІ РѕРЅ Р±СѓРґРµС‚ СЂР°Р±РѕС‚Р°С‚СЊ РѕРїС‚РёРјР°Р»СЊРЅРѕ.
 char *InsertTempfile (char *compressor, COMMAND* cmd)
 {
-  // noLimitMem отключает весь этот механизм, оставляя ответственность на пользователе
+  // noLimitMem РѕС‚РєР»СЋС‡Р°РµС‚ РІРµСЃСЊ СЌС‚РѕС‚ РјРµС…Р°РЅРёР·Рј, РѕСЃС‚Р°РІР»СЏСЏ РѕС‚РІРµС‚СЃС‚РІРµРЅРЅРѕСЃС‚СЊ РЅР° РїРѕР»СЊР·РѕРІР°С‚РµР»Рµ
   if (cmd->noLimitMem)
     return NULL;
 
@@ -187,7 +187,7 @@ char *InsertTempfile (char *compressor, COMMAND* cmd)
   char *BUFFERING = "tempfile";
   char PLUS[] = {COMPRESSION_METHODS_DELIMITER, '\0'};
 
-  // Разобьём компрессор на отдельные алгоритмы и посчитаем расход памяти
+  // Р Р°Р·РѕР±СЊС‘Рј РєРѕРјРїСЂРµСЃСЃРѕСЂ РЅР° РѕС‚РґРµР»СЊРЅС‹Рµ Р°Р»РіРѕСЂРёС‚РјС‹ Рё РїРѕСЃС‡РёС‚Р°РµРј СЂР°СЃС…РѕРґ РїР°РјСЏС‚Рё
   CMETHOD        cm[MAX_METHODS_IN_COMPRESSOR];
   LongMemSize  memi[MAX_METHODS_IN_COMPRESSOR];
   bool        solid[MAX_METHODS_IN_COMPRESSOR];
@@ -258,49 +258,49 @@ abort:
 
 
 
-// Если алгоритм сжатия включает алгоритм(ы) шифрования, то добавляет к ним информацию о пароле
+// Р•СЃР»Рё Р°Р»РіРѕСЂРёС‚Рј СЃР¶Р°С‚РёСЏ РІРєР»СЋС‡Р°РµС‚ Р°Р»РіРѕСЂРёС‚Рј(С‹) С€РёС„СЂРѕРІР°РЅРёСЏ, С‚Рѕ РґРѕР±Р°РІР»СЏРµС‚ Рє РЅРёРј РёРЅС„РѕСЂРјР°С†РёСЋ Рѕ РїР°СЂРѕР»Рµ
 char *PROCESS::GenerateDecryption (char *compressor, char *new_compressor)
 {
 #ifndef UNARC_DECRYPTION
   return compressor;
 #else
-  if (!compressorIsEncrypted(compressor))                                     // Быстро выйдем если в алгоритм не входят методы шифрования
+  if (!compressorIsEncrypted(compressor))                                     // Р‘С‹СЃС‚СЂРѕ РІС‹Р№РґРµРј РµСЃР»Рё РІ Р°Р»РіРѕСЂРёС‚Рј РЅРµ РІС…РѕРґСЏС‚ РјРµС‚РѕРґС‹ С€РёС„СЂРѕРІР°РЅРёСЏ
     return compressor;
 
-  char new_method_buf[MAX_COMPRESSOR_STRLEN], *new_method = new_method_buf;   // Буфер для записи вновь сконструированных методов шифрования (с ключом)
+  char new_method_buf[MAX_COMPRESSOR_STRLEN], *new_method = new_method_buf;   // Р‘СѓС„РµСЂ РґР»СЏ Р·Р°РїРёСЃРё РІРЅРѕРІСЊ СЃРєРѕРЅСЃС‚СЂСѓРёСЂРѕРІР°РЅРЅС‹С… РјРµС‚РѕРґРѕРІ С€РёС„СЂРѕРІР°РЅРёСЏ (СЃ РєР»СЋС‡РѕРј)
 
-  // Разобьём компрессор на отдельные алгоритмы
+  // Р Р°Р·РѕР±СЊС‘Рј РєРѕРјРїСЂРµСЃСЃРѕСЂ РЅР° РѕС‚РґРµР»СЊРЅС‹Рµ Р°Р»РіРѕСЂРёС‚РјС‹
   CMETHOD cm[MAX_METHODS_IN_COMPRESSOR];
   int N = split (compressor, COMPRESSION_METHODS_DELIMITER, cm, MAX_METHODS_IN_COMPRESSOR);
   for (int i=0; i<N; i++)
   {
     CMETHOD method = cm[i];
-    // Eсли ответ положительный - это метод шифрования
+    // EСЃР»Рё РѕС‚РІРµС‚ РїРѕР»РѕР¶РёС‚РµР»СЊРЅС‹Р№ - СЌС‚Рѕ РјРµС‚РѕРґ С€РёС„СЂРѕРІР°РЅРёСЏ
     if (CompressionService(method, "encryption?", 0, NULL, NULL) > 0)
     {
-      // Вычислим ключ шифрования согласно PKCS5#2, используя пароль+соль
-      int keySize = CompressionService(method, "keySize", 0, NULL, NULL),     // Длина ключа (определяется методом сжатия)
+      // Р’С‹С‡РёСЃР»РёРј РєР»СЋС‡ С€РёС„СЂРѕРІР°РЅРёСЏ СЃРѕРіР»Р°СЃРЅРѕ PKCS5#2, РёСЃРїРѕР»СЊР·СѓСЏ РїР°СЂРѕР»СЊ+СЃРѕР»СЊ
+      int keySize = CompressionService(method, "keySize", 0, NULL, NULL),     // Р”Р»РёРЅР° РєР»СЋС‡Р° (РѕРїСЂРµРґРµР»СЏРµС‚СЃСЏ РјРµС‚РѕРґРѕРј СЃР¶Р°С‚РёСЏ)
           error = 0;
 
       CPARAM param[MAX_PARAMETERS];
       int paramcnt = split (method, COMPRESSION_METHOD_PARAMETERS_DELIMITER, param, MAX_PARAMETERS-1);
 
-      char *saltStr  = search_param(param+1, "s");                            // Соль
+      char *saltStr  = search_param(param+1, "s");                            // РЎРѕР»СЊ
       int   saltSize = strlen(saltStr) / 2;
       BYTE  salt[MAXKEYSIZE];  decode16 (saltStr, salt);
 
-      char *checkCodeStr  = search_param(param+1, "c");                       // Код, используемый доля проверки правильности пароля
+      char *checkCodeStr  = search_param(param+1, "c");                       // РљРѕРґ, РёСЃРїРѕР»СЊР·СѓРµРјС‹Р№ РґРѕР»СЏ РїСЂРѕРІРµСЂРєРё РїСЂР°РІРёР»СЊРЅРѕСЃС‚Рё РїР°СЂРѕР»СЏ
       int   checkCodeSize = strlen(checkCodeStr) / 2;
       BYTE  checkCode[MAXKEYSIZE];  decode16 (checkCodeStr, checkCode);
 
-      char *numIterationsStr = search_param(param+1, "n");                    // Количество итераций PKCS5#2
+      char *numIterationsStr = search_param(param+1, "n");                    // РљРѕР»РёС‡РµСЃС‚РІРѕ РёС‚РµСЂР°С†РёР№ PKCS5#2
       int   numIterations    = parseInt(numIterationsStr, &error);
 
       BYTE  key_and_checkCode[MAXKEYSIZE*2];
 
 retry:Pbkdf2Hmac ((BYTE*) cmd->pwd, strlen(cmd->pwd), salt, saltSize, numIterations, key_and_checkCode, keySize+checkCodeSize);
 
-      if (memcmp (key_and_checkCode+keySize, checkCode, checkCodeSize))       // Проверочный код не совпал - ошибка в пароле!
+      if (memcmp (key_and_checkCode+keySize, checkCode, checkCodeSize))       // РџСЂРѕРІРµСЂРѕС‡РЅС‹Р№ РєРѕРґ РЅРµ СЃРѕРІРїР°Р» - РѕС€РёР±РєР° РІ РїР°СЂРѕР»Рµ!
       {
         char answer = UI->AskPassword (cmd->pwd, PASSWORDBUF_SIZE);
         switch (answer)
@@ -312,21 +312,21 @@ retry:Pbkdf2Hmac ((BYTE*) cmd->pwd, strlen(cmd->pwd), salt, saltSize, numIterati
         CHECK (FREEARC_ERRCODE_BAD_PASSWORD,  FALSE,  (s,"ERROR: wrong password"));
       }
 
-      // Добавим ключ в запись алгоритма шифрования
-      char keyParam[MAXKEYSIZE*2+2];        // Строка для шестнадцатеричной записи ключа плюс "k" в начале и '\0' в конце
+      // Р”РѕР±Р°РІРёРј РєР»СЋС‡ РІ Р·Р°РїРёСЃСЊ Р°Р»РіРѕСЂРёС‚РјР° С€РёС„СЂРѕРІР°РЅРёСЏ
+      char keyParam[MAXKEYSIZE*2+2];        // РЎС‚СЂРѕРєР° РґР»СЏ С€РµСЃС‚РЅР°РґС†Р°С‚РµСЂРёС‡РЅРѕР№ Р·Р°РїРёСЃРё РєР»СЋС‡Р° РїР»СЋСЃ "k" РІ РЅР°С‡Р°Р»Рµ Рё '\0' РІ РєРѕРЅС†Рµ
       keyParam[0] = 'k';
       encode16(key_and_checkCode, keySize, keyParam+1);
       param[paramcnt++] = keyParam;
       param[paramcnt++] = NULL;
 
-      // Пересоберём метод шифрования с добавлением ключа
+      // РџРµСЂРµСЃРѕР±РµСЂС‘Рј РјРµС‚РѕРґ С€РёС„СЂРѕРІР°РЅРёСЏ СЃ РґРѕР±Р°РІР»РµРЅРёРµРј РєР»СЋС‡Р°
       join (param, COMPRESSION_METHOD_PARAMETERS_DELIMITER, new_method, endof(new_method_buf)-new_method);
       cm[i] = new_method;
-      new_method += strlen(new_method)+1;   // Переместим указатель на первый свободный байт в буфере new_method_buf
+      new_method += strlen(new_method)+1;   // РџРµСЂРµРјРµСЃС‚РёРј СѓРєР°Р·Р°С‚РµР»СЊ РЅР° РїРµСЂРІС‹Р№ СЃРІРѕР±РѕРґРЅС‹Р№ Р±Р°Р№С‚ РІ Р±СѓС„РµСЂРµ new_method_buf
     }
   }
 
-  // Пересоберём алгоритм с обновлёнными описаниями методов шифрования
+  // РџРµСЂРµСЃРѕР±РµСЂС‘Рј Р°Р»РіРѕСЂРёС‚Рј СЃ РѕР±РЅРѕРІР»С‘РЅРЅС‹РјРё РѕРїРёСЃР°РЅРёСЏРјРё РјРµС‚РѕРґРѕРІ С€РёС„СЂРѕРІР°РЅРёСЏ
   join (cm, COMPRESSION_METHODS_DELIMITER, new_compressor, MAX_COMPRESSOR_STRLEN);
   return new_compressor;
 #endif //UNARC_DECRYPTION
@@ -342,60 +342,60 @@ int global_callback (const char *what, void *buf, int size, void *auxdata)
   return ((PROCESS*)auxdata) -> DecompressCallback (what, buf, size);
 }
 
-// Распаковать или протестировать файлы из солид-блока с номером block_num каталога dirblock
+// Р Р°СЃРїР°РєРѕРІР°С‚СЊ РёР»Рё РїСЂРѕС‚РµСЃС‚РёСЂРѕРІР°С‚СЊ С„Р°Р№Р»С‹ РёР· СЃРѕР»РёРґ-Р±Р»РѕРєР° СЃ РЅРѕРјРµСЂРѕРј block_num РєР°С‚Р°Р»РѕРіР° dirblock
 void PROCESS::ExtractFiles (DIRECTORY_BLOCK *dirblock, int block_num)
 {
   dir = dirblock;
   BLOCK& data_block (dirblock->data_block [block_num]);
-  extractUntil = -1;                     // В эту переменную будет записан номер последнего файла в солид-блоке, который нужно обработать
-  // Переберём все файлы в этом блоке
+  extractUntil = -1;                     // Р’ СЌС‚Сѓ РїРµСЂРµРјРµРЅРЅСѓСЋ Р±СѓРґРµС‚ Р·Р°РїРёСЃР°РЅ РЅРѕРјРµСЂ РїРѕСЃР»РµРґРЅРµРіРѕ С„Р°Р№Р»Р° РІ СЃРѕР»РёРґ-Р±Р»РѕРєРµ, РєРѕС‚РѕСЂС‹Р№ РЅСѓР¶РЅРѕ РѕР±СЂР°Р±РѕС‚Р°С‚СЊ
+  // РџРµСЂРµР±РµСЂС‘Рј РІСЃРµ С„Р°Р№Р»С‹ РІ СЌС‚РѕРј Р±Р»РѕРєРµ
   for (curfile = dirblock->block_start(block_num); curfile < dirblock->block_end(block_num); curfile++) {
-    if (cmd->accept_file (dirblock, curfile))    // Если этот файл требуется обработать
+    if (cmd->accept_file (dirblock, curfile))    // Р•СЃР»Рё СЌС‚РѕС‚ С„Р°Р№Р» С‚СЂРµР±СѓРµС‚СЃСЏ РѕР±СЂР°Р±РѕС‚Р°С‚СЊ
     {
-      if (dir->size[curfile]==0) {               //   то если это каталог или пустой файл - сделаем это сразу
+      if (dir->size[curfile]==0) {               //   С‚Рѕ РµСЃР»Рё СЌС‚Рѕ РєР°С‚Р°Р»РѕРі РёР»Рё РїСѓСЃС‚РѕР№ С„Р°Р№Р» - СЃРґРµР»Р°РµРј СЌС‚Рѕ СЃСЂР°Р·Сѓ
         if (!outfile_open (FIRST_PASS))  return;
         if (!outfile_close())            return;}
       else
-        extractUntil = curfile;                  //   а иначе - запомним, что нужно распаковать блок как минимум до этого файла
+        extractUntil = curfile;                  //   Р° РёРЅР°С‡Рµ - Р·Р°РїРѕРјРЅРёРј, С‡С‚Рѕ РЅСѓР¶РЅРѕ СЂР°СЃРїР°РєРѕРІР°С‚СЊ Р±Р»РѕРє РєР°Рє РјРёРЅРёРјСѓРј РґРѕ СЌС‚РѕРіРѕ С„Р°Р№Р»Р°
     }
   }
-  if (extractUntil >= 0) {                       // Если в этом блоке нашлось что распаковывать - значит, распакуем! :)
-    infile = &dirblock->arcfile;                 //   Архивный файл
-    infile->seek (archive_pos = data_block.pos); //   Начало данных солид-блока в архиве
-    bytes_left = data_block.compsize;            //   Размер упакованных данных в солид-блоке
-    curfile = dirblock->block_start (block_num); // Номер первого файла в этом солид-блоке
-    if (!outfile_open (SECOND_PASS))  return;    // Откроем первый выходной файл
-    char *compressor1 = InsertTempfile (data_block.compressor, cmd);  // Добавим "tempfile" между компрессорами если не хватает памяти для распаковки
+  if (extractUntil >= 0) {                       // Р•СЃР»Рё РІ СЌС‚РѕРј Р±Р»РѕРєРµ РЅР°С€Р»РѕСЃСЊ С‡С‚Рѕ СЂР°СЃРїР°РєРѕРІС‹РІР°С‚СЊ - Р·РЅР°С‡РёС‚, СЂР°СЃРїР°РєСѓРµРј! :)
+    infile = &dirblock->arcfile;                 //   РђСЂС…РёРІРЅС‹Р№ С„Р°Р№Р»
+    infile->seek (archive_pos = data_block.pos); //   РќР°С‡Р°Р»Рѕ РґР°РЅРЅС‹С… СЃРѕР»РёРґ-Р±Р»РѕРєР° РІ Р°СЂС…РёРІРµ
+    bytes_left = data_block.compsize;            //   Р Р°Р·РјРµСЂ СѓРїР°РєРѕРІР°РЅРЅС‹С… РґР°РЅРЅС‹С… РІ СЃРѕР»РёРґ-Р±Р»РѕРєРµ
+    curfile = dirblock->block_start (block_num); // РќРѕРјРµСЂ РїРµСЂРІРѕРіРѕ С„Р°Р№Р»Р° РІ СЌС‚РѕРј СЃРѕР»РёРґ-Р±Р»РѕРєРµ
+    if (!outfile_open (SECOND_PASS))  return;    // РћС‚РєСЂРѕРµРј РїРµСЂРІС‹Р№ РІС‹С…РѕРґРЅРѕР№ С„Р°Р№Р»
+    char *compressor1 = InsertTempfile (data_block.compressor, cmd);  // Р”РѕР±Р°РІРёРј "tempfile" РјРµР¶РґСѓ РєРѕРјРїСЂРµСЃСЃРѕСЂР°РјРё РµСЃР»Рё РЅРµ С…РІР°С‚Р°РµС‚ РїР°РјСЏС‚Рё РґР»СЏ СЂР°СЃРїР°РєРѕРІРєРё
     char compressor2_buf[MAX_COMPRESSOR_STRLEN];
     char *compressor2 = GenerateDecryption(compressor1? compressor1 : data_block.compressor, compressor2_buf);
     int result = Decompress (compressor2, global_callback, this);
     CHECK (result,  result!=FREEARC_ERRCODE_INVALID_COMPRESSOR,  (s,"ERROR: unsupported compression method %s", data_block.compressor));
     CHECK (result,  result>=0 || result==FREEARC_ERRCODE_NO_MORE_DATA_REQUIRED,  (s,"ERROR: archive data corrupted (decompression fails)"));
     if (compressor1!=data_block.compressor)  free (compressor1);
-    if (!outfile_close())  return;               // Закроем последний выходной файл
+    if (!outfile_close())  return;               // Р—Р°РєСЂРѕРµРј РїРѕСЃР»РµРґРЅРёР№ РІС‹С…РѕРґРЅРѕР№ С„Р°Р№Р»
   }
 }
 
 
 /******************************************************************************
-** Получить информацию об архиве **********************************************
+** РџРѕР»СѓС‡РёС‚СЊ РёРЅС„РѕСЂРјР°С†РёСЋ РѕР± Р°СЂС…РёРІРµ **********************************************
 ******************************************************************************/
 
 PROCESS::PROCESS (COMMAND* _cmd, BASEUI* _UI, uint64 &total_files, uint64 &origsize, uint64 &compsize) : cmd(_cmd), UI(_UI)
 {
   CurrentProcess = this;
   SetCompressionThreads (GetProcessorsCount());
-  OpenArchive();                                                      // Откроем файл архива и прочитаем структуру архива
+  OpenArchive();                                                      // РћС‚РєСЂРѕРµРј С„Р°Р№Р» Р°СЂС…РёРІР° Рё РїСЂРѕС‡РёС‚Р°РµРј СЃС‚СЂСѓРєС‚СѓСЂСѓ Р°СЂС…РёРІР°
   total_files = origsize = compsize = 0;
 
-  iterate_array (i, arcinfo.control_blocks_descriptors) {             // Переберём все служебные блоки в архиве...
+  iterate_array (i, arcinfo.control_blocks_descriptors) {             // РџРµСЂРµР±РµСЂС‘Рј РІСЃРµ СЃР»СѓР¶РµР±РЅС‹Рµ Р±Р»РѕРєРё РІ Р°СЂС…РёРІРµ...
     BLOCK& block_descriptor = arcinfo.control_blocks_descriptors[i];
-    if (block_descriptor.type == DIR_BLOCK) {                         // ... и отберём из них блоки каталога
-      DIRECTORY_BLOCK dirblock (arcinfo, block_descriptor,           // Прочитаем блок каталога
+    if (block_descriptor.type == DIR_BLOCK) {                         // ... Рё РѕС‚Р±РµСЂС‘Рј РёР· РЅРёС… Р±Р»РѕРєРё РєР°С‚Р°Р»РѕРіР°
+      DIRECTORY_BLOCK dirblock (arcinfo, block_descriptor,           // РџСЂРѕС‡РёС‚Р°РµРј Р±Р»РѕРє РєР°С‚Р°Р»РѕРіР°
                                 global_GenerateDecryption, this);
-      iterate_var (i, dirblock.total_files)                           // Переберём все файлы в каталоге
+      iterate_var (i, dirblock.total_files)                           // РџРµСЂРµР±РµСЂС‘Рј РІСЃРµ С„Р°Р№Р»С‹ РІ РєР°С‚Р°Р»РѕРіРµ
       	origsize += dirblock.size[i];
-      iterate_array (i, dirblock.data_block)                          // Переберём все солид-блоки в каталоге
+      iterate_array (i, dirblock.data_block)                          // РџРµСЂРµР±РµСЂС‘Рј РІСЃРµ СЃРѕР»РёРґ-Р±Р»РѕРєРё РІ РєР°С‚Р°Р»РѕРіРµ
       	compsize += dirblock.data_block[i].compsize;
       total_files += dirblock.total_files;
     }
@@ -405,27 +405,27 @@ PROCESS::PROCESS (COMMAND* _cmd, BASEUI* _UI, uint64 &total_files, uint64 &origs
 
 
 /******************************************************************************
-** Головная процедура выполнения команды над архивом **************************
+** Р“РѕР»РѕРІРЅР°СЏ РїСЂРѕС†РµРґСѓСЂР° РІС‹РїРѕР»РЅРµРЅРёСЏ РєРѕРјР°РЅРґС‹ РЅР°Рґ Р°СЂС…РёРІРѕРј **************************
 ******************************************************************************/
 
-// Откроем файл архива и прочитаем структуру архива
-// Для SFX пробует соответствующий .arc файл если SFX-модуль не содержит архива
+// РћС‚РєСЂРѕРµРј С„Р°Р№Р» Р°СЂС…РёРІР° Рё РїСЂРѕС‡РёС‚Р°РµРј СЃС‚СЂСѓРєС‚СѓСЂСѓ Р°СЂС…РёРІР°
+// Р”Р»СЏ SFX РїСЂРѕР±СѓРµС‚ СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓСЋС‰РёР№ .arc С„Р°Р№Р» РµСЃР»Рё SFX-РјРѕРґСѓР»СЊ РЅРµ СЃРѕРґРµСЂР¶РёС‚ Р°СЂС…РёРІР°
 void PROCESS::OpenArchive()
 {
-  arcinfo.arcfile.open (cmd->arcname, READ_MODE);            // Откроем файл архива
-  arcinfo.read_structure (global_GenerateDecryption, this);  // Прочитаем структуру архива
+  arcinfo.arcfile.open (cmd->arcname, READ_MODE);            // РћС‚РєСЂРѕРµРј С„Р°Р№Р» Р°СЂС…РёРІР°
+  arcinfo.read_structure (global_GenerateDecryption, this);  // РџСЂРѕС‡РёС‚Р°РµРј СЃС‚СЂСѓРєС‚СѓСЂСѓ Р°СЂС…РёРІР°
 }
 
 
-// Читает структуру архива и вызывает в зависимости от выполняемой команды
-// ListFiles для каждого блока каталога или ExtractFiles для каждого солид-блока
+// Р§РёС‚Р°РµС‚ СЃС‚СЂСѓРєС‚СѓСЂСѓ Р°СЂС…РёРІР° Рё РІС‹Р·С‹РІР°РµС‚ РІ Р·Р°РІРёСЃРёРјРѕСЃС‚Рё РѕС‚ РІС‹РїРѕР»РЅСЏРµРјРѕР№ РєРѕРјР°РЅРґС‹
+// ListFiles РґР»СЏ РєР°Р¶РґРѕРіРѕ Р±Р»РѕРєР° РєР°С‚Р°Р»РѕРіР° РёР»Рё ExtractFiles РґР»СЏ РєР°Р¶РґРѕРіРѕ СЃРѕР»РёРґ-Р±Р»РѕРєР°
 PROCESS::PROCESS (COMMAND* _cmd, BASEUI* _UI) : cmd(_cmd), UI(_UI)
 {
   CurrentProcess = this;
   cmd->Prepare();
-  OpenArchive();                                                      // Откроем файл архива и прочитаем структуру архива
+  OpenArchive();                                                      // РћС‚РєСЂРѕРµРј С„Р°Р№Р» Р°СЂС…РёРІР° Рё РїСЂРѕС‡РёС‚Р°РµРј СЃС‚СЂСѓРєС‚СѓСЂСѓ Р°СЂС…РёРІР°
 
-  // Выведем заголовок операции на экран и запросим у пользователя разрешение на распаковку SFX
+  // Р’С‹РІРµРґРµРј Р·Р°РіРѕР»РѕРІРѕРє РѕРїРµСЂР°С†РёРё РЅР° СЌРєСЂР°РЅ Рё Р·Р°РїСЂРѕСЃРёРј Сѓ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ СЂР°Р·СЂРµС€РµРЅРёРµ РЅР° СЂР°СЃРїР°РєРѕРІРєСѓ SFX
   if (!UI->AllowProcessing (cmd->cmd, cmd->silent, MYFILE(cmd->arcname).displayname(), &arcinfo.arcComment[0], arcinfo.arcComment.size, cmd->outpath.utf8name)) {
     cmd->ok = FALSE;  return;
   }
@@ -434,16 +434,16 @@ PROCESS::PROCESS (COMMAND* _cmd, BASEUI* _UI) : cmd(_cmd), UI(_UI)
   writtenBytes = 0;
   if (cmd->list_cmd())     UI->ListHeader (*cmd);
   else                     {if (!UI->BeginProgress (arcinfo.arcfile.size()))   return;}
-  iterate_array (i, arcinfo.control_blocks_descriptors) {             // Переберём все служебные блоки в архиве...
+  iterate_array (i, arcinfo.control_blocks_descriptors) {             // РџРµСЂРµР±РµСЂС‘Рј РІСЃРµ СЃР»СѓР¶РµР±РЅС‹Рµ Р±Р»РѕРєРё РІ Р°СЂС…РёРІРµ...
     BLOCK& block_descriptor = arcinfo.control_blocks_descriptors[i];
-    if (block_descriptor.type == DIR_BLOCK) {                         // ... и отберём из них блоки каталога
-      DIRECTORY_BLOCK dirblock (arcinfo, block_descriptor,            // Прочитаем блок каталога
+    if (block_descriptor.type == DIR_BLOCK) {                         // ... Рё РѕС‚Р±РµСЂС‘Рј РёР· РЅРёС… Р±Р»РѕРєРё РєР°С‚Р°Р»РѕРіР°
+      DIRECTORY_BLOCK dirblock (arcinfo, block_descriptor,            // РџСЂРѕС‡РёС‚Р°РµРј Р±Р»РѕРє РєР°С‚Р°Р»РѕРіР°
                                 global_GenerateDecryption, this);
-      if (cmd->list_cmd())                                            // Если это команда получения листинга
-        UI->ListFiles (&dirblock, *cmd);                              //   то выполним её
+      if (cmd->list_cmd())                                            // Р•СЃР»Рё СЌС‚Рѕ РєРѕРјР°РЅРґР° РїРѕР»СѓС‡РµРЅРёСЏ Р»РёСЃС‚РёРЅРіР°
+        UI->ListFiles (&dirblock, *cmd);                              //   С‚Рѕ РІС‹РїРѕР»РЅРёРј РµС‘
       else
-        iterate_array (i, dirblock.data_block)                        //   иначе - переберём все солид-блоки в каталоге
-          ExtractFiles (&dirblock, i);                                //     и для каждого из них выполним процедуру тестирования/распаковки
+        iterate_array (i, dirblock.data_block)                        //   РёРЅР°С‡Рµ - РїРµСЂРµР±РµСЂС‘Рј РІСЃРµ СЃРѕР»РёРґ-Р±Р»РѕРєРё РІ РєР°С‚Р°Р»РѕРіРµ
+          ExtractFiles (&dirblock, i);                                //     Рё РґР»СЏ РєР°Р¶РґРѕРіРѕ РёР· РЅРёС… РІС‹РїРѕР»РЅРёРј РїСЂРѕС†РµРґСѓСЂСѓ С‚РµСЃС‚РёСЂРѕРІР°РЅРёСЏ/СЂР°СЃРїР°РєРѕРІРєРё
     }
   }
   if (cmd->list_cmd())  UI->ListFooter (*cmd);
@@ -452,7 +452,7 @@ PROCESS::PROCESS (COMMAND* _cmd, BASEUI* _UI) : cmd(_cmd), UI(_UI)
 }
 
 
-// Процедура экстренного прекращения работы (для exe) или экстренного выхода (для dll)
+// РџСЂРѕС†РµРґСѓСЂР° СЌРєСЃС‚СЂРµРЅРЅРѕРіРѕ РїСЂРµРєСЂР°С‰РµРЅРёСЏ СЂР°Р±РѕС‚С‹ (РґР»СЏ exe) РёР»Рё СЌРєСЃС‚СЂРµРЅРЅРѕРіРѕ РІС‹С…РѕРґР° (РґР»СЏ dll)
 bool PROCESS::quit (int errcode, char* errmsg)
 {
   cmd->ok = FALSE;

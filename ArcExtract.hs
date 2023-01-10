@@ -1,6 +1,6 @@
 {-# OPTIONS_GHC -cpp #-}
 ----------------------------------------------------------------------------------------------------
----- Реализация команд распаковки и получения листинга архива                                   ----
+---- Р РµР°Р»РёР·Р°С†РёСЏ РєРѕРјР°РЅРґ СЂР°СЃРїР°РєРѕРІРєРё Рё РїРѕР»СѓС‡РµРЅРёСЏ Р»РёСЃС‚РёРЅРіР° Р°СЂС…РёРІР°                                   ----
 ----------------------------------------------------------------------------------------------------
 module ArcExtract ( runArchiveExtract
                   , runArchiveList
@@ -39,7 +39,7 @@ import ArhiveDirectory
 import ArcvProcessExtract
 import ArcvProcessRead
 
--- |Обобщённая команда распаковки архива
+-- |РћР±РѕР±С‰С‘РЅРЅР°СЏ РєРѕРјР°РЅРґР° СЂР°СЃРїР°РєРѕРІРєРё Р°СЂС…РёРІР°
 runArchiveExtract pretestArchive
                   command@Command{ cmd_arcname         = arcname
                                  , cmd_archive_filter  = archive_filter
@@ -48,23 +48,23 @@ runArchiveExtract pretestArchive
                                  , opt_arccmt_file     = arccmt_file
                                  , opt_unParseFile     = unParseFile
                                  } = do
-  -- Суперэкономия памяти: find_archives -> buffer 10_000 -> read_dir -> buffer 10_000 -> arcExtract
+  -- РЎСѓРїРµСЂСЌРєРѕРЅРѕРјРёСЏ РїР°РјСЏС‚Рё: find_archives -> buffer 10_000 -> read_dir -> buffer 10_000 -> arcExtract
   doFinally uiDoneArchive2 $ do
-  uiStartArchive command []  -- сообщить пользователю о начале обработки очередного архива
-  command <- (command.$ opt_cook_passwords) command ask_passwords  -- подготовить пароли в команде к использованию
+  uiStartArchive command []  -- СЃРѕРѕР±С‰РёС‚СЊ РїРѕР»СЊР·РѕРІР°С‚РµР»СЋ Рѕ РЅР°С‡Р°Р»Рµ РѕР±СЂР°Р±РѕС‚РєРё РѕС‡РµСЂРµРґРЅРѕРіРѕ Р°СЂС…РёРІР°
+  command <- (command.$ opt_cook_passwords) command ask_passwords  -- РїРѕРґРіРѕС‚РѕРІРёС‚СЊ РїР°СЂРѕР»Рё РІ РєРѕРјР°РЅРґРµ Рє РёСЃРїРѕР»СЊР·РѕРІР°РЅРёСЋ
   uiStage "0249 Reading archive directory"
   let openArchive = archiveReadInfo command arc_basedir disk_basedir archive_filter (pretestArchive command)
   bracketCtrlBreak "arcClose:ArcExtract" (openArchive arcname) (arcClose)$ \archive -> do
-    uiPrintArcComment (arcComment archive)            -- Напечатать комментарий
-    when (arccmt_file/="-" && arccmt_file/="--") $    -- и записать его в файл, указанный опцией -z
+    uiPrintArcComment (arcComment archive)            -- РќР°РїРµС‡Р°С‚Р°С‚СЊ РєРѕРјРјРµРЅС‚Р°СЂРёР№
+    when (arccmt_file/="-" && arccmt_file/="--") $    -- Рё Р·Р°РїРёСЃР°С‚СЊ РµРіРѕ РІ С„Р°Р№Р», СѓРєР°Р·Р°РЅРЅС‹Р№ РѕРїС†РёРµР№ -z
       unParseFile 'c' arccmt_file (arcComment archive)
     arcExtract command archive
-  uiDoneArchive  -- напечатать и вернуть в вызывающую процедуру статистику выполнения команды
+  uiDoneArchive  -- РЅР°РїРµС‡Р°С‚Р°С‚СЊ Рё РІРµСЂРЅСѓС‚СЊ РІ РІС‹Р·С‹РІР°СЋС‰СѓСЋ РїСЂРѕС†РµРґСѓСЂСѓ СЃС‚Р°С‚РёСЃС‚РёРєСѓ РІС‹РїРѕР»РЅРµРЅРёСЏ РєРѕРјР°РЅРґС‹
 
--- |Распаковка архива
+-- |Р Р°СЃРїР°РєРѕРІРєР° Р°СЂС…РёРІР°
 arcExtract command arcinfo = do
   let filelist = arcDirectory arcinfo
-  -- Отобразить в UI общий объём распаковываемых файлов и объём уже распакованного каталога архива
+  -- РћС‚РѕР±СЂР°Р·РёС‚СЊ РІ UI РѕР±С‰РёР№ РѕР±СЉС‘Рј СЂР°СЃРїР°РєРѕРІС‹РІР°РµРјС‹С… С„Р°Р№Р»РѕРІ Рё РѕР±СЉС‘Рј СѓР¶Рµ СЂР°СЃРїР°РєРѕРІР°РЅРЅРѕРіРѕ РєР°С‚Р°Р»РѕРіР° Р°СЂС…РёРІР°
   uiStartProcessing (length filelist)  (sum$ map (fiSize.cfFileInfo) filelist)  (arcDataBytes arcinfo)  (arcDataCBytes arcinfo)
   uiStartDirectory
   uiUnpackedBytes   (arcDirBytes  arcinfo)
@@ -73,63 +73,63 @@ arcExtract command arcinfo = do
   uiStartFiles 0
   if isSzArchive arcinfo  then szExtract command arcinfo can_be_extracted else do
   withPool $ \pool -> do
-  -- Создадим треды для распаковки файлов и записи распакованных данных
+  -- РЎРѕР·РґР°РґРёРј С‚СЂРµРґС‹ РґР»СЏ СЂР°СЃРїР°РєРѕРІРєРё С„Р°Р№Р»РѕРІ Рё Р·Р°РїРёСЃРё СЂР°СЃРїР°РєРѕРІР°РЅРЅС‹С… РґР°РЅРЅС‹С…
   bracketedRunAsyncP (decompress_PROCESS command (uiCompressedBytes.i)) Nothing $ \decompress_pipe -> do
   bracketedRunAsyncP (write_extracted_files_PROCESS command)            TheEnd  $ \writer_pipe -> do
-  -- Процедура, используемая для обработки каждого файла
+  -- РџСЂРѕС†РµРґСѓСЂР°, РёСЃРїРѕР»СЊР·СѓРµРјР°СЏ РґР»СЏ РѕР±СЂР°Р±РѕС‚РєРё РєР°Р¶РґРѕРіРѕ С„Р°Р№Р»Р°
   process_file <- case (cmd_name command) of
                     "t"  -> return$ test_file decompress_pipe
                     _    -> cached_extract_file command pool writer_pipe decompress_pipe
-  -- Распаковать файлы, которые можно распаковать, и выругаться на нераспаковываемые
+  -- Р Р°СЃРїР°РєРѕРІР°С‚СЊ С„Р°Р№Р»С‹, РєРѕС‚РѕСЂС‹Рµ РјРѕР¶РЅРѕ СЂР°СЃРїР°РєРѕРІР°С‚СЊ, Рё РІС‹СЂСѓРіР°С‚СЊСЃСЏ РЅР° РЅРµСЂР°СЃРїР°РєРѕРІС‹РІР°РµРјС‹Рµ
   let (filesToSkip,   allToExtract)    =  partition isCompressedFake    (arcDirectory arcinfo)
       (dirsToExtract, filesToExtract)  =  partition (fiIsDir.cfFileInfo) allToExtract
-  for (filesToExtract++dirsToExtract) process_file    -- Каталоги в конце чтобы установить им дату модификации, запомненную в архиве
+  for (filesToExtract++dirsToExtract) process_file    -- РљР°С‚Р°Р»РѕРіРё РІ РєРѕРЅС†Рµ С‡С‚РѕР±С‹ СѓСЃС‚Р°РЅРѕРІРёС‚СЊ РёРј РґР°С‚Сѓ РјРѕРґРёС„РёРєР°С†РёРё, Р·Р°РїРѕРјРЅРµРЅРЅСѓСЋ РІ Р°СЂС…РёРІРµ
   unless (null filesToSkip)$  do registerWarning$ SKIPPED_FAKE_FILES (length filesToSkip)
 
 
 ----------------------------------------------------------------------------------------------------
----- Распаковка файлов с промежуточным кешированием данных в отдельном процессе.                ----
----- От первого процесса во второй пересылается последовательность сообщений                    ----
+---- Р Р°СЃРїР°РєРѕРІРєР° С„Р°Р№Р»РѕРІ СЃ РїСЂРѕРјРµР¶СѓС‚РѕС‡РЅС‹Рј РєРµС€РёСЂРѕРІР°РЅРёРµРј РґР°РЅРЅС‹С… РІ РѕС‚РґРµР»СЊРЅРѕРј РїСЂРѕС†РµСЃСЃРµ.                ----
+---- РћС‚ РїРµСЂРІРѕРіРѕ РїСЂРѕС†РµСЃСЃР° РІРѕ РІС‚РѕСЂРѕР№ РїРµСЂРµСЃС‹Р»Р°РµС‚СЃСЏ РїРѕСЃР»РµРґРѕРІР°С‚РµР»СЊРЅРѕСЃС‚СЊ СЃРѕРѕР±С‰РµРЅРёР№                    ----
 ----   (FileStart DataChunk* DataEnd FileCrc)* TheEnd                                           ----
----- Каталоги распаковываются "на месте".                                                       ----
+---- РљР°С‚Р°Р»РѕРіРё СЂР°СЃРїР°РєРѕРІС‹РІР°СЋС‚СЃСЏ "РЅР° РјРµСЃС‚Рµ".                                                       ----
 ----------------------------------------------------------------------------------------------------
 
--- |Кешированная распаковка одного файла из архива
+-- |РљРµС€РёСЂРѕРІР°РЅРЅР°СЏ СЂР°СЃРїР°РєРѕРІРєР° РѕРґРЅРѕРіРѕ С„Р°Р№Р»Р° РёР· Р°СЂС…РёРІР°
 cached_extract_file command pool writer_pipe decompress_pipe = do
   case (opt_decompression_cache command) of
-    0 -> do -- Кеширование отключено - извлекаем каждый файл сразу
+    0 -> do -- РљРµС€РёСЂРѕРІР°РЅРёРµ РѕС‚РєР»СЋС‡РµРЅРѕ - РёР·РІР»РµРєР°РµРј РєР°Р¶РґС‹Р№ С„Р°Р№Р» СЃСЂР°Р·Сѓ
             return$ \compressed_file -> do
              let fileinfo = cfFileInfo compressed_file
-             -- Продолжим при условии, что этот файл позволено распаковать
+             -- РџСЂРѕРґРѕР»Р¶РёРј РїСЂРё СѓСЃР»РѕРІРёРё, С‡С‚Рѕ СЌС‚РѕС‚ С„Р°Р№Р» РїРѕР·РІРѕР»РµРЅРѕ СЂР°СЃРїР°РєРѕРІР°С‚СЊ
              whenM (extract_file_allowed command fileinfo)$ do
                extract_file command fileinfo (decompress_file decompress_pipe compressed_file)
 
-    _ -> do -- Создадим кеш для извлекаемых файлов
+    _ -> do -- РЎРѕР·РґР°РґРёРј РєРµС€ РґР»СЏ РёР·РІР»РµРєР°РµРјС‹С… С„Р°Р№Р»РѕРІ
             bufOps <- makeFileCache (opt_decompression_cache command) pool writer_pipe
-            -- Возвратим функцию, распаковывающую один файл из архива и кеширующие эти данные перед пересылкой в writer_pipe
+            -- Р’РѕР·РІСЂР°С‚РёРј С„СѓРЅРєС†РёСЋ, СЂР°СЃРїР°РєРѕРІС‹РІР°СЋС‰СѓСЋ РѕРґРёРЅ С„Р°Р№Р» РёР· Р°СЂС…РёРІР° Рё РєРµС€РёСЂСѓСЋС‰РёРµ СЌС‚Рё РґР°РЅРЅС‹Рµ РїРµСЂРµРґ РїРµСЂРµСЃС‹Р»РєРѕР№ РІ writer_pipe
             return $ \compressed_file -> do
               let fileinfo  =  cfFileInfo compressed_file
-              -- Продолжим при условии, что этот файл позволено распаковать
+              -- РџСЂРѕРґРѕР»Р¶РёРј РїСЂРё СѓСЃР»РѕРІРёРё, С‡С‚Рѕ СЌС‚РѕС‚ С„Р°Р№Р» РїРѕР·РІРѕР»РµРЅРѕ СЂР°СЃРїР°РєРѕРІР°С‚СЊ
               whenM (extract_file_allowed command fileinfo)$ do
                 (Just (FileWithCRC crc _ _)) <- read_file command writer_pipe bufOps decompress_pipe compressed_file
                 sendP writer_pipe DataEnd
                 sendP writer_pipe (FileCrc crc)
 
 
--- |Тред записи распакованных данных в файлы.
--- todo: выходить при получении TheEnd внутри extract_file (ждя корректной обработки исключений в bracketedRunAsyncP)
+-- |РўСЂРµРґ Р·Р°РїРёСЃРё СЂР°СЃРїР°РєРѕРІР°РЅРЅС‹С… РґР°РЅРЅС‹С… РІ С„Р°Р№Р»С‹.
+-- todo: РІС‹С…РѕРґРёС‚СЊ РїСЂРё РїРѕР»СѓС‡РµРЅРёРё TheEnd РІРЅСѓС‚СЂРё extract_file (Р¶РґСЏ РєРѕСЂСЂРµРєС‚РЅРѕР№ РѕР±СЂР°Р±РѕС‚РєРё РёСЃРєР»СЋС‡РµРЅРёР№ РІ bracketedRunAsyncP)
 write_extracted_files_PROCESS command writer_pipe = do
-  -- Канал, рассылающий задания на запись файлов.
-  -- Каждое задание - это pipe, по которому придёт вся информация, относящаяся к конкретному файлу.
-  -- Один из потоков хватает задание из очереди и отрабатывает всю запись в этот файл.
-  -- todo: непонятная активность после завершения этого процесса
+  -- РљР°РЅР°Р», СЂР°СЃСЃС‹Р»Р°СЋС‰РёР№ Р·Р°РґР°РЅРёСЏ РЅР° Р·Р°РїРёСЃСЊ С„Р°Р№Р»РѕРІ.
+  -- РљР°Р¶РґРѕРµ Р·Р°РґР°РЅРёРµ - СЌС‚Рѕ pipe, РїРѕ РєРѕС‚РѕСЂРѕРјСѓ РїСЂРёРґС‘С‚ РІСЃСЏ РёРЅС„РѕСЂРјР°С†РёСЏ, РѕС‚РЅРѕСЃСЏС‰Р°СЏСЃСЏ Рє РєРѕРЅРєСЂРµС‚РЅРѕРјСѓ С„Р°Р№Р»Сѓ.
+  -- РћРґРёРЅ РёР· РїРѕС‚РѕРєРѕРІ С…РІР°С‚Р°РµС‚ Р·Р°РґР°РЅРёРµ РёР· РѕС‡РµСЂРµРґРё Рё РѕС‚СЂР°Р±Р°С‚С‹РІР°РµС‚ РІСЃСЋ Р·Р°РїРёСЃСЊ РІ СЌС‚РѕС‚ С„Р°Р№Р».
+  -- todo: РЅРµРїРѕРЅСЏС‚РЅР°СЏ Р°РєС‚РёРІРЅРѕСЃС‚СЊ РїРѕСЃР»Рµ Р·Р°РІРµСЂС€РµРЅРёСЏ СЌС‚РѕРіРѕ РїСЂРѕС†РµСЃСЃР°
   jobs_chan <- newChan
-  -- Канал, сохраняющий порядок полученных заданий. Необходим для возврата буферов назад в правильном порядке
+  -- РљР°РЅР°Р», СЃРѕС…СЂР°РЅСЏСЋС‰РёР№ РїРѕСЂСЏРґРѕРє РїРѕР»СѓС‡РµРЅРЅС‹С… Р·Р°РґР°РЅРёР№. РќРµРѕР±С…РѕРґРёРј РґР»СЏ РІРѕР·РІСЂР°С‚Р° Р±СѓС„РµСЂРѕРІ РЅР°Р·Р°Рґ РІ РїСЂР°РІРёР»СЊРЅРѕРј РїРѕСЂСЏРґРєРµ
   jobs_order_chan <- newChan
-  -- Семафор для ожидания закрытия всех открытых файлов
+  -- РЎРµРјР°С„РѕСЂ РґР»СЏ РѕР¶РёРґР°РЅРёСЏ Р·Р°РєСЂС‹С‚РёСЏ РІСЃРµС… РѕС‚РєСЂС‹С‚С‹С… С„Р°Р№Р»РѕРІ
   all_files <- newQSemN 0
 
-  -- Здесь мы создаём поток, который будет создавать задания на запись, группируя в каждом из них информацию по одному файлу
+  -- Р—РґРµСЃСЊ РјС‹ СЃРѕР·РґР°С‘Рј РїРѕС‚РѕРє, РєРѕС‚РѕСЂС‹Р№ Р±СѓРґРµС‚ СЃРѕР·РґР°РІР°С‚СЊ Р·Р°РґР°РЅРёСЏ РЅР° Р·Р°РїРёСЃСЊ, РіСЂСѓРїРїРёСЂСѓСЏ РІ РєР°Р¶РґРѕРј РёР· РЅРёС… РёРЅС„РѕСЂРјР°С†РёСЋ РїРѕ РѕРґРЅРѕРјСѓ С„Р°Р№Р»Сѓ
   forkOS $ do
     repeat_while (receiveP writer_pipe) notTheEnd $ \(FileStart fi) -> do
       file_pipe <- newPipe
@@ -141,7 +141,7 @@ write_extracted_files_PROCESS command writer_pipe = do
          sendP file_pipe =<< receiveP writer_pipe  -- FileCrc crc
     writeChan jobs_order_chan Nothing
 
-  -- Здесь мы создаём рабочие потоки, которые будут хватать задания из jobs_chan и осуществлять фактическую запись в файл
+  -- Р—РґРµСЃСЊ РјС‹ СЃРѕР·РґР°С‘Рј СЂР°Р±РѕС‡РёРµ РїРѕС‚РѕРєРё, РєРѕС‚РѕСЂС‹Рµ Р±СѓРґСѓС‚ С…РІР°С‚Р°С‚СЊ Р·Р°РґР°РЅРёСЏ РёР· jobs_chan Рё РѕСЃСѓС‰РµСЃС‚РІР»СЏС‚СЊ С„Р°РєС‚РёС‡РµСЃРєСѓСЋ Р·Р°РїРёСЃСЊ РІ С„Р°Р№Р»
   cthreads <- getCompressionThreads
   for [1..cthreads] $ \_ -> do
     forkOS $ do
@@ -155,95 +155,95 @@ write_extracted_files_PROCESS command writer_pipe = do
           return crc
         signalQSemN all_files 1
 
-  -- А здесь мы возвращаем аллокатору памяти использованные буфера строго в том порядке, в котором их получали
+  -- Рђ Р·РґРµСЃСЊ РјС‹ РІРѕР·РІСЂР°С‰Р°РµРј Р°Р»Р»РѕРєР°С‚РѕСЂСѓ РїР°РјСЏС‚Рё РёСЃРїРѕР»СЊР·РѕРІР°РЅРЅС‹Рµ Р±СѓС„РµСЂР° СЃС‚СЂРѕРіРѕ РІ С‚РѕРј РїРѕСЂСЏРґРєРµ, РІ РєРѕС‚РѕСЂРѕРј РёС… РїРѕР»СѓС‡Р°Р»Рё
   files_count <- ref 0
   repeat_while (readChan jobs_order_chan) isJust $ \(Just file_pipe) -> do
     repeat_while (receive_backP file_pipe) notDataEnd (\(DataChunk buf len) -> send_backP writer_pipe (buf,len))
     files_count += 1
 
-  -- И дожидаемся закрытия всех открытых файлов
+  -- Р РґРѕР¶РёРґР°РµРјСЃСЏ Р·Р°РєСЂС‹С‚РёСЏ РІСЃРµС… РѕС‚РєСЂС‹С‚С‹С… С„Р°Р№Р»РѕРІ
   waitQSemN all_files =<< val files_count
 
   return ()
 
 
 ----------------------------------------------------------------------------------------------------
----- Запись распакованных данных в файлы                                                        ----
+---- Р—Р°РїРёСЃСЊ СЂР°СЃРїР°РєРѕРІР°РЅРЅС‹С… РґР°РЅРЅС‹С… РІ С„Р°Р№Р»С‹                                                        ----
 ----------------------------------------------------------------------------------------------------
 
--- |Тестирование одного файла из архива
+-- |РўРµСЃС‚РёСЂРѕРІР°РЅРёРµ РѕРґРЅРѕРіРѕ С„Р°Р№Р»Р° РёР· Р°СЂС…РёРІР°
 test_file decompress_pipe compressed_file = do
   let fileinfo = cfFileInfo compressed_file
   uiStartFile "" (Right fileinfo)
   run_decompress fileinfo (decompress_file decompress_pipe compressed_file) (\buf size -> return ())
   return ()
 
--- |Распаковка одного файла: подготовка и проверка разрешений
+-- |Р Р°СЃРїР°РєРѕРІРєР° РѕРґРЅРѕРіРѕ С„Р°Р№Р»Р°: РїРѕРґРіРѕС‚РѕРІРєР° Рё РїСЂРѕРІРµСЂРєР° СЂР°Р·СЂРµС€РµРЅРёР№
 extract_file_allowed command fileinfo = do
   allowed <- arc_can_be_extracted command fileinfo
   if not allowed
     then return False else do
   uiStartFile "" (Right fileinfo)
   if (fiIsDir fileinfo)
-    then do -- Распаковка каталога
+    then do -- Р Р°СЃРїР°РєРѕРІРєР° РєР°С‚Р°Р»РѕРіР°
             let filename  =  fpFullname (fiDiskName fileinfo)
             createDirectoryHierarchy filename
             setFileDateTimeAttr filename fileinfo
             return False
-    else do -- Распаковка обычного файла
+    else do -- Р Р°СЃРїР°РєРѕРІРєР° РѕР±С‹С‡РЅРѕРіРѕ С„Р°Р№Р»Р°
             return True
 
--- |Распаковка одного файла: основной процесс
+-- |Р Р°СЃРїР°РєРѕРІРєР° РѕРґРЅРѕРіРѕ С„Р°Р№Р»Р°: РѕСЃРЅРѕРІРЅРѕР№ РїСЂРѕС†РµСЃСЃ
 extract_file command fileinfo decompress_file = do
   let filename  =  fpFullname (fiDiskName fileinfo)
   buildPathTo filename
   outfile  <- fileCreate filename
-  let closeOutfile ok = do   -- Процедура, выполняемая после распаковки файла или при выходе по ^Break
-        fileClose outfile                                 -- to do: если используется fileSetSize, то изменить размер файла в соответствии с количеством реально распакованных байт
+  let closeOutfile ok = do   -- РџСЂРѕС†РµРґСѓСЂР°, РІС‹РїРѕР»РЅСЏРµРјР°СЏ РїРѕСЃР»Рµ СЂР°СЃРїР°РєРѕРІРєРё С„Р°Р№Р»Р° РёР»Рё РїСЂРё РІС‹С…РѕРґРµ РїРѕ ^Break
+        fileClose outfile                                 -- to do: РµСЃР»Рё РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ fileSetSize, С‚Рѕ РёР·РјРµРЅРёС‚СЊ СЂР°Р·РјРµСЂ С„Р°Р№Р»Р° РІ СЃРѕРѕС‚РІРµС‚СЃС‚РІРёРё СЃ РєРѕР»РёС‡РµСЃС‚РІРѕРј СЂРµР°Р»СЊРЅРѕ СЂР°СЃРїР°РєРѕРІР°РЅРЅС‹С… Р±Р°Р№С‚
         if ok || opt_keep_broken command
-          then do setFileDateTimeAttr filename fileinfo   -- Распаковано успешно или нужно сохранять даже файлы, распакованные с ошибками
+          then do setFileDateTimeAttr filename fileinfo   -- Р Р°СЃРїР°РєРѕРІР°РЅРѕ СѓСЃРїРµС€РЅРѕ РёР»Рё РЅСѓР¶РЅРѕ СЃРѕС…СЂР°РЅСЏС‚СЊ РґР°Р¶Рµ С„Р°Р№Р»С‹, СЂР°СЃРїР°РєРѕРІР°РЅРЅС‹Рµ СЃ РѕС€РёР±РєР°РјРё
                   when (opt_clear_archive_bit command) $ do
-                      clearArchiveBit filename            -- Опция -ac - очистить атрибут Archive после распаковки
-          else fileRemove filename                        -- Удалить файл, распакованный с ошибками
-  do  --fileSetSize outfile (fiSize fileinfo)             -- Приличная ОС при этом выделит на диске место для файла одним куском
+                      clearArchiveBit filename            -- РћРїС†РёСЏ -ac - РѕС‡РёСЃС‚РёС‚СЊ Р°С‚СЂРёР±СѓС‚ Archive РїРѕСЃР»Рµ СЂР°СЃРїР°РєРѕРІРєРё
+          else fileRemove filename                        -- РЈРґР°Р»РёС‚СЊ С„Р°Р№Р», СЂР°СЃРїР°РєРѕРІР°РЅРЅС‹Р№ СЃ РѕС€РёР±РєР°РјРё
+  do  --fileSetSize outfile (fiSize fileinfo)             -- РџСЂРёР»РёС‡РЅР°СЏ РћРЎ РїСЂРё СЌС‚РѕРј РІС‹РґРµР»РёС‚ РЅР° РґРёСЃРєРµ РјРµСЃС‚Рѕ РґР»СЏ С„Р°Р№Р»Р° РѕРґРЅРёРј РєСѓСЃРєРѕРј
       handleCtrlBreak ("closeOutfile "++filename) (closeOutfile False) $ do
         ok <- run_decompress fileinfo decompress_file (fileWriteBuf outfile)
         closeOutfile ok
 
 {-# NOINLINE run_decompress #-}
--- |Распаковка файла из архива с проверкой CRC
+-- |Р Р°СЃРїР°РєРѕРІРєР° С„Р°Р№Р»Р° РёР· Р°СЂС…РёРІР° СЃ РїСЂРѕРІРµСЂРєРѕР№ CRC
 run_decompress fileinfo decompress_file write_data = do
-  crc <- ref aINIT_CRC                        -- Инициализируем значение CRC
+  crc <- ref aINIT_CRC                        -- РРЅРёС†РёР°Р»РёР·РёСЂСѓРµРј Р·РЅР°С‡РµРЅРёРµ CRC
   let writer buf len = do
-        uiUnpackedBytes  (i len)              -- Информируем пользователя о ходе распаковки
+        uiUnpackedBytes  (i len)              -- РРЅС„РѕСЂРјРёСЂСѓРµРј РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ Рѕ С…РѕРґРµ СЂР°СЃРїР°РєРѕРІРєРё
         uiUpdateProgressIndicator len         -- -.-
         guiUpdateProgressIndicator
-        crc          .<- updateCRC buf len    -- Обновим CRC содержимым буфера
-        write_data       buf len              -- Запишем данные в файл
+        crc          .<- updateCRC buf len    -- РћР±РЅРѕРІРёРј CRC СЃРѕРґРµСЂР¶РёРјС‹Рј Р±СѓС„РµСЂР°
+        write_data       buf len              -- Р—Р°РїРёС€РµРј РґР°РЅРЅС‹Рµ РІ С„Р°Р№Р»
   correct_crc <- decompress_file writer
-  acrc  <-  val crc >>== finishCRC            -- Вычислим окончательное значение CRC
-  let ok = acrc==correct_crc                  -- True, если CRC совпадает
+  acrc  <-  val crc >>== finishCRC            -- Р’С‹С‡РёСЃР»РёРј РѕРєРѕРЅС‡Р°С‚РµР»СЊРЅРѕРµ Р·РЅР°С‡РµРЅРёРµ CRC
+  let ok = acrc==correct_crc                  -- True, РµСЃР»Рё CRC СЃРѕРІРїР°РґР°РµС‚
   unless ok $ do
     registerWarning$ BAD_CRC (fpFullname$ fiStoredName fileinfo)
   return ok
 
 
--- |Эта функция определяет - можно ли извлечь файл из архива?
--- Ответ зависит от 1) использованных опций (-u/-f/-sync)
---                  2) наличия на диске предыдущего файла
---                  3) того, какой из файлов свежее - на диске или в архиве
---                  4) значения опций "-o" и "y"
---                  5) ответа пользователя на запрос о перезаписи файла
+-- |Р­С‚Р° С„СѓРЅРєС†РёСЏ РѕРїСЂРµРґРµР»СЏРµС‚ - РјРѕР¶РЅРѕ Р»Рё РёР·РІР»РµС‡СЊ С„Р°Р№Р» РёР· Р°СЂС…РёРІР°?
+-- РћС‚РІРµС‚ Р·Р°РІРёСЃРёС‚ РѕС‚ 1) РёСЃРїРѕР»СЊР·РѕРІР°РЅРЅС‹С… РѕРїС†РёР№ (-u/-f/-sync)
+--                  2) РЅР°Р»РёС‡РёСЏ РЅР° РґРёСЃРєРµ РїСЂРµРґС‹РґСѓС‰РµРіРѕ С„Р°Р№Р»Р°
+--                  3) С‚РѕРіРѕ, РєР°РєРѕР№ РёР· С„Р°Р№Р»РѕРІ СЃРІРµР¶РµРµ - РЅР° РґРёСЃРєРµ РёР»Рё РІ Р°СЂС…РёРІРµ
+--                  4) Р·РЅР°С‡РµРЅРёСЏ РѕРїС†РёР№ "-o" Рё "y"
+--                  5) РѕС‚РІРµС‚Р° РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ РЅР° Р·Р°РїСЂРѕСЃ Рѕ РїРµСЂРµР·Р°РїРёСЃРё С„Р°Р№Р»Р°
 --
 can_be_extracted cmd filename return_arcfile = do
   diskfile_exist <- fileExist filename
-  if not diskfile_exist                         -- Если файл на диске не существует
-    then return (opt_update_type cmd /= 'f')    -- то извлечь файл из архива следует во всех случаях, кроме '-f'
+  if not diskfile_exist                         -- Р•СЃР»Рё С„Р°Р№Р» РЅР° РґРёСЃРєРµ РЅРµ СЃСѓС‰РµСЃС‚РІСѓРµС‚
+    then return (opt_update_type cmd /= 'f')    -- С‚Рѕ РёР·РІР»РµС‡СЊ С„Р°Р№Р» РёР· Р°СЂС…РёРІР° СЃР»РµРґСѓРµС‚ РІРѕ РІСЃРµС… СЃР»СѓС‡Р°СЏС…, РєСЂРѕРјРµ '-f'
     else do
   arcfile <- return_arcfile
   fileWithStatus "getFileInfo" filename $ \p_stat -> do
   diskFileTime  <-  stat_mtime p_stat
-  let arcfile_newer  =  fiTime arcfile > diskFileTime   -- файл в архиве свежее, чем на диске?
+  let arcfile_newer  =  fiTime arcfile > diskFileTime   -- С„Р°Р№Р» РІ Р°СЂС…РёРІРµ СЃРІРµР¶РµРµ, С‡РµРј РЅР° РґРёСЃРєРµ?
   let overwrite = case (opt_update_type cmd) of
                     'f' -> arcfile_newer
                     'u' -> arcfile_newer
@@ -255,7 +255,7 @@ can_be_extracted cmd filename return_arcfile = do
                                       else stat_size p_stat
   askOverwrite filename diskFileSize diskFileTime arcfile (opt_overwrite cmd) arcfile_newer
 
--- |Специализирорванный вариант для архивов .arc
+-- |РЎРїРµС†РёР°Р»РёР·РёСЂРѕСЂРІР°РЅРЅС‹Р№ РІР°СЂРёР°РЅС‚ РґР»СЏ Р°СЂС…РёРІРѕРІ .arc
 arc_can_be_extracted command fileinfo = do
   let filename  =  fpFullname (fiDiskName fileinfo)
   if fiIsDir fileinfo
@@ -264,10 +264,10 @@ arc_can_be_extracted command fileinfo = do
 
 
 ----------------------------------------------------------------------------------------------------
----- Запись комментария к архиву в файл (команда "cw")                                          ----
+---- Р—Р°РїРёСЃСЊ РєРѕРјРјРµРЅС‚Р°СЂРёСЏ Рє Р°СЂС…РёРІСѓ РІ С„Р°Р№Р» (РєРѕРјР°РЅРґР° "cw")                                          ----
 ----------------------------------------------------------------------------------------------------
 
--- |Реализация команды "cw" - запись комментария к архиву в файл
+-- |Р РµР°Р»РёР·Р°С†РёСЏ РєРѕРјР°РЅРґС‹ "cw" - Р·Р°РїРёСЃСЊ РєРѕРјРјРµРЅС‚Р°СЂРёСЏ Рє Р°СЂС…РёРІСѓ РІ С„Р°Р№Р»
 runCommentWrite command@Command{ cmd_filespecs   = filespecs
                                , cmd_arcname     = arcname
                                , opt_unParseFile = unParseFile
@@ -276,7 +276,7 @@ runCommentWrite command@Command{ cmd_filespecs   = filespecs
   when (length filespecs /= 1) $
     registerError$ CMDLINE_SYNTAX "cw archive outfile"
   let [outfile] = filespecs
-  command <- (command.$ opt_cook_passwords) command ask_passwords  -- подготовить пароли в команде к использованию
+  command <- (command.$ opt_cook_passwords) command ask_passwords  -- РїРѕРґРіРѕС‚РѕРІРёС‚СЊ РїР°СЂРѕР»Рё РІ РєРѕРјР°РЅРґРµ Рє РёСЃРїРѕР»СЊР·РѕРІР°РЅРёСЋ
   printLineLn$ "Writing archive comment of "++arcname++" to "++outfile
   bracket (arcOpen command arcname) (arcOpenClose.fst) $ \(_,footer) -> do
     unParseFile 'c' outfile (ftComment footer)
@@ -284,26 +284,26 @@ runCommentWrite command@Command{ cmd_filespecs   = filespecs
 
 
 ----------------------------------------------------------------------------------------------------
----- Печать листинга архива:                                                                    ----
-----    - для пользователя (команда "l")                                                        ----
-----    - для хакера (команда "lt")                                                             ----
-----    - для создания файл-листов (команда "lb")                                               ----
-----    - для других программ (команда "v")                                                     ----
+---- РџРµС‡Р°С‚СЊ Р»РёСЃС‚РёРЅРіР° Р°СЂС…РёРІР°:                                                                    ----
+----    - РґР»СЏ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ (РєРѕРјР°РЅРґР° "l")                                                        ----
+----    - РґР»СЏ С…Р°РєРµСЂР° (РєРѕРјР°РЅРґР° "lt")                                                             ----
+----    - РґР»СЏ СЃРѕР·РґР°РЅРёСЏ С„Р°Р№Р»-Р»РёСЃС‚РѕРІ (РєРѕРјР°РЅРґР° "lb")                                               ----
+----    - РґР»СЏ РґСЂСѓРіРёС… РїСЂРѕРіСЂР°РјРј (РєРѕРјР°РЅРґР° "v")                                                     ----
 ---------------------------------------------------------------------------------------------------
 
--- |Обобщённая команда получения листинга архива
+-- |РћР±РѕР±С‰С‘РЅРЅР°СЏ РєРѕРјР°РЅРґР° РїРѕР»СѓС‡РµРЅРёСЏ Р»РёСЃС‚РёРЅРіР° Р°СЂС…РёРІР°
 runArchiveList pretestArchive
                command@Command{ cmd_arclist        = arclist
                               , cmd_arcname        = arcname
                               , opt_arc_basedir    = arc_basedir
                               , cmd_archive_filter = archive_filter
                               } = do
-  uiStartArchive command []  -- сообщить пользователю о начале обработки очередного архива
-  command <- (command.$ opt_cook_passwords) command ask_passwords  -- подготовить пароли в команде к использованию
+  uiStartArchive command []  -- СЃРѕРѕР±С‰РёС‚СЊ РїРѕР»СЊР·РѕРІР°С‚РµР»СЋ Рѕ РЅР°С‡Р°Р»Рµ РѕР±СЂР°Р±РѕС‚РєРё РѕС‡РµСЂРµРґРЅРѕРіРѕ Р°СЂС…РёРІР°
+  command <- (command.$ opt_cook_passwords) command ask_passwords  -- РїРѕРґРіРѕС‚РѕРІРёС‚СЊ РїР°СЂРѕР»Рё РІ РєРѕРјР°РЅРґРµ Рє РёСЃРїРѕР»СЊР·РѕРІР°РЅРёСЋ
   bracket (archiveReadInfo command arc_basedir "" archive_filter (pretestArchive command) arcname) (arcClose) $
       archiveList command (null$ tail arclist)
 
--- |Листинг архива
+-- |Р›РёСЃС‚РёРЅРі Р°СЂС…РёРІР°
 archiveList command @ Command{ cmd_name=cmd, cmd_arcname=arcname}
             show_empty
             arc @ ArchiveInfo{ arcDirectory=directory, arcArchiveType=arctype} = do
@@ -359,10 +359,10 @@ archiveList command @ Command{ cmd_name=cmd, cmd_arcname=arcname}
   return (1, files, bytes, -1)
 
 
--- |Имя файла
+-- |РРјСЏ С„Р°Р№Р»Р°
 filename = fpFullname . fiStoredName . cfFileInfo
 
--- |Добавляет к командам листинга информацию о сжатых размерах солид-блоков
+-- |Р”РѕР±Р°РІР»СЏРµС‚ Рє РєРѕРјР°РЅРґР°Рј Р»РёСЃС‚РёРЅРіР° РёРЅС„РѕСЂРјР°С†РёСЋ Рѕ СЃР¶Р°С‚С‹С… СЂР°Р·РјРµСЂР°С… СЃРѕР»РёРґ-Р±Р»РѕРєРѕРІ
 myMapM f = go 0 True undefined
  where
   go total first lastSolidBlock [] = return total
@@ -377,7 +377,7 @@ myMapM f = go 0 True undefined
     (go $! total+compsize) False solidBlock rest
 
 
--- |Однострочный простой листинг файла
+-- |РћРґРЅРѕСЃС‚СЂРѕС‡РЅС‹Р№ РїСЂРѕСЃС‚РѕР№ Р»РёСЃС‚РёРЅРі С„Р°Р№Р»Р°
 terse_list direntry compsize = do
   let fi = cfFileInfo direntry
   myPutStrLn$        (formatDateTime$ fiTime fi)
@@ -385,7 +385,7 @@ terse_list direntry compsize = do
                   ++ (if (cfIsEncrypted direntry)  then "*"  else " ")
                   ++ filename direntry
 
--- |Однострочный подробный листинг файла
+-- |РћРґРЅРѕСЃС‚СЂРѕС‡РЅС‹Р№ РїРѕРґСЂРѕР±РЅС‹Р№ Р»РёСЃС‚РёРЅРі С„Р°Р№Р»Р°
 verbose_list direntry compsize = do
   let fi = cfFileInfo direntry
   myPutStrLn$        (formatDateTime$ fiTime fi)
@@ -397,7 +397,7 @@ verbose_list direntry compsize = do
                   ++ filename direntry
 
 {-
--- |Многострочный технический листинг файла
+-- |РњРЅРѕРіРѕСЃС‚СЂРѕС‡РЅС‹Р№ С‚РµС…РЅРёС‡РµСЃРєРёР№ Р»РёСЃС‚РёРЅРі С„Р°Р№Р»Р°
 technical_list direntry = do
   let fi = (cfFileInfo direntry)
   timestr <- formatDateTime (fiTime fi)
@@ -409,7 +409,7 @@ technical_list direntry = do
   myPutStrLn$ "Type: "      ++ if (fiIsDir fi) then "directory" else "file"
 -}
 
--- |Техническое описание архива
+-- |РўРµС…РЅРёС‡РµСЃРєРѕРµ РѕРїРёСЃР°РЅРёРµ Р°СЂС…РёРІР°
 techinfoHeader archive = do
   tables <- arcGetTechinfo archive []
   for tables $ \table -> do
@@ -419,7 +419,7 @@ techinfoHeader archive = do
       myPutStrLn (ai++" "++b)
   myPutStrLn ""
 
--- |Описание солид-блока
+-- |РћРїРёСЃР°РЅРёРµ СЃРѕР»РёРґ-Р±Р»РѕРєР°
 data_block_list bl = do
   myPutStrLn$        (if (blIsEncrypted bl)  then "*"  else " ")
            ++ " " ++ right_justify 15 (show3$ blPos      bl)

@@ -6,7 +6,7 @@ extern "C" {
 
 
 /*-------------------------------------------------*/
-/* Реализация класса CLS_METHOD                    */
+/* Р РµР°Р»РёР·Р°С†РёСЏ РєР»Р°СЃСЃР° CLS_METHOD                    */
 /*-------------------------------------------------*/
 
 int cb(void* _instance, int op, void *ptr, int n)
@@ -34,7 +34,7 @@ int cb(void* _instance, int op, void *ptr, int n)
     }
 }
 
-// Функция распаковки
+// Р¤СѓРЅРєС†РёСЏ СЂР°СЃРїР°РєРѕРІРєРё
 int CLS_METHOD::decompress (CALLBACK_FUNC *_callback, void *_auxdata)
 {
     callback = _callback;
@@ -44,7 +44,7 @@ int CLS_METHOD::decompress (CALLBACK_FUNC *_callback, void *_auxdata)
 
 #ifndef FREEARC_DECOMPRESS_ONLY
 
-// Функция упаковки
+// Р¤СѓРЅРєС†РёСЏ СѓРїР°РєРѕРІРєРё
 int CLS_METHOD::compress (CALLBACK_FUNC *_callback, void *_auxdata)
 {
     callback = _callback;
@@ -54,7 +54,7 @@ int CLS_METHOD::compress (CALLBACK_FUNC *_callback, void *_auxdata)
 
 #endif  // !defined (FREEARC_DECOMPRESS_ONLY)
 
-// Записать в buf[MAX_METHOD_STRLEN] строку, описывающую метод сжатия и его параметры (функция, обратная к parse_CLS)
+// Р—Р°РїРёСЃР°С‚СЊ РІ buf[MAX_METHOD_STRLEN] СЃС‚СЂРѕРєСѓ, РѕРїРёСЃС‹РІР°СЋС‰СѓСЋ РјРµС‚РѕРґ СЃР¶Р°С‚РёСЏ Рё РµРіРѕ РїР°СЂР°РјРµС‚СЂС‹ (С„СѓРЅРєС†РёСЏ, РѕР±СЂР°С‚РЅР°СЏ Рє parse_CLS)
 void CLS_METHOD::ShowCompressionMethod (char *buf, bool purify)
 {
     if (strequ(params,""))
@@ -63,20 +63,20 @@ void CLS_METHOD::ShowCompressionMethod (char *buf, bool purify)
 }
 
 
-// ПОДДЕРЖКА ПРОИЗВОЛЬНЫХ ВНЕШНИХ УПАКОВЩИКОВ **********************************************************************
+// РџРћР”Р”Р•Р Р–РљРђ РџР РћРР—Р’РћР›Р¬РќР«РҐ Р’РќР•РЁРќРРҐ РЈРџРђРљРћР’Р©РРљРћР’ **********************************************************************
 
-// Конструирует объект типа CLS_METHOD с заданными параметрами упаковки
-// или возвращает NULL, если это другой метод сжатия или допущена ошибка в параметрах
+// РљРѕРЅСЃС‚СЂСѓРёСЂСѓРµС‚ РѕР±СЉРµРєС‚ С‚РёРїР° CLS_METHOD СЃ Р·Р°РґР°РЅРЅС‹РјРё РїР°СЂР°РјРµС‚СЂР°РјРё СѓРїР°РєРѕРІРєРё
+// РёР»Рё РІРѕР·РІСЂР°С‰Р°РµС‚ NULL, РµСЃР»Рё СЌС‚Рѕ РґСЂСѓРіРѕР№ РјРµС‚РѕРґ СЃР¶Р°С‚РёСЏ РёР»Рё РґРѕРїСѓС‰РµРЅР° РѕС€РёР±РєР° РІ РїР°СЂР°РјРµС‚СЂР°С…
 COMPRESSION_METHOD* parse_CLS (char** parameters, void *method_template)
 {
   if (strequ (parameters[0], ((CLS_METHOD*)method_template)->name)) {
-    // Если название метода (нулевой параметр) соответствует названию проверяемого CLS метода, то запомним остальные параметры и возвратим его
+    // Р•СЃР»Рё РЅР°Р·РІР°РЅРёРµ РјРµС‚РѕРґР° (РЅСѓР»РµРІРѕР№ РїР°СЂР°РјРµС‚СЂ) СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓРµС‚ РЅР°Р·РІР°РЅРёСЋ РїСЂРѕРІРµСЂСЏРµРјРѕРіРѕ CLS РјРµС‚РѕРґР°, С‚Рѕ Р·Р°РїРѕРјРЅРёРј РѕСЃС‚Р°Р»СЊРЅС‹Рµ РїР°СЂР°РјРµС‚СЂС‹ Рё РІРѕР·РІСЂР°С‚РёРј РµРіРѕ
     CLS_METHOD *p = new CLS_METHOD (*(CLS_METHOD*)method_template);
     // Save method parameters
     join (parameters+1, COMPRESSION_METHOD_PARAMETERS_DELIMITER, p->params, sizeof(p->params));
     return p;
   } else {
-    return NULL;   // Это не метод CLS
+    return NULL;   // Р­С‚Рѕ РЅРµ РјРµС‚РѕРґ CLS
   }
 }
 

@@ -170,10 +170,10 @@ static void GetHeadsHt4(const Byte *p, UInt32 pos, UInt32 *hash, UInt32 hashMask
   }
 }
 
-// Òðåä, ñêàíèðóþùèé âõîäíîé áëîê, è çàïîìèíàþùèé â heads[] çíà÷åíèå õåø-ôóíêöèè äëÿ êàæäîé ïîçèöèè
+// Ð¢Ñ€ÐµÐ´, ÑÐºÐ°Ð½Ð¸Ñ€ÑƒÑŽÑ‰Ð¸Ð¹ Ð²Ñ…Ð¾Ð´Ð½Ð¾Ð¹ Ð±Ð»Ð¾Ðº, Ð¸ Ð·Ð°Ð¿Ð¾Ð¼Ð¸Ð½Ð°ÑŽÑ‰Ð¸Ð¹ Ð² heads[] Ð·Ð½Ð°Ñ‡ÐµÐ½Ð¸Ðµ Ñ…ÐµÑˆ-Ñ„ÑƒÐ½ÐºÑ†Ð¸Ð¸ Ð´Ð»Ñ ÐºÐ°Ð¶Ð´Ð¾Ð¹ Ð¿Ð¾Ð·Ð¸Ñ†Ð¸Ð¸
 void HashThreadFunc(CMatchFinderMt *mt)
 {
-  SetCompressionThreadPriority();  // óìåíüøèì ïðèîðèòåò äëÿ òðåäà ñæàòèÿ (ôóíêöèÿ èç Common.cpp)
+  SetCompressionThreadPriority();  // ÑƒÐ¼ÐµÐ½ÑŒÑˆÐ¸Ð¼ Ð¿Ñ€Ð¸Ð¾Ñ€Ð¸Ñ‚ÐµÑ‚ Ð´Ð»Ñ Ñ‚Ñ€ÐµÐ´Ð° ÑÐ¶Ð°Ñ‚Ð¸Ñ (Ñ„ÑƒÐ½ÐºÑ†Ð¸Ñ Ð¸Ð· Common.cpp)
   CMtSync *p = &mt->hashSync;
   for (;;)
   {
@@ -554,7 +554,7 @@ void BtFillBlock(CMatchFinderMt *p, UInt32 globalBlockIndex)
 
 void BtThreadFunc(CMatchFinderMt *mt)
 {
-  SetCompressionThreadPriority();  // óìåíüøèì ïðèîðèòåò äëÿ òðåäà ñæàòèÿ (ôóíêöèÿ èç Common.cpp)
+  SetCompressionThreadPriority();  // ÑƒÐ¼ÐµÐ½ÑŒÑˆÐ¸Ð¼ Ð¿Ñ€Ð¸Ð¾Ñ€Ð¸Ñ‚ÐµÑ‚ Ð´Ð»Ñ Ñ‚Ñ€ÐµÐ´Ð° ÑÐ¶Ð°Ñ‚Ð¸Ñ (Ñ„ÑƒÐ½ÐºÑ†Ð¸Ñ Ð¸Ð· Common.cpp)
   CMtSync *p = &mt->btSync;
   for (;;)
   {

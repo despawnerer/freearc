@@ -44,7 +44,7 @@
         else
             printf ("MM compression? ha-ha, forget about this!");
 
-   PS для FAR: внизу есть русские комментарии
+   PS РґР»СЏ FAR: РІРЅРёР·Сѓ РµСЃС‚СЊ СЂСѓСЃСЃРєРёРµ РєРѕРјРјРµРЅС‚Р°СЂРёРё
 */
 
 // to do:
@@ -777,9 +777,9 @@ int count_desc_order (const void *a, const void *b)   { return *(int*)b - *(int*
 
 void detect_datatype (BYTE *buf, int bufsize, char *type)
 {
-    // Вычисляем распределение частот символов и одновременно..
+    // Р’С‹С‡РёСЃР»СЏРµРј СЂР°СЃРїСЂРµРґРµР»РµРЅРёРµ С‡Р°СЃС‚РѕС‚ СЃРёРјРІРѕР»РѕРІ Рё РѕРґРЅРѕРІСЂРµРјРµРЅРЅРѕ..
     int count[256];  iterate(256, count[i]=0);
-    // ..ищем матчи с помощью простой LZ-схемы и определяем долю REPDIST кодов среди них
+    // ..РёС‰РµРј РјР°С‚С‡Рё СЃ РїРѕРјРѕС‰СЊСЋ РїСЂРѕСЃС‚РѕР№ LZ-СЃС…РµРјС‹ Рё РѕРїСЂРµРґРµР»СЏРµРј РґРѕР»СЋ REPDIST РєРѕРґРѕРІ СЃСЂРµРґРё РЅРёС…
     int matches=0, repdists=0, sumlen=0, dist[4]={0,0,0,0};
 #define TABLE_SIZE 16384
 #define hash(p)  (value16(p) % TABLE_SIZE)
@@ -787,7 +787,7 @@ void detect_datatype (BYTE *buf, int bufsize, char *type)
     if (bufsize>10) for (BYTE *p=buf; p<buf+bufsize-10; p++) {
         BYTE *q = table[hash(p)];
         if (q && value16(p)==value16(q)) {
-            if (p-q<256) {  // собираем статистику только по матчам с дистанцией <256
+            if (p-q<256) {  // СЃРѕР±РёСЂР°РµРј СЃС‚Р°С‚РёСЃС‚РёРєСѓ С‚РѕР»СЊРєРѕ РїРѕ РјР°С‚С‡Р°Рј СЃ РґРёСЃС‚Р°РЅС†РёРµР№ <256
                 matches++;
                 int x=p-q;
                 for (int i=0; i<elements(dist); i++) {
@@ -795,7 +795,7 @@ void detect_datatype (BYTE *buf, int bufsize, char *type)
                     if (x==p-q)  {repdists++; break;}
                 }
             }
-            // Пропускаем найденный матч, не забывая обновлять счётчик/поисковый хеш
+            // РџСЂРѕРїСѓСЃРєР°РµРј РЅР°Р№РґРµРЅРЅС‹Р№ РјР°С‚С‡, РЅРµ Р·Р°Р±С‹РІР°СЏ РѕР±РЅРѕРІР»СЏС‚СЊ СЃС‡С‘С‚С‡РёРє/РїРѕРёСЃРєРѕРІС‹Р№ С…РµС€
             BYTE *o=p;
             while (value32(p)==value32(q)  &&  p<buf+bufsize-10) {
                 count[p[0]]++; table[hash(p+0)]=p;
@@ -813,13 +813,13 @@ void detect_datatype (BYTE *buf, int bufsize, char *type)
 #undef TABLE_SIZE
 #undef hash
 
-    // Сжатие order-0 моделью
+    // РЎР¶Р°С‚РёРµ order-0 РјРѕРґРµР»СЊСЋ
     double order0=0;
     for (int i=0; i<256; i++)
         if (count[i])
             order0 += count[i] * log(double(bufsize/count[i]))/log(double(2)) / 8;
 
-    // Кол-во символов, занимающих 90% объёма текста
+    // РљРѕР»-РІРѕ СЃРёРјРІРѕР»РѕРІ, Р·Р°РЅРёРјР°СЋС‰РёС… 90% РѕР±СЉС‘РјР° С‚РµРєСЃС‚Р°
     int sums=0, total=bufsize, normal_chars=256;
     qsort (count, 256, sizeof(*count),
            (int (*)(const void*, const void*)) count_desc_order);
@@ -834,8 +834,8 @@ void detect_datatype (BYTE *buf, int bufsize, char *type)
         }
     }
 
-    // Тип данных: $precomp/$compressed если не сжимается ни order-0 ни lz77.
-    //             $text если активных символов от 17 до 80, число повторов дистанций невелико и lz-матчи составляют хотя бы 10% данных
+    // РўРёРї РґР°РЅРЅС‹С…: $precomp/$compressed РµСЃР»Рё РЅРµ СЃР¶РёРјР°РµС‚СЃСЏ РЅРё order-0 РЅРё lz77.
+    //             $text РµСЃР»Рё Р°РєС‚РёРІРЅС‹С… СЃРёРјРІРѕР»РѕРІ РѕС‚ 17 РґРѕ 80, С‡РёСЃР»Рѕ РїРѕРІС‚РѕСЂРѕРІ РґРёСЃС‚Р°РЅС†РёР№ РЅРµРІРµР»РёРєРѕ Рё lz-РјР°С‚С‡Рё СЃРѕСЃС‚Р°РІР»СЏСЋС‚ С…РѕС‚СЏ Р±С‹ 10% РґР°РЅРЅС‹С…
     strcpy (type, buf==NULL                                 ? "$precomp $compressed $text" :  // list of data types this procedure is able to recognize
 
                   order0 > 0.95*bufsize
@@ -862,7 +862,7 @@ void detect_datatype (BYTE *buf, int bufsize, char *type)
 // demonstrates more complex technique of gathering statistics
 // while processing file in small chunks
 
-// Вычисление времени работы алгоритма
+// Р’С‹С‡РёСЃР»РµРЅРёРµ РІСЂРµРјРµРЅРё СЂР°Р±РѕС‚С‹ Р°Р»РіРѕСЂРёС‚РјР°
 #include <io.h>
 #include <windows.h>
 static LARGE_INTEGER Frequency, PerformanceCountStart, PerformanceCountEnd;

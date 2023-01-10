@@ -7,7 +7,7 @@
 #include "Environment.h"
 #include "Compression/Compression.h"
 
-// Изменим настройки RTS, включив compacting GC начиная с 40 mb:
+// РР·РјРµРЅРёРј РЅР°СЃС‚СЂРѕР№РєРё RTS, РІРєР»СЋС‡РёРІ compacting GC РЅР°С‡РёРЅР°СЏ СЃ 40 mb:
 char *ghc_rts_opts = "-c1 -M4000m -K80m                       ";
 
 
@@ -73,7 +73,7 @@ int Callback_for_FreeArcExecute (TABI_ELEMENT* params)
     char *request = p._str("request");   // Operation requested from callback
     if (strequ(request, "total"))
     {
-        // Общий объём файлов, которые предстоит упаковать/распаковать
+        // РћР±С‰РёР№ РѕР±СЉС‘Рј С„Р°Р№Р»РѕРІ, РєРѕС‚РѕСЂС‹Рµ РїСЂРµРґСЃС‚РѕРёС‚ СѓРїР°РєРѕРІР°С‚СЊ/СЂР°СЃРїР°РєРѕРІР°С‚СЊ
         int64 files      = p._longlong("files");          // Number of files
         int64 original   = p._longlong("original");       // Total size of files
         Send (MESSAGE_TOTAL_FILES,    &files);
@@ -81,7 +81,7 @@ int Callback_for_FreeArcExecute (TABI_ELEMENT* params)
     }
     else if (strequ(request, "progress"))
     {
-        // Информируем пользователя о ходе упаковки/распаковки
+        // РРЅС„РѕСЂРјРёСЂСѓРµРј РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ Рѕ С…РѕРґРµ СѓРїР°РєРѕРІРєРё/СЂР°СЃРїР°РєРѕРІРєРё
         int64 original   = p._longlong("original");       // Bytes, uncompressed
         int64 compressed = p._longlong("compressed");     // Bytes, compressed
         Send (MESSAGE_PROGRESS_ORIGINAL,   &original);
@@ -89,7 +89,7 @@ int Callback_for_FreeArcExecute (TABI_ELEMENT* params)
     }
     else if (strequ(request, "file"))
     {
-        // Начало упаковки/распаковки нового файла
+        // РќР°С‡Р°Р»Рѕ СѓРїР°РєРѕРІРєРё/СЂР°СЃРїР°РєРѕРІРєРё РЅРѕРІРѕРіРѕ С„Р°Р№Р»Р°
         wchar_t *message   = p._wstr("message");
         wchar_t *filename  = p._wstr("filename");
         Send (MESSAGE_PROGRESS_MESSAGE,  message);
@@ -97,19 +97,19 @@ int Callback_for_FreeArcExecute (TABI_ELEMENT* params)
     }
     else if (strequ(request, "warning") || strequ(request, "error"))
     {
-        // Сообщшение о [не]критической ошибке
+        // РЎРѕРѕР±С‰С€РµРЅРёРµ Рѕ [РЅРµ]РєСЂРёС‚РёС‡РµСЃРєРѕР№ РѕС€РёР±РєРµ
         wchar_t *message   = p._wstr("message");
         Send (MESSAGE_WARNING_MESSAGE, message);
     }
     else if (strequ(request, "volume"))
     {
-        // Начало нового тома
+        // РќР°С‡Р°Р»Рѕ РЅРѕРІРѕРіРѕ С‚РѕРјР°
         wchar_t *filename  = p._wstr("filename");       // Filename of new archive volume
         Send (MESSAGE_VOLUME_FILENAME, filename);
     }
     else if (strequ(request, "can_be_extracted?"))
     {
-        // Можно ли извлечь этот файл?
+        // РњРѕР¶РЅРѕ Р»Рё РёР·РІР»РµС‡СЊ СЌС‚РѕС‚ С„Р°Р№Р»?
         ItemInfo i;
         i.diskname      = p._wstr    ("diskname");       // Filename on disk
         i.filename      = p._wstr    ("filename");       // Filename of this item
@@ -124,7 +124,7 @@ int Callback_for_FreeArcExecute (TABI_ELEMENT* params)
     }
     else if (strequ(request, "ask_password"))
     {
-        // Запрос пароля расшифровки
+        // Р—Р°РїСЂРѕСЃ РїР°СЂРѕР»СЏ СЂР°СЃС€РёС„СЂРѕРІРєРё
         wchar_t *password_buf  = (wchar_t *) p._ptr("password_buf");    // Buffer for password
         int      password_size =             p._int("password_size");   // Buffer size
         Send (MESSAGE_PASSWORD_BUF,  password_buf);
@@ -132,7 +132,7 @@ int Callback_for_FreeArcExecute (TABI_ELEMENT* params)
     }
     else if (strequ(request, "archive"))
     {
-        // Общая информация об архиве
+        // РћР±С‰Р°СЏ РёРЅС„РѕСЂРјР°С†РёСЏ РѕР± Р°СЂС…РёРІРµ
         wchar_t *arcname  = p._wstr("arcname");
         char    *arctype  = p._str ("arctype");
         int64    files    = p._longlong("files");
@@ -142,7 +142,7 @@ int Callback_for_FreeArcExecute (TABI_ELEMENT* params)
     }
     else if (strequ(request, "item"))
     {
-        // Информация об очередном файле внутри архива
+        // РРЅС„РѕСЂРјР°С†РёСЏ РѕР± РѕС‡РµСЂРµРґРЅРѕРј С„Р°Р№Р»Рµ РІРЅСѓС‚СЂРё Р°СЂС…РёРІР°
         ItemInfo i;
         i.diskname      = p._wstr    ("filename");       // Filename of this item
         i.filename      = p._wstr    ("filename");       // Filename of this item
@@ -291,7 +291,7 @@ unsigned GetTotalMemoryToAlloc (void)
   return INT_MAX;
 }
 
-// Инициировать выключение компьютера
+// РРЅРёС†РёРёСЂРѕРІР°С‚СЊ РІС‹РєР»СЋС‡РµРЅРёРµ РєРѕРјРїСЊСЋС‚РµСЂР°
 int PowerOffComputer()
 {
   system ("shutdown now");
@@ -301,20 +301,20 @@ int PowerOffComputer()
 
 void FormatDateTime (char *buf, int bufsize, time_t t)
 {
-  if (t<0)  t=INT_MAX;  // Иначе получаем вылет :(
+  if (t<0)  t=INT_MAX;  // РРЅР°С‡Рµ РїРѕР»СѓС‡Р°РµРј РІС‹Р»РµС‚ :(
   struct tm *p;
   p = localtime(&t);
   strftime (buf, bufsize, "%Y-%m-%d %H:%M:%S", p);
 }
 
-// Максимальная длина имени файла
+// РњР°РєСЃРёРјР°Р»СЊРЅР°СЏ РґР»РёРЅР° РёРјРµРЅРё С„Р°Р№Р»Р°
 int long_path_size (void)
 {
   return MY_FILENAME_MAX;
 }
 
 
-// Вернуть имя файла без имени каталога
+// Р’РµСЂРЅСѓС‚СЊ РёРјСЏ С„Р°Р№Р»Р° Р±РµР· РёРјРµРЅРё РєР°С‚Р°Р»РѕРіР°
 FILENAME basename (FILENAME fullname)
 {
   char *basename = fullname;
@@ -324,7 +324,7 @@ FILENAME basename (FILENAME fullname)
   return basename;
 }
 
-// От-xor-ить два блока данных
+// РћС‚-xor-РёС‚СЊ РґРІР° Р±Р»РѕРєР° РґР°РЅРЅС‹С…
 void memxor (char *dest, char *src, uint size)
 {
   if (size) do

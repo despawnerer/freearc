@@ -13,48 +13,48 @@
 
 
 // ****************************************************************************************************************************
-// МЕТОД "СЖАТИЯ" MSE *****************************************************************************************************
+// РњР•РўРћР” "РЎР–РђРўРРЇ" MSE *****************************************************************************************************
 // ****************************************************************************************************************************
 
-// Реализация метода "сжатия" MSE
+// Р РµР°Р»РёР·Р°С†РёСЏ РјРµС‚РѕРґР° "СЃР¶Р°С‚РёСЏ" MSE
 class MSE_METHOD : public COMPRESSION_METHOD
 {
 public:
   int method;
   virtual int doit (char *what, int param, void *data, CALLBACK_FUNC *callback);
-  // Функции распаковки и упаковки
+  // Р¤СѓРЅРєС†РёРё СЂР°СЃРїР°РєРѕРІРєРё Рё СѓРїР°РєРѕРІРєРё
   virtual int decompress (CALLBACK_FUNC *callback, void *auxdata);
 #ifndef FREEARC_DECOMPRESS_ONLY
   virtual int compress   (CALLBACK_FUNC *callback, void *auxdata);
 
-  // Получить/установить объём памяти, используемой при упаковке/распаковке, размер словаря или размер блока
+  // РџРѕР»СѓС‡РёС‚СЊ/СѓСЃС‚Р°РЅРѕРІРёС‚СЊ РѕР±СЉС‘Рј РїР°РјСЏС‚Рё, РёСЃРїРѕР»СЊР·СѓРµРјРѕР№ РїСЂРё СѓРїР°РєРѕРІРєРµ/СЂР°СЃРїР°РєРѕРІРєРµ, СЂР°Р·РјРµСЂ СЃР»РѕРІР°СЂСЏ РёР»Рё СЂР°Р·РјРµСЂ Р±Р»РѕРєР°
   virtual MemSize GetCompressionMem        (void)               {return BUFFER_SIZE;}
   virtual void    SetCompressionMem        (MemSize)            {}
   virtual void    SetMinDecompressionMem   (MemSize)            {}
 #endif
   virtual MemSize GetDecompressionMem      (void)               {return BUFFER_SIZE;}
 
-  // Записать в buf[MAX_METHOD_STRLEN] строку, описывающую метод сжатия (функция, обратная к parse_MSE)
+  // Р—Р°РїРёСЃР°С‚СЊ РІ buf[MAX_METHOD_STRLEN] СЃС‚СЂРѕРєСѓ, РѕРїРёСЃС‹РІР°СЋС‰СѓСЋ РјРµС‚РѕРґ СЃР¶Р°С‚РёСЏ (С„СѓРЅРєС†РёСЏ, РѕР±СЂР°С‚РЅР°СЏ Рє parse_MSE)
   virtual void ShowCompressionMethod (char *buf, bool purify);
 };
 
-// Разборщик строки метода сжатия MSE
+// Р Р°Р·Р±РѕСЂС‰РёРє СЃС‚СЂРѕРєРё РјРµС‚РѕРґР° СЃР¶Р°С‚РёСЏ MSE
 COMPRESSION_METHOD* parse_MSE (char** parameters);
 
 
 // ***********************************************************************************************************************
-// Реализация класса MSE_METHOD                                                                                          *
+// Р РµР°Р»РёР·Р°С†РёСЏ РєР»Р°СЃСЃР° MSE_METHOD                                                                                          *
 // ***********************************************************************************************************************
 
-// Универсальный метод, отвечает на запрос "NumOutStreams"
+// РЈРЅРёРІРµСЂСЃР°Р»СЊРЅС‹Р№ РјРµС‚РѕРґ, РѕС‚РІРµС‡Р°РµС‚ РЅР° Р·Р°РїСЂРѕСЃ "NumOutStreams"
 int MSE_METHOD::doit (char *what, int param, void *data, CALLBACK_FUNC *callback)
 {
-       if (strequ (what, "NumOutStreams"))            return 13;                                                      // Кол-во выходных потоков упаковщика
-  else if (strequ (what, "GetOutStreamCompressor"))   return (strcpy ((char*)data, "tor:3"), 0);                      // Метод упаковки для param-ного выходного потока метода MSE
-  else                                                return COMPRESSION_METHOD::doit (what, param, data, callback);  // Передать остальные вызовы родительской процедуре
+       if (strequ (what, "NumOutStreams"))            return 13;                                                      // РљРѕР»-РІРѕ РІС‹С…РѕРґРЅС‹С… РїРѕС‚РѕРєРѕРІ СѓРїР°РєРѕРІС‰РёРєР°
+  else if (strequ (what, "GetOutStreamCompressor"))   return (strcpy ((char*)data, "tor:3"), 0);                      // РњРµС‚РѕРґ СѓРїР°РєРѕРІРєРё РґР»СЏ param-РЅРѕРіРѕ РІС‹С…РѕРґРЅРѕРіРѕ РїРѕС‚РѕРєР° РјРµС‚РѕРґР° MSE
+  else                                                return COMPRESSION_METHOD::doit (what, param, data, callback);  // РџРµСЂРµРґР°С‚СЊ РѕСЃС‚Р°Р»СЊРЅС‹Рµ РІС‹Р·РѕРІС‹ СЂРѕРґРёС‚РµР»СЊСЃРєРѕР№ РїСЂРѕС†РµРґСѓСЂРµ
 }
 
-// Функция распаковки
+// Р¤СѓРЅРєС†РёСЏ СЂР°СЃРїР°РєРѕРІРєРё
 int MSE_METHOD::decompress (CALLBACK_FUNC *callback, void *auxdata)
 {
   char buf[100*kb];  int len, errcode;  int x=9;  char readx[99];
@@ -77,7 +77,7 @@ int MSE_METHOD::decompress (CALLBACK_FUNC *callback, void *auxdata)
 
 #ifndef FREEARC_DECOMPRESS_ONLY
 
-// Функция упаковки
+// Р¤СѓРЅРєС†РёСЏ СѓРїР°РєРѕРІРєРё
 int MSE_METHOD::compress (CALLBACK_FUNC *callback, void *auxdata)
 {
   char buf[100*kb];  int len, errcode;  int x=9;  char writex[99];
@@ -97,7 +97,7 @@ int MSE_METHOD::compress (CALLBACK_FUNC *callback, void *auxdata)
   return errcode;
 }
 
-// Записать в buf[MAX_METHOD_STRLEN] строку, описывающую метод сжатия (функция, обратная к parse_MSE)
+// Р—Р°РїРёСЃР°С‚СЊ РІ buf[MAX_METHOD_STRLEN] СЃС‚СЂРѕРєСѓ, РѕРїРёСЃС‹РІР°СЋС‰СѓСЋ РјРµС‚РѕРґ СЃР¶Р°С‚РёСЏ (С„СѓРЅРєС†РёСЏ, РѕР±СЂР°С‚РЅР°СЏ Рє parse_MSE)
 void MSE_METHOD::ShowCompressionMethod (char *buf, bool purify)
 {
   sprintf (buf, "mse%s", method==2?":1kb":"");
@@ -105,24 +105,24 @@ void MSE_METHOD::ShowCompressionMethod (char *buf, bool purify)
 
 #endif  // !defined (FREEARC_DECOMPRESS_ONLY)
 
-// Конструирует объект типа MSE_METHOD или возвращает NULL, если это другой метод сжатия
+// РљРѕРЅСЃС‚СЂСѓРёСЂСѓРµС‚ РѕР±СЉРµРєС‚ С‚РёРїР° MSE_METHOD РёР»Рё РІРѕР·РІСЂР°С‰Р°РµС‚ NULL, РµСЃР»Рё СЌС‚Рѕ РґСЂСѓРіРѕР№ РјРµС‚РѕРґ СЃР¶Р°С‚РёСЏ
 COMPRESSION_METHOD* parse_MSE (char** parameters)
 {
   if (strcmp (parameters[0], "mse") == 0) {
-    // Если название метода - "mse"
+    // Р•СЃР»Рё РЅР°Р·РІР°РЅРёРµ РјРµС‚РѕРґР° - "mse"
      MSE_METHOD *p = new MSE_METHOD;
      p->method = (parameters[1]==NULL? 1:2);
      return p;}
   else
-    return NULL;   // Это не метод mse
+    return NULL;   // Р­С‚Рѕ РЅРµ РјРµС‚РѕРґ mse
 }
 
-static int MSE_x = AddCompressionMethod (parse_MSE);   // Зарегистрируем парсер метода MSE_METHOD
+static int MSE_x = AddCompressionMethod (parse_MSE);   // Р—Р°СЂРµРіРёСЃС‚СЂРёСЂСѓРµРј РїР°СЂСЃРµСЂ РјРµС‚РѕРґР° MSE_METHOD
 
 
 
 // ****************************************************************************************************************************
-// Драйвер ********************************************************************************************************************
+// Р”СЂР°Р№РІРµСЂ ********************************************************************************************************************
 // ****************************************************************************************************************************
 
 // Callback for compression/decompression functions

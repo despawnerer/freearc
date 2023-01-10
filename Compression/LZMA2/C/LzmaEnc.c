@@ -1574,14 +1574,14 @@ static UInt32 GetOptimumFast(CLzmaEnc *p, UInt32 *backRes)
       mainLen = matches[numPairs - 2];
       mainDist = matches[numPairs - 1];
     }
-    // Отбросим матч, если дистанция слишком велика для такой длины
+    // РћС‚Р±СЂРѕСЃРёРј РјР°С‚С‡, РµСЃР»Рё РґРёСЃС‚Р°РЅС†РёСЏ СЃР»РёС€РєРѕРј РІРµР»РёРєР° РґР»СЏ С‚Р°РєРѕР№ РґР»РёРЅС‹
     static const int maxDist[] = {0, 0, 128, 2048, 64<<10, 2<<20, 12<<20};
     if (mainLen < sizeof(maxDist)/sizeof(*maxDist)
     	&& mainDist >= maxDist[mainLen])
       mainLen = 1;
   }
 
-  // Если нашёлся подходящий REPDIST, то используем его при определённых условиях
+  // Р•СЃР»Рё РЅР°С€С‘Р»СЃСЏ РїРѕРґС…РѕРґСЏС‰РёР№ REPDIST, С‚Рѕ РёСЃРїРѕР»СЊР·СѓРµРј РµРіРѕ РїСЂРё РѕРїСЂРµРґРµР»С‘РЅРЅС‹С… СѓСЃР»РѕРІРёСЏС…
   if (repLen >= 2 && (
         (repLen + 1 >= mainLen) ||
         (repLen + 2 >= mainLen && mainDist >= (1 << 9)) ||
@@ -1615,7 +1615,7 @@ static UInt32 GetOptimumFast(CLzmaEnc *p, UInt32 *backRes)
       continue;
     limit = mainLen - 1;
     for (len = 2; len < limit && data[len] == data2[len]; len++);
-    // Если нашёлся подходящий REPDIST, то используем его при определённых условиях
+    // Р•СЃР»Рё РЅР°С€С‘Р»СЃСЏ РїРѕРґС…РѕРґСЏС‰РёР№ REPDIST, С‚Рѕ РёСЃРїРѕР»СЊР·СѓРµРј РµРіРѕ РїСЂРё РѕРїСЂРµРґРµР»С‘РЅРЅС‹С… СѓСЃР»РѕРІРёСЏС…
     if ((len     >= limit) ||
         (len + 1 >= limit && mainDist >= (1 << 9)) ||
         (len + 2 >= limit && mainDist >= (1 << 15)))

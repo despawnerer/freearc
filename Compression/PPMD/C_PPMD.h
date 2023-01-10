@@ -6,25 +6,25 @@ int ppmd_decompress2 (int ENCODE, int order, MemSize mem, int MRMethod, MemSize 
 
 #ifdef __cplusplus
 
-// Реализация стандартного интерфейса методов сжатия COMPRESSION_METHOD
+// Р РµР°Р»РёР·Р°С†РёСЏ СЃС‚Р°РЅРґР°СЂС‚РЅРѕРіРѕ РёРЅС‚РµСЂС„РµР№СЃР° РјРµС‚РѕРґРѕРІ СЃР¶Р°С‚РёСЏ COMPRESSION_METHOD
 class PPMD_METHOD : public COMPRESSION_METHOD
 {
 public:
-  // Параметры этого метода сжатия
-  int     order;     // Порядок модели (по скольким последним сивмолам предсказывается следующий)
-  MemSize mem;       // Объём памяти, используемой для хранения модели
-  int     MRMethod;  // Что делать, когда память, выделенная для хранения модели, исчерпана
-  MemSize chunk;     // Размер сжимаемого куска при compress_all_at_once
+  // РџР°СЂР°РјРµС‚СЂС‹ СЌС‚РѕРіРѕ РјРµС‚РѕРґР° СЃР¶Р°С‚РёСЏ
+  int     order;     // РџРѕСЂСЏРґРѕРє РјРѕРґРµР»Рё (РїРѕ СЃРєРѕР»СЊРєРёРј РїРѕСЃР»РµРґРЅРёРј СЃРёРІРјРѕР»Р°Рј РїСЂРµРґСЃРєР°Р·С‹РІР°РµС‚СЃСЏ СЃР»РµРґСѓСЋС‰РёР№)
+  MemSize mem;       // РћР±СЉС‘Рј РїР°РјСЏС‚Рё, РёСЃРїРѕР»СЊР·СѓРµРјРѕР№ РґР»СЏ С…СЂР°РЅРµРЅРёСЏ РјРѕРґРµР»Рё
+  int     MRMethod;  // Р§С‚Рѕ РґРµР»Р°С‚СЊ, РєРѕРіРґР° РїР°РјСЏС‚СЊ, РІС‹РґРµР»РµРЅРЅР°СЏ РґР»СЏ С…СЂР°РЅРµРЅРёСЏ РјРѕРґРµР»Рё, РёСЃС‡РµСЂРїР°РЅР°
+  MemSize chunk;     // Р Р°Р·РјРµСЂ СЃР¶РёРјР°РµРјРѕРіРѕ РєСѓСЃРєР° РїСЂРё compress_all_at_once
 
-  // Конструктор, присваивающий параметрам метода сжатия значения по умолчанию
+  // РљРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ, РїСЂРёСЃРІР°РёРІР°СЋС‰РёР№ РїР°СЂР°РјРµС‚СЂР°Рј РјРµС‚РѕРґР° СЃР¶Р°С‚РёСЏ Р·РЅР°С‡РµРЅРёСЏ РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ
   PPMD_METHOD();
 
-  // Функции распаковки и упаковки
+  // Р¤СѓРЅРєС†РёРё СЂР°СЃРїР°РєРѕРІРєРё Рё СѓРїР°РєРѕРІРєРё
   virtual int decompress (CALLBACK_FUNC *callback, void *auxdata);
 #ifndef FREEARC_DECOMPRESS_ONLY
   virtual int compress   (CALLBACK_FUNC *callback, void *auxdata);
 
-  // Получить/установить объём памяти, используемой при упаковке/распаковке, размер словаря или размер блока
+  // РџРѕР»СѓС‡РёС‚СЊ/СѓСЃС‚Р°РЅРѕРІРёС‚СЊ РѕР±СЉС‘Рј РїР°РјСЏС‚Рё, РёСЃРїРѕР»СЊР·СѓРµРјРѕР№ РїСЂРё СѓРїР°РєРѕРІРєРµ/СЂР°СЃРїР°РєРѕРІРєРµ, СЂР°Р·РјРµСЂ СЃР»РѕРІР°СЂСЏ РёР»Рё СЂР°Р·РјРµСЂ Р±Р»РѕРєР°
   virtual MemSize GetCompressionMem        (void)               {return mem+1*mb;}
   virtual void    SetCompressionMem        (MemSize _mem);
   virtual void    SetMinDecompressionMem   (MemSize _mem)       {SetCompressionMem(_mem);}
@@ -32,11 +32,11 @@ public:
   virtual MemSize GetAlgoMem               (void)               {return mem;}
   virtual MemSize GetDecompressionMem      (void)               {return mem+1*mb;}
 
-  // Записать в buf[MAX_METHOD_STRLEN] строку, описывающую метод сжатия и его параметры (функция, обратная к parse_PPMD)
+  // Р—Р°РїРёСЃР°С‚СЊ РІ buf[MAX_METHOD_STRLEN] СЃС‚СЂРѕРєСѓ, РѕРїРёСЃС‹РІР°СЋС‰СѓСЋ РјРµС‚РѕРґ СЃР¶Р°С‚РёСЏ Рё РµРіРѕ РїР°СЂР°РјРµС‚СЂС‹ (С„СѓРЅРєС†РёСЏ, РѕР±СЂР°С‚РЅР°СЏ Рє parse_PPMD)
   virtual void ShowCompressionMethod (char *buf, bool purify);
 };
 
-// Разборщик строки метода сжатия PPMD
+// Р Р°Р·Р±РѕСЂС‰РёРє СЃС‚СЂРѕРєРё РјРµС‚РѕРґР° СЃР¶Р°С‚РёСЏ PPMD
 COMPRESSION_METHOD* parse_PPMD (char** parameters);
 
 #endif  // __cplusplus

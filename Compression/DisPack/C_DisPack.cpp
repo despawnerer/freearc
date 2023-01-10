@@ -7,10 +7,10 @@ extern "C" {
 #include "DisPack.cpp"
 
 /*-------------------------------------------------*/
-/* Реализация класса DISPACK_METHOD                */
+/* Р РµР°Р»РёР·Р°С†РёСЏ РєР»Р°СЃСЃР° DISPACK_METHOD                */
 /*-------------------------------------------------*/
 
-// Конструктор, присваивающий параметрам метода сжатия значения по умолчанию
+// РљРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ, РїСЂРёСЃРІР°РёРІР°СЋС‰РёР№ РїР°СЂР°РјРµС‚СЂР°Рј РјРµС‚РѕРґР° СЃР¶Р°С‚РёСЏ Р·РЅР°С‡РµРЅРёСЏ РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ
 DISPACK_METHOD::DISPACK_METHOD()
 {
     BlockSize      = 8*mb;
@@ -20,11 +20,11 @@ DISPACK_METHOD::DISPACK_METHOD()
 enum {TAG_DATA = 0xC71B3AE1, TAG_EXE};
 bool is_tag (unsigned x)  {return (x^TAG_DATA) < 0x10;}
 
-// Функция распаковки
+// Р¤СѓРЅРєС†РёСЏ СЂР°СЃРїР°РєРѕРІРєРё
 int DISPACK_METHOD::decompress (CALLBACK_FUNC *callback, void *auxdata)
 {
     int   errcode = FREEARC_OK;     // Error code returned by last operation or FREEARC_OK
-    BYTE *In = NULL,  *Out = NULL;  // Указатели на входные и выходные данные, соответственно
+    BYTE *In = NULL,  *Out = NULL;  // РЈРєР°Р·Р°С‚РµР»Рё РЅР° РІС…РѕРґРЅС‹Рµ Рё РІС‹С…РѕРґРЅС‹Рµ РґР°РЅРЅС‹Рµ, СЃРѕРѕС‚РІРµС‚СЃС‚РІРµРЅРЅРѕ
     uint  BaseAddress = 1u<<30;
     int   CHUNK_SIZE, InBufferSize = BlockSize+BlockSize/4+1024;
     READ4_OR_EOF (CHUNK_SIZE);
@@ -35,7 +35,7 @@ int DISPACK_METHOD::decompress (CALLBACK_FUNC *callback, void *auxdata)
         int tag;
         READ4_OR_EOF (tag);
         if (!is_tag(tag) || tag==TAG_DATA) {
-            // скопируем неупакованные данные, из них 4 байта мы уже возможно прочитали ;)
+            // СЃРєРѕРїРёСЂСѓРµРј РЅРµСѓРїР°РєРѕРІР°РЅРЅС‹Рµ РґР°РЅРЅС‹Рµ, РёР· РЅРёС… 4 Р±Р°Р№С‚Р° РјС‹ СѓР¶Рµ РІРѕР·РјРѕР¶РЅРѕ РїСЂРѕС‡РёС‚Р°Р»Рё ;)
             int done = 0, len;
             if (tag==TAG_DATA) {
               READ4 (len);
@@ -48,8 +48,8 @@ int DISPACK_METHOD::decompress (CALLBACK_FUNC *callback, void *auxdata)
             WRITE (In, len);
             BaseAddress += len;
         } else if (tag==TAG_EXE) {
-            int InSize, OutSize;     // количество байт во входном и выходном буфере, соответственно
-            // Произвести декодирование и получить размер выходных данных
+            int InSize, OutSize;     // РєРѕР»РёС‡РµСЃС‚РІРѕ Р±Р°Р№С‚ РІРѕ РІС…РѕРґРЅРѕРј Рё РІС‹С…РѕРґРЅРѕРј Р±СѓС„РµСЂРµ, СЃРѕРѕС‚РІРµС‚СЃС‚РІРµРЅРЅРѕ
+            // РџСЂРѕРёР·РІРµСЃС‚Рё РґРµРєРѕРґРёСЂРѕРІР°РЅРёРµ Рё РїРѕР»СѓС‡РёС‚СЊ СЂР°Р·РјРµСЂ РІС‹С…РѕРґРЅС‹С… РґР°РЅРЅС‹С…
             READ4 (OutSize);
             READ4 (InSize);
             if (OutSize > BlockSize  ||  InSize > InBufferSize)  ReturnErrorCode(FREEARC_ERRCODE_BAD_COMPRESSED_DATA);
@@ -90,19 +90,19 @@ EXETYPE detect (BYTE *buf, int len)
   return double(e8)/len >= 0.002   &&   double(exe+obj)/e8 >= 0.20  &&   double(exe)/e8 >= 0.01?  EXETYPE_EXE : EXETYPE_DATA;
 }
 
-// Функция упаковки
+// Р¤СѓРЅРєС†РёСЏ СѓРїР°РєРѕРІРєРё
 int DISPACK_METHOD::compress (CALLBACK_FUNC *callback, void *auxdata)
 {
     int   errcode = FREEARC_OK;     // Error code returned by last operation or FREEARC_OK
-    BYTE *In = NULL,  *Out = NULL;  // Указатели на входные и выходные данные, соответственно
-    int   InSize;  uint32 OutSize;  // Количество байт во входном и выходном буфере, соответственно
+    BYTE *In = NULL,  *Out = NULL;  // РЈРєР°Р·Р°С‚РµР»Рё РЅР° РІС…РѕРґРЅС‹Рµ Рё РІС‹С…РѕРґРЅС‹Рµ РґР°РЅРЅС‹Рµ, СЃРѕРѕС‚РІРµС‚СЃС‚РІРµРЅРЅРѕ
+    int   InSize;  uint32 OutSize;  // РљРѕР»РёС‡РµСЃС‚РІРѕ Р±Р°Р№С‚ РІРѕ РІС…РѕРґРЅРѕРј Рё РІС‹С…РѕРґРЅРѕРј Р±СѓС„РµСЂРµ, СЃРѕРѕС‚РІРµС‚СЃС‚РІРµРЅРЅРѕ
     uint  BaseAddress = 1u<<30;
     const int CHUNK_SIZE = 16*kb;
     bool  first_time = TRUE;
     BIGALLOC (BYTE, In, BlockSize+2);
     for(;;)
     {
-        // Читаем файл блоками по 16 кб, пока не кончится исполняемый код
+        // Р§РёС‚Р°РµРј С„Р°Р№Р» Р±Р»РѕРєР°РјРё РїРѕ 16 РєР±, РїРѕРєР° РЅРµ РєРѕРЅС‡РёС‚СЃСЏ РёСЃРїРѕР»РЅСЏРµРјС‹Р№ РєРѕРґ
         BYTE *p = In;  int len;
         do {
             READ_LEN (len, p, CHUNK_SIZE);
@@ -118,7 +118,7 @@ int DISPACK_METHOD::compress (CALLBACK_FUNC *callback, void *auxdata)
 
         if (InSize)
         {
-            // Кодируем исполняемый код
+            // РљРѕРґРёСЂСѓРµРј РёСЃРїРѕР»РЅСЏРµРјС‹Р№ РєРѕРґ
             Out = DisFilter(In, InSize, BaseAddress, OutSize);
             if (Out==NULL)  ReturnErrorCode(FREEARC_ERRCODE_NOT_ENOUGH_MEMORY);
             WRITE4 (TAG_EXE);
@@ -129,7 +129,7 @@ int DISPACK_METHOD::compress (CALLBACK_FUNC *callback, void *auxdata)
         }
         if (len)
         {
-            // Кодируем прочие данные
+            // РљРѕРґРёСЂСѓРµРј РїСЂРѕС‡РёРµ РґР°РЅРЅС‹Рµ
             if (len!=CHUNK_SIZE  ||  is_tag(value32(p))) {
                 WRITE4 (TAG_DATA);
                 WRITE4 (len);
@@ -145,7 +145,7 @@ finished:
 
 #endif  // !defined (FREEARC_DECOMPRESS_ONLY)
 
-// Записать в buf[MAX_METHOD_STRLEN] строку, описывающую метод сжатия и его параметры (функция, обратная к parse_DISPACK)
+// Р—Р°РїРёСЃР°С‚СЊ РІ buf[MAX_METHOD_STRLEN] СЃС‚СЂРѕРєСѓ, РѕРїРёСЃС‹РІР°СЋС‰СѓСЋ РјРµС‚РѕРґ СЃР¶Р°С‚РёСЏ Рё РµРіРѕ РїР°СЂР°РјРµС‚СЂС‹ (С„СѓРЅРєС†РёСЏ, РѕР±СЂР°С‚РЅР°СЏ Рє parse_DISPACK)
 void DISPACK_METHOD::ShowCompressionMethod (char *buf, bool purify)
 {
     DISPACK_METHOD defaults; char BlockSizeStr[100]=":";
@@ -153,37 +153,37 @@ void DISPACK_METHOD::ShowCompressionMethod (char *buf, bool purify)
     sprintf (buf, "dispack070%s%s", BlockSize!=defaults.BlockSize? BlockSizeStr:"", ExtendedTables? ":x":"");
 }
 
-// Конструирует объект типа DISPACK_METHOD с заданными параметрами упаковки
-// или возвращает NULL, если это другой метод сжатия или допущена ошибка в параметрах
+// РљРѕРЅСЃС‚СЂСѓРёСЂСѓРµС‚ РѕР±СЉРµРєС‚ С‚РёРїР° DISPACK_METHOD СЃ Р·Р°РґР°РЅРЅС‹РјРё РїР°СЂР°РјРµС‚СЂР°РјРё СѓРїР°РєРѕРІРєРё
+// РёР»Рё РІРѕР·РІСЂР°С‰Р°РµС‚ NULL, РµСЃР»Рё СЌС‚Рѕ РґСЂСѓРіРѕР№ РјРµС‚РѕРґ СЃР¶Р°С‚РёСЏ РёР»Рё РґРѕРїСѓС‰РµРЅР° РѕС€РёР±РєР° РІ РїР°СЂР°РјРµС‚СЂР°С…
 COMPRESSION_METHOD* parse_DISPACK (char** parameters)
 {
   if (strcmp (parameters[0], "dispack") == 0
    || strcmp (parameters[0], "dispack070") == 0) {
-    // Если название метода (нулевой параметр) - "dispack", то разберём остальные параметры
+    // Р•СЃР»Рё РЅР°Р·РІР°РЅРёРµ РјРµС‚РѕРґР° (РЅСѓР»РµРІРѕР№ РїР°СЂР°РјРµС‚СЂ) - "dispack", С‚Рѕ СЂР°Р·Р±РµСЂС‘Рј РѕСЃС‚Р°Р»СЊРЅС‹Рµ РїР°СЂР°РјРµС‚СЂС‹
 
     DISPACK_METHOD *p = new DISPACK_METHOD;
-    int error = 0;  // Признак того, что при разборе параметров произошла ошибка
+    int error = 0;  // РџСЂРёР·РЅР°Рє С‚РѕРіРѕ, С‡С‚Рѕ РїСЂРё СЂР°Р·Р±РѕСЂРµ РїР°СЂР°РјРµС‚СЂРѕРІ РїСЂРѕРёР·РѕС€Р»Р° РѕС€РёР±РєР°
 
-    // Переберём все параметры метода (или выйдем раньше при возникновении ошибки при разборе очередного параметра)
+    // РџРµСЂРµР±РµСЂС‘Рј РІСЃРµ РїР°СЂР°РјРµС‚СЂС‹ РјРµС‚РѕРґР° (РёР»Рё РІС‹Р№РґРµРј СЂР°РЅСЊС€Рµ РїСЂРё РІРѕР·РЅРёРєРЅРѕРІРµРЅРёРё РѕС€РёР±РєРё РїСЂРё СЂР°Р·Р±РѕСЂРµ РѕС‡РµСЂРµРґРЅРѕРіРѕ РїР°СЂР°РјРµС‚СЂР°)
     while (*++parameters && !error)
     {
       char* param = *parameters;
-      if (strlen(param)==1) switch (*param) {    // Однобуквенные параметры
+      if (strlen(param)==1) switch (*param) {    // РћРґРЅРѕР±СѓРєРІРµРЅРЅС‹Рµ РїР°СЂР°РјРµС‚СЂС‹
         case 'x':  p->ExtendedTables = 1; continue;
       }
-      switch (*param) {                    // Параметры, содержащие значения
+      switch (*param) {                    // РџР°СЂР°РјРµС‚СЂС‹, СЃРѕРґРµСЂР¶Р°С‰РёРµ Р·РЅР°С‡РµРЅРёСЏ
         case 'b':  p->BlockSize = parseMem (param+1, &error); continue;
       }
-      // Сюда мы попадаем, если в параметре не указано его название
-      // Если этот параметр удастся разобрать как объём памяти,
-      // то присвоим его значение полю BlockSize
+      // РЎСЋРґР° РјС‹ РїРѕРїР°РґР°РµРј, РµСЃР»Рё РІ РїР°СЂР°РјРµС‚СЂРµ РЅРµ СѓРєР°Р·Р°РЅРѕ РµРіРѕ РЅР°Р·РІР°РЅРёРµ
+      // Р•СЃР»Рё СЌС‚РѕС‚ РїР°СЂР°РјРµС‚СЂ СѓРґР°СЃС‚СЃСЏ СЂР°Р·РѕР±СЂР°С‚СЊ РєР°Рє РѕР±СЉС‘Рј РїР°РјСЏС‚Рё,
+      // С‚Рѕ РїСЂРёСЃРІРѕРёРј РµРіРѕ Р·РЅР°С‡РµРЅРёРµ РїРѕР»СЋ BlockSize
       p->BlockSize = parseMem (param, &error);
     }
-    if (error)  {delete p; return NULL;}  // Ошибка при парсинге параметров метода
+    if (error)  {delete p; return NULL;}  // РћС€РёР±РєР° РїСЂРё РїР°СЂСЃРёРЅРіРµ РїР°СЂР°РјРµС‚СЂРѕРІ РјРµС‚РѕРґР°
     return p;
   } else
-    return NULL;   // Это не метод DISPACK
+    return NULL;   // Р­С‚Рѕ РЅРµ РјРµС‚РѕРґ DISPACK
 }
 
-static int DISPACK_x = AddCompressionMethod (parse_DISPACK);   // Зарегистрируем парсер метода DISPACK
+static int DISPACK_x = AddCompressionMethod (parse_DISPACK);   // Р—Р°СЂРµРіРёСЃС‚СЂРёСЂСѓРµРј РїР°СЂСЃРµСЂ РјРµС‚РѕРґР° DISPACK
 

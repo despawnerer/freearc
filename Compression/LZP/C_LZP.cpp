@@ -30,7 +30,7 @@ static inline unsigned ROR(unsigned word, int i)
 
 
 /*------------------------------------------------------------------------------------*/
-/* Методы упаковки/распаковки, получающие и возвращающие данные через буфера в памяти */
+/* РњРµС‚РѕРґС‹ СѓРїР°РєРѕРІРєРё/СЂР°СЃРїР°РєРѕРІРєРё, РїРѕР»СѓС‡Р°СЋС‰РёРµ Рё РІРѕР·РІСЂР°С‰Р°СЋС‰РёРµ РґР°РЅРЅС‹Рµ С‡РµСЂРµР· Р±СѓС„РµСЂР° РІ РїР°РјСЏС‚Рё */
 /*------------------------------------------------------------------------------------*/
 
 /*                          tuned for PPMd
@@ -122,18 +122,18 @@ int LZPDecode(BYTE* In,UINT Size,BYTE* Out,int MinLen,int HashSize,int Barrier,i
 
 
 /*-------------------------------------------------------------------------*/
-/* Методы упаковки/распаковки, использующие callbacks для ввода/вывода     */
+/* РњРµС‚РѕРґС‹ СѓРїР°РєРѕРІРєРё/СЂР°СЃРїР°РєРѕРІРєРё, РёСЃРїРѕР»СЊР·СѓСЋС‰РёРµ callbacks РґР»СЏ РІРІРѕРґР°/РІС‹РІРѕРґР°     */
 /*-------------------------------------------------------------------------*/
 
 #ifndef FREEARC_DECOMPRESS_ONLY
 int lzp_compress (MemSize BlockSize, int MinCompression, int MinMatchLen, int HashSizeLog, int Barrier, int SmallestLen, CALLBACK_FUNC *callback, void *auxdata)
 {
     int errcode = FREEARC_OK;   // Error code returned by last operation or FREEARC_OK
-    BYTE* In = NULL;  // указатель на входные данные
-    BYTE* Out= NULL;  // указатель на выходные данные
+    BYTE* In = NULL;  // СѓРєР°Р·Р°С‚РµР»СЊ РЅР° РІС…РѕРґРЅС‹Рµ РґР°РЅРЅС‹Рµ
+    BYTE* Out= NULL;  // СѓРєР°Р·Р°С‚РµР»СЊ РЅР° РІС‹С…РѕРґРЅС‹Рµ РґР°РЅРЅС‹Рµ
     while (1)
     {
-        int InSize, OutSize;     // количество байт во входном и выходном буфере, соответственно
+        int InSize, OutSize;     // РєРѕР»РёС‡РµСЃС‚РІРѕ Р±Р°Р№С‚ РІРѕ РІС…РѕРґРЅРѕРј Рё РІС‹С…РѕРґРЅРѕРј Р±СѓС„РµСЂРµ, СЃРѕРѕС‚РІРµС‚СЃС‚РІРµРЅРЅРѕ
         BIGALLOC (BYTE, In, BlockSize+2);
     	READ_LEN_OR_EOF (InSize, In, BlockSize);
         //In = (BYTE*) realloc(In,InSize);   -- impossible since we used BigAlloc
@@ -141,14 +141,14 @@ int lzp_compress (MemSize BlockSize, int MinCompression, int MinMatchLen, int Ha
         OutSize = LZPEncode (In, InSize, Out, MinMatchLen, 1<<HashSizeLog, Barrier, SmallestLen);
         if (OutSize<0)  {errcode=OutSize; goto finished;}
         if (OutSize==0  ||  MinCompression>0 && OutSize>=(double(InSize)*MinCompression)/100) {
-            // Упаковать данные [достаточно хорошо] не удалось, запишем вместо них исходные данные
+            // РЈРїР°РєРѕРІР°С‚СЊ РґР°РЅРЅС‹Рµ [РґРѕСЃС‚Р°С‚РѕС‡РЅРѕ С…РѕСЂРѕС€Рѕ] РЅРµ СѓРґР°Р»РѕСЃСЊ, Р·Р°РїРёС€РµРј РІРјРµСЃС‚Рѕ РЅРёС… РёСЃС…РѕРґРЅС‹Рµ РґР°РЅРЅС‹Рµ
             BigFreeAndNil(Out);
-            WRITE4 (-InSize);      // Отрицательное число в качестве длины блока - признак Stored блока
+            WRITE4 (-InSize);      // РћС‚СЂРёС†Р°С‚РµР»СЊРЅРѕРµ С‡РёСЃР»Рѕ РІ РєР°С‡РµСЃС‚РІРµ РґР»РёРЅС‹ Р±Р»РѕРєР° - РїСЂРёР·РЅР°Рє Stored Р±Р»РѕРєР°
             WRITE  (In, InSize);
             BigFreeAndNil(In);
         } else {
-            // Данные успешно упакованы, можно освободить входной буфер прежде чем записывать их
-            // (чтобы освободить больше памяти для следующего алгоритма в цепочке алгоритмов сжатия)
+            // Р”Р°РЅРЅС‹Рµ СѓСЃРїРµС€РЅРѕ СѓРїР°РєРѕРІР°РЅС‹, РјРѕР¶РЅРѕ РѕСЃРІРѕР±РѕРґРёС‚СЊ РІС…РѕРґРЅРѕР№ Р±СѓС„РµСЂ РїСЂРµР¶РґРµ С‡РµРј Р·Р°РїРёСЃС‹РІР°С‚СЊ РёС…
+            // (С‡С‚РѕР±С‹ РѕСЃРІРѕР±РѕРґРёС‚СЊ Р±РѕР»СЊС€Рµ РїР°РјСЏС‚Рё РґР»СЏ СЃР»РµРґСѓСЋС‰РµРіРѕ Р°Р»РіРѕСЂРёС‚РјР° РІ С†РµРїРѕС‡РєРµ Р°Р»РіРѕСЂРёС‚РјРѕРІ СЃР¶Р°С‚РёСЏ)
             BigFreeAndNil(In);
             WRITE4 (OutSize);
             WRITE  (Out, OutSize);
@@ -165,20 +165,20 @@ finished:
 int lzp_decompress (MemSize BlockSize, int MinCompression, int MinMatchLen, int HashSizeLog, int Barrier, int SmallestLen, CALLBACK_FUNC *callback, void *auxdata)
 {
     int errcode = FREEARC_OK;   // Error code returned by last operation or FREEARC_OK
-    BYTE* In = NULL;  // указатель на входные данные
-    BYTE* Out= NULL;  // указатель на выходные данные
+    BYTE* In = NULL;  // СѓРєР°Р·Р°С‚РµР»СЊ РЅР° РІС…РѕРґРЅС‹Рµ РґР°РЅРЅС‹Рµ
+    BYTE* Out= NULL;  // СѓРєР°Р·Р°С‚РµР»СЊ РЅР° РІС‹С…РѕРґРЅС‹Рµ РґР°РЅРЅС‹Рµ
     for(;;) {
-        int InSize, OutSize;     // количество байт во входном и выходном буфере, соответственно
+        int InSize, OutSize;     // РєРѕР»РёС‡РµСЃС‚РІРѕ Р±Р°Р№С‚ РІРѕ РІС…РѕРґРЅРѕРј Рё РІС‹С…РѕРґРЅРѕРј Р±СѓС„РµСЂРµ, СЃРѕРѕС‚РІРµС‚СЃС‚РІРµРЅРЅРѕ
         READ4_OR_EOF (InSize);
         if (InSize<0) {
-            // скопируем неупакованные данные
+            // СЃРєРѕРїРёСЂСѓРµРј РЅРµСѓРїР°РєРѕРІР°РЅРЅС‹Рµ РґР°РЅРЅС‹Рµ
             InSize = -InSize;
             BIGALLOC (BYTE, In, InSize);
             READ  (In, InSize);
             WRITE (In, InSize);
             BigFreeAndNil(In);
         } else {
-            // Произвести декодирование и получить размер выходных данных
+            // РџСЂРѕРёР·РІРµСЃС‚Рё РґРµРєРѕРґРёСЂРѕРІР°РЅРёРµ Рё РїРѕР»СѓС‡РёС‚СЊ СЂР°Р·РјРµСЂ РІС‹С…РѕРґРЅС‹С… РґР°РЅРЅС‹С…
             BIGALLOC (BYTE, In,  InSize);
             BIGALLOC (BYTE, Out, BlockSize);
             READ  (In, InSize);
@@ -196,10 +196,10 @@ finished:
 
 
 /*-------------------------------------------------*/
-/* Реализация класса LZP_METHOD                    */
+/* Р РµР°Р»РёР·Р°С†РёСЏ РєР»Р°СЃСЃР° LZP_METHOD                    */
 /*-------------------------------------------------*/
 
-// Конструктор, присваивающий параметрам метода сжатия значения по умолчанию
+// РљРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ, РїСЂРёСЃРІР°РёРІР°СЋС‰РёР№ РїР°СЂР°РјРµС‚СЂР°Рј РјРµС‚РѕРґР° СЃР¶Р°С‚РёСЏ Р·РЅР°С‡РµРЅРёСЏ РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ
 LZP_METHOD::LZP_METHOD()
 {
   BlockSize      = 8*mb;
@@ -210,7 +210,7 @@ LZP_METHOD::LZP_METHOD()
   SmallestLen    = 32;
 }
 
-// Функция распаковки
+// Р¤СѓРЅРєС†РёСЏ СЂР°СЃРїР°РєРѕРІРєРё
 int LZP_METHOD::decompress (CALLBACK_FUNC *callback, void *auxdata)
 {
   // Use faster function from DLL if possible
@@ -223,7 +223,7 @@ int LZP_METHOD::decompress (CALLBACK_FUNC *callback, void *auxdata)
 
 #ifndef FREEARC_DECOMPRESS_ONLY
 
-// Функция упаковки
+// Р¤СѓРЅРєС†РёСЏ СѓРїР°РєРѕРІРєРё
 int LZP_METHOD::compress (CALLBACK_FUNC *callback, void *auxdata)
 {
   // Use faster function from DLL if possible
@@ -234,7 +234,7 @@ int LZP_METHOD::compress (CALLBACK_FUNC *callback, void *auxdata)
             (BlockSize, MinCompression, MinMatchLen, HashSizeLog, Barrier, SmallestLen, callback, auxdata);
 }
 
-// Установить размер блока и уменьшить размер хэша, если он слишком велик для такого маленького блока
+// РЈСЃС‚Р°РЅРѕРІРёС‚СЊ СЂР°Р·РјРµСЂ Р±Р»РѕРєР° Рё СѓРјРµРЅСЊС€РёС‚СЊ СЂР°Р·РјРµСЂ С…СЌС€Р°, РµСЃР»Рё РѕРЅ СЃР»РёС€РєРѕРј РІРµР»РёРє РґР»СЏ С‚Р°РєРѕРіРѕ РјР°Р»РµРЅСЊРєРѕРіРѕ Р±Р»РѕРєР°
 void LZP_METHOD::SetBlockSize (MemSize bs)
 {
   if (bs>0) {
@@ -243,11 +243,11 @@ void LZP_METHOD::SetBlockSize (MemSize bs)
   }
 }
 
-// Устанавливает количество памяти, которое должно использоваться при упаковке и распаковке
+// РЈСЃС‚Р°РЅР°РІР»РёРІР°РµС‚ РєРѕР»РёС‡РµСЃС‚РІРѕ РїР°РјСЏС‚Рё, РєРѕС‚РѕСЂРѕРµ РґРѕР»Р¶РЅРѕ РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊСЃСЏ РїСЂРё СѓРїР°РєРѕРІРєРµ Рё СЂР°СЃРїР°РєРѕРІРєРµ
 void LZP_METHOD::SetCompressionMem (MemSize mem)
 {
   MemSize hashsize = (1<<HashSizeLog) * sizeof(BYTE*);
-  // Если хеш занимает слишком много места - укоротим сначала его. Этого может оказаться достаточно
+  // Р•СЃР»Рё С…РµС€ Р·Р°РЅРёРјР°РµС‚ СЃР»РёС€РєРѕРј РјРЅРѕРіРѕ РјРµСЃС‚Р° - СѓРєРѕСЂРѕС‚РёРј СЃРЅР°С‡Р°Р»Р° РµРіРѕ. Р­С‚РѕРіРѕ РјРѕР¶РµС‚ РѕРєР°Р·Р°С‚СЊСЃСЏ РґРѕСЃС‚Р°С‚РѕС‡РЅРѕ
   if (hashsize > mem/4) {
     HashSizeLog = lb(mem/16);
     if (GetCompressionMem() <= mem)  return;
@@ -260,7 +260,7 @@ void LZP_METHOD::SetCompressionMem (MemSize mem)
 #endif  // !defined (FREEARC_DECOMPRESS_ONLY)
 
 
-// Записать в buf[MAX_METHOD_STRLEN] строку, описывающую метод сжатия и его параметры (функция, обратная к parse_LZP)
+// Р—Р°РїРёСЃР°С‚СЊ РІ buf[MAX_METHOD_STRLEN] СЃС‚СЂРѕРєСѓ, РѕРїРёСЃС‹РІР°СЋС‰СѓСЋ РјРµС‚РѕРґ СЃР¶Р°С‚РёСЏ Рё РµРіРѕ РїР°СЂР°РјРµС‚СЂС‹ (С„СѓРЅРєС†РёСЏ, РѕР±СЂР°С‚РЅР°СЏ Рє parse_LZP)
 void LZP_METHOD::ShowCompressionMethod (char *buf, bool purify)
 {
     LZP_METHOD defaults; char BlockSizeStr[100], MinCompressionStr[100], BarrierTempStr[100], BarrierStr[100], SmallestLenStr[100];
@@ -272,45 +272,45 @@ void LZP_METHOD::ShowCompressionMethod (char *buf, bool purify)
     sprintf (buf, "lzp:%s%s:%d:h%d%s%s", BlockSizeStr, MinCompressionStr, MinMatchLen, HashSizeLog, BarrierStr, SmallestLenStr);
 }
 
-// Конструирует объект типа LZP_METHOD с заданными параметрами упаковки
-// или возвращает NULL, если это другой метод сжатия или допущена ошибка в параметрах
+// РљРѕРЅСЃС‚СЂСѓРёСЂСѓРµС‚ РѕР±СЉРµРєС‚ С‚РёРїР° LZP_METHOD СЃ Р·Р°РґР°РЅРЅС‹РјРё РїР°СЂР°РјРµС‚СЂР°РјРё СѓРїР°РєРѕРІРєРё
+// РёР»Рё РІРѕР·РІСЂР°С‰Р°РµС‚ NULL, РµСЃР»Рё СЌС‚Рѕ РґСЂСѓРіРѕР№ РјРµС‚РѕРґ СЃР¶Р°С‚РёСЏ РёР»Рё РґРѕРїСѓС‰РµРЅР° РѕС€РёР±РєР° РІ РїР°СЂР°РјРµС‚СЂР°С…
 COMPRESSION_METHOD* parse_LZP (char** parameters)
 {
   if (strcmp (parameters[0], "lzp") == 0) {
-    // Если название метода (нулевой параметр) - "lzp", то разберём остальные параметры
+    // Р•СЃР»Рё РЅР°Р·РІР°РЅРёРµ РјРµС‚РѕРґР° (РЅСѓР»РµРІРѕР№ РїР°СЂР°РјРµС‚СЂ) - "lzp", С‚Рѕ СЂР°Р·Р±РµСЂС‘Рј РѕСЃС‚Р°Р»СЊРЅС‹Рµ РїР°СЂР°РјРµС‚СЂС‹
 
     LZP_METHOD *p = new LZP_METHOD;
-    int error = 0;  // Признак того, что при разборе параметров произошла ошибка
+    int error = 0;  // РџСЂРёР·РЅР°Рє С‚РѕРіРѕ, С‡С‚Рѕ РїСЂРё СЂР°Р·Р±РѕСЂРµ РїР°СЂР°РјРµС‚СЂРѕРІ РїСЂРѕРёР·РѕС€Р»Р° РѕС€РёР±РєР°
 
-    // Переберём все параметры метода (или выйдем раньше при возникновении ошибки при разборе очередного параметра)
+    // РџРµСЂРµР±РµСЂС‘Рј РІСЃРµ РїР°СЂР°РјРµС‚СЂС‹ РјРµС‚РѕРґР° (РёР»Рё РІС‹Р№РґРµРј СЂР°РЅСЊС€Рµ РїСЂРё РІРѕР·РЅРёРєРЅРѕРІРµРЅРёРё РѕС€РёР±РєРё РїСЂРё СЂР°Р·Р±РѕСЂРµ РѕС‡РµСЂРµРґРЅРѕРіРѕ РїР°СЂР°РјРµС‚СЂР°)
     while (*++parameters && !error)
     {
       char* param = *parameters;
-      switch (*param) {                    // Параметры, содержащие значения
+      switch (*param) {                    // РџР°СЂР°РјРµС‚СЂС‹, СЃРѕРґРµСЂР¶Р°С‰РёРµ Р·РЅР°С‡РµРЅРёСЏ
         case 'b':  p->BlockSize   = parseMem (param+1, &error); continue;
         case 'l':  p->MinMatchLen = parseInt (param+1, &error); continue;
         case 'h':  p->HashSizeLog = parseInt (param+1, &error); continue;
         case 'd':  p->Barrier     = parseMem (param+1, &error); continue;
         case 's':  p->SmallestLen = parseInt (param+1, &error); continue;
       }
-      // Если параметр заканчивается знаком процента. то попробуем распарсить его как "N%"
+      // Р•СЃР»Рё РїР°СЂР°РјРµС‚СЂ Р·Р°РєР°РЅС‡РёРІР°РµС‚СЃСЏ Р·РЅР°РєРѕРј РїСЂРѕС†РµРЅС‚Р°. С‚Рѕ РїРѕРїСЂРѕР±СѓРµРј СЂР°СЃРїР°СЂСЃРёС‚СЊ РµРіРѕ РєР°Рє "N%"
       if (last_char(param) == '%') {
         char str[100]; strcpy(str,param); last_char(str) = '\0';
         int n = parseInt (str, &error);
         if (!error) { p->MinCompression = n; continue; }
         error=0;
       }
-      // Сюда мы попадаем, если в параметре не указано его название
-      // Если этот параметр удастся разобрать как целое число (т.е. в нём - только цифры),
-      // то присвоим его значение полю MinMatchLen, иначе попробуем разобрать его как BlockSize
+      // РЎСЋРґР° РјС‹ РїРѕРїР°РґР°РµРј, РµСЃР»Рё РІ РїР°СЂР°РјРµС‚СЂРµ РЅРµ СѓРєР°Р·Р°РЅРѕ РµРіРѕ РЅР°Р·РІР°РЅРёРµ
+      // Р•СЃР»Рё СЌС‚РѕС‚ РїР°СЂР°РјРµС‚СЂ СѓРґР°СЃС‚СЃСЏ СЂР°Р·РѕР±СЂР°С‚СЊ РєР°Рє С†РµР»РѕРµ С‡РёСЃР»Рѕ (С‚.Рµ. РІ РЅС‘Рј - С‚РѕР»СЊРєРѕ С†РёС„СЂС‹),
+      // С‚Рѕ РїСЂРёСЃРІРѕРёРј РµРіРѕ Р·РЅР°С‡РµРЅРёРµ РїРѕР»СЋ MinMatchLen, РёРЅР°С‡Рµ РїРѕРїСЂРѕР±СѓРµРј СЂР°Р·РѕР±СЂР°С‚СЊ РµРіРѕ РєР°Рє BlockSize
       int n = parseInt (param, &error);
       if (!error) p->MinMatchLen = n;
       else        error=0, p->BlockSize = parseMem (param, &error);
     }
-    if (error)  {delete p; return NULL;}  // Ошибка при парсинге параметров метода
+    if (error)  {delete p; return NULL;}  // РћС€РёР±РєР° РїСЂРё РїР°СЂСЃРёРЅРіРµ РїР°СЂР°РјРµС‚СЂРѕРІ РјРµС‚РѕРґР°
     return p;
   } else
-    return NULL;   // Это не метод lzp
+    return NULL;   // Р­С‚Рѕ РЅРµ РјРµС‚РѕРґ lzp
 }
 
-static int LZP_x = AddCompressionMethod (parse_LZP);   // Зарегистрируем парсер метода LZP
+static int LZP_x = AddCompressionMethod (parse_LZP);   // Р—Р°СЂРµРіРёСЃС‚СЂРёСЂСѓРµРј РїР°СЂСЃРµСЂ РјРµС‚РѕРґР° LZP

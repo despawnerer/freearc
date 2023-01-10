@@ -12,7 +12,7 @@
 #define _4x4_VERSION     0  /* version of compressed data format */
 #define _4x4_HEADER_SIZE 8  /* size of compressed block header (two int32 values) */
 
-// Размер одного входного/выходного буфера
+// Р Р°Р·РјРµСЂ РѕРґРЅРѕРіРѕ РІС…РѕРґРЅРѕРіРѕ/РІС‹С…РѕРґРЅРѕРіРѕ Р±СѓС„РµСЂР°
 MemSize _4x4_BUFFER_SIZE (COMPRESSION direction, COMPRESSION_METHOD *cm, MemSize BlockSize)
 {
   return (direction==COMPRESS? BlockSize : (cm? cm->GetMaxCompressedSize(BlockSize):0)) + _4x4_HEADER_SIZE;
@@ -206,9 +206,9 @@ void _4x4MTCompressor::Write (_4x4Job &job)
 
 
 /*-------------------------------------------------*/
-/* Реализация класса _4x4_METHOD                   */
+/* Р РµР°Р»РёР·Р°С†РёСЏ РєР»Р°СЃСЃР° _4x4_METHOD                   */
 /*-------------------------------------------------*/
-// Конструктор, присваивающий параметрам метода сжатия значения по умолчанию
+// РљРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ, РїСЂРёСЃРІР°РёРІР°СЋС‰РёР№ РїР°СЂР°РјРµС‚СЂР°Рј РјРµС‚РѕРґР° СЃР¶Р°С‚РёСЏ Р·РЅР°С‡РµРЅРёСЏ РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ
 _4x4_METHOD::_4x4_METHOD()
 {
   strcpy(Method, "tor:3:1mb");
@@ -218,14 +218,14 @@ _4x4_METHOD::_4x4_METHOD()
   MinOrder0Percents = 99;        // don't try to compress the data if order0 entropy > 99%
 }
 
-// Универсальный метод, отвечает на запрос "has_progress?"
+// РЈРЅРёРІРµСЂСЃР°Р»СЊРЅС‹Р№ РјРµС‚РѕРґ, РѕС‚РІРµС‡Р°РµС‚ РЅР° Р·Р°РїСЂРѕСЃ "has_progress?"
 int _4x4_METHOD::doit (char *what, int param, void *data, CALLBACK_FUNC *callback)
 {
-  if (strequ (what, "has_progress?"))  return 1;                                                       // Да, этот алгоритм поддерживает отчёт о прогрессе упаковки
-  else                                 return COMPRESSION_METHOD::doit (what, param, data, callback);  // Передать остальные вызовы родительской процедуре
+  if (strequ (what, "has_progress?"))  return 1;                                                       // Р”Р°, СЌС‚РѕС‚ Р°Р»РіРѕСЂРёС‚Рј РїРѕРґРґРµСЂР¶РёРІР°РµС‚ РѕС‚С‡С‘С‚ Рѕ РїСЂРѕРіСЂРµСЃСЃРµ СѓРїР°РєРѕРІРєРё
+  else                                 return COMPRESSION_METHOD::doit (what, param, data, callback);  // РџРµСЂРµРґР°С‚СЊ РѕСЃС‚Р°Р»СЊРЅС‹Рµ РІС‹Р·РѕРІС‹ СЂРѕРґРёС‚РµР»СЊСЃРєРѕР№ РїСЂРѕС†РµРґСѓСЂРµ
 }
 
-// Функция распаковки
+// Р¤СѓРЅРєС†РёСЏ СЂР°СЃРїР°РєРѕРІРєРё
 int _4x4_METHOD::decompress (CALLBACK_FUNC *callback, void *auxdata)
 {
   Set_compress_all_at_once_Until_end_of_block _(1);
@@ -235,7 +235,7 @@ int _4x4_METHOD::decompress (CALLBACK_FUNC *callback, void *auxdata)
 
 #ifndef FREEARC_DECOMPRESS_ONLY
 
-// Функция упаковки
+// Р¤СѓРЅРєС†РёСЏ СѓРїР°РєРѕРІРєРё
 int _4x4_METHOD::compress (CALLBACK_FUNC *callback, void *auxdata)
 {
   Set_compress_all_at_once_Until_end_of_block _(1);
@@ -254,7 +254,7 @@ MemSize _4x4_METHOD::GetSetDeCompressionMem (COMPRESSION direction, MemSize mem,
   int i  =  MINMEM? 0 : GetNumExtraBuffers();
   COMPRESSION_METHOD *cmethod = ParseCompressionMethod (Method);
 
-  // Сколько памяти требуется для одного треда упаковки/распаковки (при распаковке может быть вызван только GetDecompressionMem)
+  // РЎРєРѕР»СЊРєРѕ РїР°РјСЏС‚Рё С‚СЂРµР±СѓРµС‚СЃСЏ РґР»СЏ РѕРґРЅРѕРіРѕ С‚СЂРµРґР° СѓРїР°РєРѕРІРєРё/СЂР°СЃРїР°РєРѕРІРєРё (РїСЂРё СЂР°СЃРїР°РєРѕРІРєРµ РјРѕР¶РµС‚ Р±С‹С‚СЊ РІС‹Р·РІР°РЅ С‚РѕР»СЊРєРѕ GetDecompressionMem)
   LongMemSize tmem =
 #ifndef FREEARC_DECOMPRESS_ONLY
                      direction==COMPRESS? (MINMEM? ::GetMinCompressionMem(Method)   : ::GetCompressionMem(Method))
@@ -263,46 +263,46 @@ MemSize _4x4_METHOD::GetSetDeCompressionMem (COMPRESSION direction, MemSize mem,
                                                                                       ::GetDecompressionMem(Method);
 #endif
 
-  // Сколько памяти требуется для одного набора доп. буферов I/O
+  // РЎРєРѕР»СЊРєРѕ РїР°РјСЏС‚Рё С‚СЂРµР±СѓРµС‚СЃСЏ РґР»СЏ РѕРґРЅРѕРіРѕ РЅР°Р±РѕСЂР° РґРѕРї. Р±СѓС„РµСЂРѕРІ I/O
   LongMemSize imem = 2*LongMemSize(_4x4_BUFFER_SIZE(direction, cmethod, BlockSize? BlockSize : ::GetDictionary(Method)));
 
-  tmem += imem;  // Для каждого треда упаковки выделяется набор I/O буферов
+  tmem += imem;  // Р”Р»СЏ РєР°Р¶РґРѕРіРѕ С‚СЂРµРґР° СѓРїР°РєРѕРІРєРё РІС‹РґРµР»СЏРµС‚СЃСЏ РЅР°Р±РѕСЂ I/O Р±СѓС„РµСЂРѕРІ
 
   if (mem==0)  {delete cmethod;  return mymin(t*tmem+i*imem, MEMSIZE_MAX);}   // Either Get(De)compressionMem() or Set(De)compressionMem(0) was called
 
 
-  // Если дошли досюда - значит выполняем одну из операций SetXxxMem. В зависимости от конкретной операции мы можем менять следующие параметры метода:
-  // SetCompressionMem        :t:i и submethod/BlockSize
+  // Р•СЃР»Рё РґРѕС€Р»Рё РґРѕСЃСЋРґР° - Р·РЅР°С‡РёС‚ РІС‹РїРѕР»РЅСЏРµРј РѕРґРЅСѓ РёР· РѕРїРµСЂР°С†РёР№ SetXxxMem. Р’ Р·Р°РІРёСЃРёРјРѕСЃС‚Рё РѕС‚ РєРѕРЅРєСЂРµС‚РЅРѕР№ РѕРїРµСЂР°С†РёРё РјС‹ РјРѕР¶РµРј РјРµРЅСЏС‚СЊ СЃР»РµРґСѓСЋС‰РёРµ РїР°СЂР°РјРµС‚СЂС‹ РјРµС‚РѕРґР°:
+  // SetCompressionMem        :t:i Рё submethod/BlockSize
   // SetMinCompressionMem     submethod/BlockSize
   // SetDecompressionMem      :t:i
   // SetMinDecompressionMem   submethod/BlockSize
 
-  // Посчитаем количество тредов и буферов, которое мы можем себе позволить
+  // РџРѕСЃС‡РёС‚Р°РµРј РєРѕР»РёС‡РµСЃС‚РІРѕ С‚СЂРµРґРѕРІ Рё Р±СѓС„РµСЂРѕРІ, РєРѕС‚РѕСЂРѕРµ РјС‹ РјРѕР¶РµРј СЃРµР±Рµ РїРѕР·РІРѕР»РёС‚СЊ
   if (mem >= t*tmem+i*imem) {
-    // Памяти достаточно - "расширим" алгоритм сжатия
+    // РџР°РјСЏС‚Рё РґРѕСЃС‚Р°С‚РѕС‡РЅРѕ - "СЂР°СЃС€РёСЂРёРј" Р°Р»РіРѕСЂРёС‚Рј СЃР¶Р°С‚РёСЏ
     //::SetDeCompressionMem (Method, mem/GetNumBuffers(), Method);
 
   } else if (mem >= t*tmem && !MINMEM) {
-    // Памяти достаточно для всех тредов сжатия, уменьшаем число дополнительных буферов
+    // РџР°РјСЏС‚Рё РґРѕСЃС‚Р°С‚РѕС‡РЅРѕ РґР»СЏ РІСЃРµС… С‚СЂРµРґРѕРІ СЃР¶Р°С‚РёСЏ, СѓРјРµРЅСЊС€Р°РµРј С‡РёСЃР»Рѕ РґРѕРїРѕР»РЅРёС‚РµР»СЊРЅС‹С… Р±СѓС„РµСЂРѕРІ
     NumExtraBuffers = (mem-t*tmem)/imem;
 
   } else if (mem >= tmem && !MINMEM) {
-    // Памяти достаточно хотя бы для одного треда сжатия - уменьшаем число тредов сжатия и при необходимости число дополнительных буферов
+    // РџР°РјСЏС‚Рё РґРѕСЃС‚Р°С‚РѕС‡РЅРѕ С…РѕС‚СЏ Р±С‹ РґР»СЏ РѕРґРЅРѕРіРѕ С‚СЂРµРґР° СЃР¶Р°С‚РёСЏ - СѓРјРµРЅСЊС€Р°РµРј С‡РёСЃР»Рѕ С‚СЂРµРґРѕРІ СЃР¶Р°С‚РёСЏ Рё РїСЂРё РЅРµРѕР±С…РѕРґРёРјРѕСЃС‚Рё С‡РёСЃР»Рѕ РґРѕРїРѕР»РЅРёС‚РµР»СЊРЅС‹С… Р±СѓС„РµСЂРѕРІ
     NumThreads = t = mem/tmem;
     int new_i = (mem-t*tmem)/imem;
     if (new_i<i)  NumExtraBuffers = new_i;
 
   } else {
-    // Памяти не хватило даже для одного треда сжатия - оставим только один и ещё подожмём его
+    // РџР°РјСЏС‚Рё РЅРµ С…РІР°С‚РёР»Рѕ РґР°Р¶Рµ РґР»СЏ РѕРґРЅРѕРіРѕ С‚СЂРµРґР° СЃР¶Р°С‚РёСЏ - РѕСЃС‚Р°РІРёРј С‚РѕР»СЊРєРѕ РѕРґРёРЅ Рё РµС‰С‘ РїРѕРґРѕР¶РјС‘Рј РµРіРѕ
 
-    // Урезаем число тредов в Set(De)CompressionMem
+    // РЈСЂРµР·Р°РµРј С‡РёСЃР»Рѕ С‚СЂРµРґРѕРІ РІ Set(De)CompressionMem
     if (!MINMEM) {
       NumThreads      = 1;
       NumExtraBuffers = 0;
     }
 #ifndef FREEARC_DECOMPRESS_ONLY
-    // Урезаем BlockSize в любой операции, кроме SetDecompressionMem
-    // Во время распаковки это невозможно, поскольку потеряется совместимость с упакованными с этими параметрами данными
+    // РЈСЂРµР·Р°РµРј BlockSize РІ Р»СЋР±РѕР№ РѕРїРµСЂР°С†РёРё, РєСЂРѕРјРµ SetDecompressionMem
+    // Р’Рѕ РІСЂРµРјСЏ СЂР°СЃРїР°РєРѕРІРєРё СЌС‚Рѕ РЅРµРІРѕР·РјРѕР¶РЅРѕ, РїРѕСЃРєРѕР»СЊРєСѓ РїРѕС‚РµСЂСЏРµС‚СЃСЏ СЃРѕРІРјРµСЃС‚РёРјРѕСЃС‚СЊ СЃ СѓРїР°РєРѕРІР°РЅРЅС‹РјРё СЃ СЌС‚РёРјРё РїР°СЂР°РјРµС‚СЂР°РјРё РґР°РЅРЅС‹РјРё
     if (direction==COMPRESS || MINMEM) {
       MemSize bs = rounddown_mem (mem/4);
       if (BlockSize==0 || BlockSize>bs)
@@ -318,7 +318,7 @@ MemSize _4x4_METHOD::GetSetDeCompressionMem (COMPRESSION direction, MemSize mem,
 }
 
 
-// Записать в buf[MAX_METHOD_STRLEN] строку, описывающую метод сжатия и его параметры (функция, обратная к parse_4x4)
+// Р—Р°РїРёСЃР°С‚СЊ РІ buf[MAX_METHOD_STRLEN] СЃС‚СЂРѕРєСѓ, РѕРїРёСЃС‹РІР°СЋС‰СѓСЋ РјРµС‚РѕРґ СЃР¶Р°С‚РёСЏ Рё РµРіРѕ РїР°СЂР°РјРµС‚СЂС‹ (С„СѓРЅРєС†РёСЏ, РѕР±СЂР°С‚РЅР°СЏ Рє parse_4x4)
 void _4x4_METHOD::ShowCompressionMethod (char *buf, bool purify)
 {
   _4x4_METHOD defaults;
@@ -337,21 +337,21 @@ void _4x4_METHOD::ShowCompressionMethod (char *buf, bool purify)
                                     *PurifiedMethod? PurifiedMethod : Method);
 }
 
-// Конструирует объект типа _4x4_METHOD с заданными параметрами упаковки
-// или возвращает NULL, если это другой метод сжатия или допущена ошибка при задании параметров
+// РљРѕРЅСЃС‚СЂСѓРёСЂСѓРµС‚ РѕР±СЉРµРєС‚ С‚РёРїР° _4x4_METHOD СЃ Р·Р°РґР°РЅРЅС‹РјРё РїР°СЂР°РјРµС‚СЂР°РјРё СѓРїР°РєРѕРІРєРё
+// РёР»Рё РІРѕР·РІСЂР°С‰Р°РµС‚ NULL, РµСЃР»Рё СЌС‚Рѕ РґСЂСѓРіРѕР№ РјРµС‚РѕРґ СЃР¶Р°С‚РёСЏ РёР»Рё РґРѕРїСѓС‰РµРЅР° РѕС€РёР±РєР° РїСЂРё Р·Р°РґР°РЅРёРё РїР°СЂР°РјРµС‚СЂРѕРІ
 COMPRESSION_METHOD* parse_4x4 (char** parameters)
 {
   if (strcmp (parameters[0], "4x4") == 0) {
-    // Если название метода (нулевой параметр) - "4x4", то разберём остальные параметры
+    // Р•СЃР»Рё РЅР°Р·РІР°РЅРёРµ РјРµС‚РѕРґР° (РЅСѓР»РµРІРѕР№ РїР°СЂР°РјРµС‚СЂ) - "4x4", С‚Рѕ СЂР°Р·Р±РµСЂС‘Рј РѕСЃС‚Р°Р»СЊРЅС‹Рµ РїР°СЂР°РјРµС‚СЂС‹
 
     _4x4_METHOD *p = new _4x4_METHOD;
-    int error = 0;  // Признак того, что при разборе параметров произошла ошибка
+    int error = 0;  // РџСЂРёР·РЅР°Рє С‚РѕРіРѕ, С‡С‚Рѕ РїСЂРё СЂР°Р·Р±РѕСЂРµ РїР°СЂР°РјРµС‚СЂРѕРІ РїСЂРѕРёР·РѕС€Р»Р° РѕС€РёР±РєР°
 
-    while (!error && *++parameters)  // Переберём все параметры метода
+    while (!error && *++parameters)  // РџРµСЂРµР±РµСЂС‘Рј РІСЃРµ РїР°СЂР°РјРµС‚СЂС‹ РјРµС‚РѕРґР°
     {
       char *param = *parameters;
 
-      // Если параметр начинается не с цифры или буквы плюс цифры - это начало описания метода сжатия
+      // Р•СЃР»Рё РїР°СЂР°РјРµС‚СЂ РЅР°С‡РёРЅР°РµС‚СЃСЏ РЅРµ СЃ С†РёС„СЂС‹ РёР»Рё Р±СѓРєРІС‹ РїР»СЋСЃ С†РёС„СЂС‹ - СЌС‚Рѕ РЅР°С‡Р°Р»Рѕ РѕРїРёСЃР°РЅРёСЏ РјРµС‚РѕРґР° СЃР¶Р°С‚РёСЏ
       if (!(isdigit(param[0]) || isdigit(param[1])))
       {
         join (parameters, COMPRESSION_METHOD_PARAMETERS_DELIMITER, p->Method, sizeof(p->Method));
@@ -361,26 +361,26 @@ COMPRESSION_METHOD* parse_4x4 (char** parameters)
         break;
       }
 
-      if (strlen(param)==1) switch (*param) {   // Однобуквенные параметры
+      if (strlen(param)==1) switch (*param) {   // РћРґРЅРѕР±СѓРєРІРµРЅРЅС‹Рµ РїР°СЂР°РјРµС‚СЂС‹
       }
-      else switch (*param) {                    // Параметры, содержащие значения
+      else switch (*param) {                    // РџР°СЂР°РјРµС‚СЂС‹, СЃРѕРґРµСЂР¶Р°С‰РёРµ Р·РЅР°С‡РµРЅРёСЏ
         case 'b':  p->BlockSize        =  parseMem (param+1, &error); continue;
         case 't':  p->NumThreads       =  parseInt (param+1, &error); continue;
         case 'i':  p->NumExtraBuffers  =  parseInt (param+1, &error); continue;
         case 'r':  p->MinOrder0Percents=  parseDouble (param+1, &error); continue;
       }
 
-      // Сюда мы попадаем, если в параметре не указано его название
-      // Если этот параметр удастся разобрать как целое число (т.е. в нём - только цифры),
-      // то присвоим его значение полю Threads, иначе попробуем разобрать его как BlockSize
+      // РЎСЋРґР° РјС‹ РїРѕРїР°РґР°РµРј, РµСЃР»Рё РІ РїР°СЂР°РјРµС‚СЂРµ РЅРµ СѓРєР°Р·Р°РЅРѕ РµРіРѕ РЅР°Р·РІР°РЅРёРµ
+      // Р•СЃР»Рё СЌС‚РѕС‚ РїР°СЂР°РјРµС‚СЂ СѓРґР°СЃС‚СЃСЏ СЂР°Р·РѕР±СЂР°С‚СЊ РєР°Рє С†РµР»РѕРµ С‡РёСЃР»Рѕ (С‚.Рµ. РІ РЅС‘Рј - С‚РѕР»СЊРєРѕ С†РёС„СЂС‹),
+      // С‚Рѕ РїСЂРёСЃРІРѕРёРј РµРіРѕ Р·РЅР°С‡РµРЅРёРµ РїРѕР»СЋ Threads, РёРЅР°С‡Рµ РїРѕРїСЂРѕР±СѓРµРј СЂР°Р·РѕР±СЂР°С‚СЊ РµРіРѕ РєР°Рє BlockSize
       int n = parseInt (param, &error);
       if (!error) p->NumThreads = n;
       else        error=0, p->BlockSize = parseMem (param, &error);
     }
-    if (error)  {delete p; return NULL;}  // Ошибка при парсинге параметров метода
+    if (error)  {delete p; return NULL;}  // РћС€РёР±РєР° РїСЂРё РїР°СЂСЃРёРЅРіРµ РїР°СЂР°РјРµС‚СЂРѕРІ РјРµС‚РѕРґР°
     return p;
   } else
-    return NULL;   // Это не метод 4x4
+    return NULL;   // Р­С‚Рѕ РЅРµ РјРµС‚РѕРґ 4x4
 }
 
-static int _4x4_x = AddCompressionMethod (parse_4x4);   // Зарегистрируем парсер метода 4x4
+static int _4x4_x = AddCompressionMethod (parse_4x4);   // Р—Р°СЂРµРіРёСЃС‚СЂРёСЂСѓРµРј РїР°СЂСЃРµСЂ РјРµС‚РѕРґР° 4x4

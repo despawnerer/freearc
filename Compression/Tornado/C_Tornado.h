@@ -6,31 +6,31 @@ int tor_decompress (CALLBACK_FUNC *callback, void *auxdata);
 
 #ifdef __cplusplus
 
-// Реализация стандартного интерфейса методов сжатия COMPRESSION_METHOD
+// Р РµР°Р»РёР·Р°С†РёСЏ СЃС‚Р°РЅРґР°СЂС‚РЅРѕРіРѕ РёРЅС‚РµСЂС„РµР№СЃР° РјРµС‚РѕРґРѕРІ СЃР¶Р°С‚РёСЏ COMPRESSION_METHOD
 class TORNADO_METHOD : public COMPRESSION_METHOD
 {
 public:
-  struct PackMethod m;      // Параметры этого метода сжатия
+  struct PackMethod m;      // РџР°СЂР°РјРµС‚СЂС‹ СЌС‚РѕРіРѕ РјРµС‚РѕРґР° СЃР¶Р°С‚РёСЏ
 
-  // Конструктор, присваивающий параметрам метода сжатия значения по умолчанию
+  // РљРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ, РїСЂРёСЃРІР°РёРІР°СЋС‰РёР№ РїР°СЂР°РјРµС‚СЂР°Рј РјРµС‚РѕРґР° СЃР¶Р°С‚РёСЏ Р·РЅР°С‡РµРЅРёСЏ РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ
   TORNADO_METHOD();
-  // Универсальный метод: даём положительный ответ на запросы "VeryFast?" для режимов сжатия 1-4, а ткже на запрос "has_progress?"
+  // РЈРЅРёРІРµСЂСЃР°Р»СЊРЅС‹Р№ РјРµС‚РѕРґ: РґР°С‘Рј РїРѕР»РѕР¶РёС‚РµР»СЊРЅС‹Р№ РѕС‚РІРµС‚ РЅР° Р·Р°РїСЂРѕСЃС‹ "VeryFast?" РґР»СЏ СЂРµР¶РёРјРѕРІ СЃР¶Р°С‚РёСЏ 1-4, Р° С‚РєР¶Рµ РЅР° Р·Р°РїСЂРѕСЃ "has_progress?"
   virtual int doit (char *what, int param, void *data, CALLBACK_FUNC *callback)
   {
          if (strequ (what, "VeryFast?"))          return m.hash_row_width<=2;
-    else if (strequ (what, "has_progress?"))      return 1;                        // Да, этот алгоритм поддерживает отчёт о прогрессе упаковки
-    else                                          return COMPRESSION_METHOD::doit (what, param, data, callback);  // Передать остальные вызовы родительской процедуре
+    else if (strequ (what, "has_progress?"))      return 1;                        // Р”Р°, СЌС‚РѕС‚ Р°Р»РіРѕСЂРёС‚Рј РїРѕРґРґРµСЂР¶РёРІР°РµС‚ РѕС‚С‡С‘С‚ Рѕ РїСЂРѕРіСЂРµСЃСЃРµ СѓРїР°РєРѕРІРєРё
+    else                                          return COMPRESSION_METHOD::doit (what, param, data, callback);  // РџРµСЂРµРґР°С‚СЊ РѕСЃС‚Р°Р»СЊРЅС‹Рµ РІС‹Р·РѕРІС‹ СЂРѕРґРёС‚РµР»СЊСЃРєРѕР№ РїСЂРѕС†РµРґСѓСЂРµ
   }
 
-  // Упаковка/распаковка в памяти
+  // РЈРїР°РєРѕРІРєР°/СЂР°СЃРїР°РєРѕРІРєР° РІ РїР°РјСЏС‚Рё
   virtual int DeCompressMem (COMPRESSION direction, void *input, int inputSize, void *output, int *outputSize, CALLBACK_FUNC *callback=0, void *auxdata=0, void **CodecState=0);
 
-  // Функции распаковки и упаковки
+  // Р¤СѓРЅРєС†РёРё СЂР°СЃРїР°РєРѕРІРєРё Рё СѓРїР°РєРѕРІРєРё
   virtual int decompress (CALLBACK_FUNC *callback, void *auxdata);
 #ifndef FREEARC_DECOMPRESS_ONLY
   virtual int compress   (CALLBACK_FUNC *callback, void *auxdata);
 
-  // Получить/установить объём памяти, используемой при упаковке/распаковке, размер словаря или размер блока
+  // РџРѕР»СѓС‡РёС‚СЊ/СѓСЃС‚Р°РЅРѕРІРёС‚СЊ РѕР±СЉС‘Рј РїР°РјСЏС‚Рё, РёСЃРїРѕР»СЊР·СѓРµРјРѕР№ РїСЂРё СѓРїР°РєРѕРІРєРµ/СЂР°СЃРїР°РєРѕРІРєРµ, СЂР°Р·РјРµСЂ СЃР»РѕРІР°СЂСЏ РёР»Рё СЂР°Р·РјРµСЂ Р±Р»РѕРєР°
   virtual MemSize GetCompressionMem        (void);
   virtual void    SetCompressionMem        (MemSize mem);
   virtual void    SetMinDecompressionMem   (MemSize mem)        {SetDictionary (mem);}
@@ -40,11 +40,11 @@ public:
   virtual MemSize GetDecompressionMem      (void);
   virtual LongMemSize GetMaxCompressedSize (LongMemSize insize);
 
-  // Записать в buf[MAX_METHOD_STRLEN] строку, описывающую метод сжатия и его параметры (функция, обратная к parse_TORNADO)
+  // Р—Р°РїРёСЃР°С‚СЊ РІ buf[MAX_METHOD_STRLEN] СЃС‚СЂРѕРєСѓ, РѕРїРёСЃС‹РІР°СЋС‰СѓСЋ РјРµС‚РѕРґ СЃР¶Р°С‚РёСЏ Рё РµРіРѕ РїР°СЂР°РјРµС‚СЂС‹ (С„СѓРЅРєС†РёСЏ, РѕР±СЂР°С‚РЅР°СЏ Рє parse_TORNADO)
   virtual void ShowCompressionMethod (char *buf, bool purify);
 };
 
-// Разборщик строки метода сжатия TORNADO
+// Р Р°Р·Р±РѕСЂС‰РёРє СЃС‚СЂРѕРєРё РјРµС‚РѕРґР° СЃР¶Р°С‚РёСЏ TORNADO
 COMPRESSION_METHOD* parse_TORNADO (char** parameters);
 
 #endif  // __cplusplus

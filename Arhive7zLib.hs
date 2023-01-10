@@ -1,9 +1,9 @@
 {-# OPTIONS_GHC -cpp -XRecordWildCards #-}
 ----------------------------------------------------------------------------------------------------
----- Работа с архивами через 7z.dll.                                                          ------
----- Этот модуль содержит процедуры для:                                                      ------
-----   * чтения структуры входного архива (т.е. каталогов и других служебных блоков)          ------
-----   * распаковки архивов                                                                   ------
+---- Р Р°Р±РѕС‚Р° СЃ Р°СЂС…РёРІР°РјРё С‡РµСЂРµР· 7z.dll.                                                          ------
+---- Р­С‚РѕС‚ РјРѕРґСѓР»СЊ СЃРѕРґРµСЂР¶РёС‚ РїСЂРѕС†РµРґСѓСЂС‹ РґР»СЏ:                                                      ------
+----   * С‡С‚РµРЅРёСЏ СЃС‚СЂСѓРєС‚СѓСЂС‹ РІС…РѕРґРЅРѕРіРѕ Р°СЂС…РёРІР° (С‚.Рµ. РєР°С‚Р°Р»РѕРіРѕРІ Рё РґСЂСѓРіРёС… СЃР»СѓР¶РµР±РЅС‹С… Р±Р»РѕРєРѕРІ)          ------
+----   * СЂР°СЃРїР°РєРѕРІРєРё Р°СЂС…РёРІРѕРІ                                                                   ------
 ----------------------------------------------------------------------------------------------------
 module Arhive7zLib where
 
@@ -39,43 +39,43 @@ import Options
 import ArhiveStructure
 
 ----------------------------------------------------------------------------------------------------
----- Описание структуры входного архива ------------------------------------------------------------
+---- РћРїРёСЃР°РЅРёРµ СЃС‚СЂСѓРєС‚СѓСЂС‹ РІС…РѕРґРЅРѕРіРѕ Р°СЂС…РёРІР° ------------------------------------------------------------
 ----------------------------------------------------------------------------------------------------
 
--- |Вся необходимая информация о входном архиве
+-- |Р’СЃСЏ РЅРµРѕР±С…РѕРґРёРјР°СЏ РёРЅС„РѕСЂРјР°С†РёСЏ Рѕ РІС…РѕРґРЅРѕРј Р°СЂС…РёРІРµ
 data ArchiveInfo = ArchiveInfo
-         { arcArchive     :: !(Maybe Archive)    -- открытый файл архива .arc
-         , arcFooter      :: FooterBlock         -- FOOTER BLOCK архива
-         , arcDirectory   :: [CompressedFile]    -- файлы, содержащиеся в архиве
-         , arcDataBlocks  :: [ArchiveBlock]      -- список солид-блоков
-         , arcDirBytes    :: FileSize            -- размер служебных блоков в распакованном виде
-         , arcDirCBytes   :: FileSize            -- размер служебных блоков в упакованном виде
-         , arcDataBytes   :: FileSize            -- размер данных в распакованном виде
-         , arcDataCBytes  :: FileSize            -- размер данных в упакованном виде
-         , arcSzArchive   :: !(Maybe SzArchive)  -- Хендл архива из 7z.dll
-         , arcArchiveType :: String              -- Тип архива
+         { arcArchive     :: !(Maybe Archive)    -- РѕС‚РєСЂС‹С‚С‹Р№ С„Р°Р№Р» Р°СЂС…РёРІР° .arc
+         , arcFooter      :: FooterBlock         -- FOOTER BLOCK Р°СЂС…РёРІР°
+         , arcDirectory   :: [CompressedFile]    -- С„Р°Р№Р»С‹, СЃРѕРґРµСЂР¶Р°С‰РёРµСЃСЏ РІ Р°СЂС…РёРІРµ
+         , arcDataBlocks  :: [ArchiveBlock]      -- СЃРїРёСЃРѕРє СЃРѕР»РёРґ-Р±Р»РѕРєРѕРІ
+         , arcDirBytes    :: FileSize            -- СЂР°Р·РјРµСЂ СЃР»СѓР¶РµР±РЅС‹С… Р±Р»РѕРєРѕРІ РІ СЂР°СЃРїР°РєРѕРІР°РЅРЅРѕРј РІРёРґРµ
+         , arcDirCBytes   :: FileSize            -- СЂР°Р·РјРµСЂ СЃР»СѓР¶РµР±РЅС‹С… Р±Р»РѕРєРѕРІ РІ СѓРїР°РєРѕРІР°РЅРЅРѕРј РІРёРґРµ
+         , arcDataBytes   :: FileSize            -- СЂР°Р·РјРµСЂ РґР°РЅРЅС‹С… РІ СЂР°СЃРїР°РєРѕРІР°РЅРЅРѕРј РІРёРґРµ
+         , arcDataCBytes  :: FileSize            -- СЂР°Р·РјРµСЂ РґР°РЅРЅС‹С… РІ СѓРїР°РєРѕРІР°РЅРЅРѕРј РІРёРґРµ
+         , arcSzArchive   :: !(Maybe SzArchive)  -- РҐРµРЅРґР» Р°СЂС…РёРІР° РёР· 7z.dll
+         , arcArchiveType :: String              -- РўРёРї Р°СЂС…РёРІР°
          }
 
--- |Проверка, что это архив, поддерживаемый самим FreeArc / через 7z.dll
+-- |РџСЂРѕРІРµСЂРєР°, С‡С‚Рѕ СЌС‚Рѕ Р°СЂС…РёРІ, РїРѕРґРґРµСЂР¶РёРІР°РµРјС‹Р№ СЃР°РјРёРј FreeArc / С‡РµСЂРµР· 7z.dll
 isArcArchive  =  isJust . arcArchive
 isSzArchive   =  isJust . arcSzArchive
 
--- |True, если архива на самом деле нет (используется для main_archive)
+-- |True, РµСЃР»Рё Р°СЂС…РёРІР° РЅР° СЃР°РјРѕРј РґРµР»Рµ РЅРµС‚ (РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ РґР»СЏ main_archive)
 isArcPhantom = not . any_function [isArcArchive, isSzArchive]
 
--- Процедуры, упрощающие работу с архивами
+-- РџСЂРѕС†РµРґСѓСЂС‹, СѓРїСЂРѕС‰Р°СЋС‰РёРµ СЂР°Р±РѕС‚Сѓ СЃ Р°СЂС…РёРІР°РјРё
 arcGetPos  = archiveGetPos . fromJust . arcArchive
 arcSeek    = archiveSeek   . fromJust . arcArchive
 arcComment = ftComment . arcFooter
 
--- |Фантомный, несуществующий архив, необходимый для применения в некоторых операциях
--- (слияние списков файлов, закрытие входных архивов)
+-- |Р¤Р°РЅС‚РѕРјРЅС‹Р№, РЅРµСЃСѓС‰РµСЃС‚РІСѓСЋС‰РёР№ Р°СЂС…РёРІ, РЅРµРѕР±С…РѕРґРёРјС‹Р№ РґР»СЏ РїСЂРёРјРµРЅРµРЅРёСЏ РІ РЅРµРєРѕС‚РѕСЂС‹С… РѕРїРµСЂР°С†РёСЏС…
+-- (СЃР»РёСЏРЅРёРµ СЃРїРёСЃРєРѕРІ С„Р°Р№Р»РѕРІ, Р·Р°РєСЂС‹С‚РёРµ РІС…РѕРґРЅС‹С… Р°СЂС…РёРІРѕРІ)
 phantomArc  =  dirlessArchive Nothing (FooterBlock [] False "" "" 0)
 
--- |Архив без каталога файлов - используется только для вызова writeSFX из runArchiveRecovery
+-- |РђСЂС…РёРІ Р±РµР· РєР°С‚Р°Р»РѕРіР° С„Р°Р№Р»РѕРІ - РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ С‚РѕР»СЊРєРѕ РґР»СЏ РІС‹Р·РѕРІР° writeSFX РёР· runArchiveRecovery
 dirlessArchive archive footer   =   ArchiveInfo archive footer [] [] (error "emptyArchive:arcDirBytes") (error "emptyArchive:arcDirCBytes") (error "emptyArchive:arcDataBytes") (error "emptyArchive:arcDataCBytes") Nothing "-"
 
--- |Закрыть архивный файл, если только это не фантомный архив
+-- |Р—Р°РєСЂС‹С‚СЊ Р°СЂС…РёРІРЅС‹Р№ С„Р°Р№Р», РµСЃР»Рё С‚РѕР»СЊРєРѕ СЌС‚Рѕ РЅРµ С„Р°РЅС‚РѕРјРЅС‹Р№ Р°СЂС…РёРІ
 arcClose arc  =  do whenJust (arcArchive arc) archiveClose
                     whenJust (arcSzArchive arc) szArcClose
                     return ()
@@ -91,42 +91,42 @@ szFindFormatForArchiveName arcname  =  unsafePerformIO$ withCWString (takeFileNa
 
 
 ----------------------------------------------------------------------------------------------------
----- Получение тех. информации об архиве в виде текстового блока -----------------------------------
+---- РџРѕР»СѓС‡РµРЅРёРµ С‚РµС…. РёРЅС„РѕСЂРјР°С†РёРё РѕР± Р°СЂС…РёРІРµ РІ РІРёРґРµ С‚РµРєСЃС‚РѕРІРѕРіРѕ Р±Р»РѕРєР° -----------------------------------
 ----------------------------------------------------------------------------------------------------
 
 arcGetTechinfo archive dirs_and_files = do
     let filelist    = map cfFileInfo (arcDirectory archive)
         footer      = arcFooter archive
-        dataBlocks  = arcDataBlocks archive                                                         -- список солид-блоков
+        dataBlocks  = arcDataBlocks archive                                                         -- СЃРїРёСЃРѕРє СЃРѕР»РёРґ-Р±Р»РѕРєРѕРІ
         numOfBlocks = length dataBlocks
         empty       = "-"
-        arc x       = isArcArchive archive &&& x                                                    -- включить строчку x только для архивов .arc
-        a7z x       = (isArcArchive archive || arcArchiveType archive=="7z")  &&&  x                -- .. только для .arc и .7z
+        arc x       = isArcArchive archive &&& x                                                    -- РІРєР»СЋС‡РёС‚СЊ СЃС‚СЂРѕС‡РєСѓ x С‚РѕР»СЊРєРѕ РґР»СЏ Р°СЂС…РёРІРѕРІ .arc
+        a7z x       = (isArcArchive archive || arcArchiveType archive=="7z")  &&&  x                -- .. С‚РѕР»СЊРєРѕ РґР»СЏ .arc Рё .7z
         ifArc       = iif (isArcArchive archive)
     ;   yes        <- i18n"0101 Yes" >>== replaceAll "_" ""
 
-    let origsize = arcDataBytes  archive                                                            -- суммарный объём файлов в распакованном виде
-        compsize = arcDataCBytes archive                                                            -- суммарный объём файлов в упакованном виде
-        getCompressors = partition isEncryption.blCompressor                                        -- разделить алг-мы шифрования и сжатия для блока
-        (encryptors, tmp_compressors) = unzip$ map getCompressors dataBlocks                        -- списки алг. шифрования и сжатия
-        header_encryptors = deleteIf null$ map (fst.getCompressors) (ftBlocks footer)               -- алгоритмы шифрования служебных блоков
-        all_encryptors = deleteIf null encryptors ++ header_encryptors                              -- а теперь все вместе :)
-        ciphers = joinWith "\n"$ removeDups$ map (join_compressor.map method_name) all_encryptors   -- имена алг. шифрования.
+    let origsize = arcDataBytes  archive                                                            -- СЃСѓРјРјР°СЂРЅС‹Р№ РѕР±СЉС‘Рј С„Р°Р№Р»РѕРІ РІ СЂР°СЃРїР°РєРѕРІР°РЅРЅРѕРј РІРёРґРµ
+        compsize = arcDataCBytes archive                                                            -- СЃСѓРјРјР°СЂРЅС‹Р№ РѕР±СЉС‘Рј С„Р°Р№Р»РѕРІ РІ СѓРїР°РєРѕРІР°РЅРЅРѕРј РІРёРґРµ
+        getCompressors = partition isEncryption.blCompressor                                        -- СЂР°Р·РґРµР»РёС‚СЊ Р°Р»Рі-РјС‹ С€РёС„СЂРѕРІР°РЅРёСЏ Рё СЃР¶Р°С‚РёСЏ РґР»СЏ Р±Р»РѕРєР°
+        (encryptors, tmp_compressors) = unzip$ map getCompressors dataBlocks                        -- СЃРїРёСЃРєРё Р°Р»Рі. С€РёС„СЂРѕРІР°РЅРёСЏ Рё СЃР¶Р°С‚РёСЏ
+        header_encryptors = deleteIf null$ map (fst.getCompressors) (ftBlocks footer)               -- Р°Р»РіРѕСЂРёС‚РјС‹ С€РёС„СЂРѕРІР°РЅРёСЏ СЃР»СѓР¶РµР±РЅС‹С… Р±Р»РѕРєРѕРІ
+        all_encryptors = deleteIf null encryptors ++ header_encryptors                              -- Р° С‚РµРїРµСЂСЊ РІСЃРµ РІРјРµСЃС‚Рµ :)
+        ciphers = joinWith "\n"$ removeDups$ map (join_compressor.map method_name) all_encryptors   -- РёРјРµРЅР° Р°Р»Рі. С€РёС„СЂРѕРІР°РЅРёСЏ.
         ciphers_text = [("0097 Encryption algorithms:",  ciphers ||| empty)]
 
-    let -- Максимальные словари алгоритмов сжатия
-        compressors  = tmp_compressors.$ ifArc id (map (split_7z_compressor . head))                -- для не-arc архивов: разбить цепочку методов по пробелам
+    let -- РњР°РєСЃРёРјР°Р»СЊРЅС‹Рµ СЃР»РѕРІР°СЂРё Р°Р»РіРѕСЂРёС‚РјРѕРІ СЃР¶Р°С‚РёСЏ
+        compressors  = tmp_compressors.$ ifArc id (map (split_7z_compressor . head))                -- РґР»СЏ РЅРµ-arc Р°СЂС…РёРІРѕРІ: СЂР°Р·Р±РёС‚СЊ С†РµРїРѕС‡РєСѓ РјРµС‚РѕРґРѕРІ РїРѕ РїСЂРѕР±РµР»Р°Рј
         dictionaries = compressors
-                       .$ map (map (ifArc algomem algomem_7z))                                      -- каждый метод сжатия превращаем в алгоритм+квазисловарь
-                       .$ (filter (not.null) . (map (filter ((>0).cmAlgoMem))))                     -- оставляем только методы с ненулевым словарём и состоящие из них непустые группы
-                       .$ ifArc id (map (lastElems 1 . sortOn cmAlgoMem))                           -- для .7z оставляем только один алгоритм с макс. словарём (из нескольких выходов BCJ2)
-                       .$ sort_and_groupOn (map cmAlgorithm)                                        -- группируем по сочетанию алгоритмов
-                       .$ map (maxOn (maximum.map cmAlgoMem))                                       -- выбираем в каждой группе по максимуму любого из словарей
-                       .$ sortOn (negate.maximum.map cmAlgoMem)                                     -- выносим вперёд цепочки с наибольшими словарями
-                       .$ (joinWith " " . map (join_compressor . map showAlgoMem))                  -- репрезентация
+                       .$ map (map (ifArc algomem algomem_7z))                                      -- РєР°Р¶РґС‹Р№ РјРµС‚РѕРґ СЃР¶Р°С‚РёСЏ РїСЂРµРІСЂР°С‰Р°РµРј РІ Р°Р»РіРѕСЂРёС‚Рј+РєРІР°Р·РёСЃР»РѕРІР°СЂСЊ
+                       .$ (filter (not.null) . (map (filter ((>0).cmAlgoMem))))                     -- РѕСЃС‚Р°РІР»СЏРµРј С‚РѕР»СЊРєРѕ РјРµС‚РѕРґС‹ СЃ РЅРµРЅСѓР»РµРІС‹Рј СЃР»РѕРІР°СЂС‘Рј Рё СЃРѕСЃС‚РѕСЏС‰РёРµ РёР· РЅРёС… РЅРµРїСѓСЃС‚С‹Рµ РіСЂСѓРїРїС‹
+                       .$ ifArc id (map (lastElems 1 . sortOn cmAlgoMem))                           -- РґР»СЏ .7z РѕСЃС‚Р°РІР»СЏРµРј С‚РѕР»СЊРєРѕ РѕРґРёРЅ Р°Р»РіРѕСЂРёС‚Рј СЃ РјР°РєСЃ. СЃР»РѕРІР°СЂС‘Рј (РёР· РЅРµСЃРєРѕР»СЊРєРёС… РІС‹С…РѕРґРѕРІ BCJ2)
+                       .$ sort_and_groupOn (map cmAlgorithm)                                        -- РіСЂСѓРїРїРёСЂСѓРµРј РїРѕ СЃРѕС‡РµС‚Р°РЅРёСЋ Р°Р»РіРѕСЂРёС‚РјРѕРІ
+                       .$ map (maxOn (maximum.map cmAlgoMem))                                       -- РІС‹Р±РёСЂР°РµРј РІ РєР°Р¶РґРѕР№ РіСЂСѓРїРїРµ РїРѕ РјР°РєСЃРёРјСѓРјСѓ Р»СЋР±РѕРіРѕ РёР· СЃР»РѕРІР°СЂРµР№
+                       .$ sortOn (negate.maximum.map cmAlgoMem)                                     -- РІС‹РЅРѕСЃРёРј РІРїРµСЂС‘Рґ С†РµРїРѕС‡РєРё СЃ РЅР°РёР±РѕР»СЊС€РёРјРё СЃР»РѕРІР°СЂСЏРјРё
+                       .$ (joinWith " " . map (join_compressor . map showAlgoMem))                  -- СЂРµРїСЂРµР·РµРЅС‚Р°С†РёСЏ
         formatMem s =  x++" "++y  where (x,y) = span isDigit$ showMem s
 
-    return$ filter(not.null) . map (concatMap (\x -> fst x &&& [x]))                                -- удаление пустых строк для не-.arc архивов
+    return$ filter(not.null) . map (concatMap (\x -> fst x &&& [x]))                                -- СѓРґР°Р»РµРЅРёРµ РїСѓСЃС‚С‹С… СЃС‚СЂРѕРє РґР»СЏ РЅРµ-.arc Р°СЂС…РёРІРѕРІ
           $[[(    "0465 Archive type:",          arcArchiveType archive)]
             ++ dirs_and_files ++
             [(    "0089 Total bytes:",           show3$ origsize)
@@ -153,12 +153,12 @@ arcGetTechinfo archive dirs_and_files = do
 
 
 
--- Структура данных для хранения алгоритма+словаря метода сжатия
+-- РЎС‚СЂСѓРєС‚СѓСЂР° РґР°РЅРЅС‹С… РґР»СЏ С…СЂР°РЅРµРЅРёСЏ Р°Р»РіРѕСЂРёС‚РјР°+СЃР»РѕРІР°СЂСЏ РјРµС‚РѕРґР° СЃР¶Р°С‚РёСЏ
 data AlgoMem  =  AlgoMem {cmAlgorithm :: !String,  cmAlgoMem :: !Integer,  cmCompressionMem :: Integer,  cmDecompressionMem :: Integer}
 
 showAlgoMem AlgoMem{..}  =  join_method [cmAlgorithm, showMem cmAlgoMem]
 
--- | Вернуть алгоритм+квазисловарь. Для 4x4 алгоритм записываем как xПОДАЛГОРИТМ, а словарь берём из подалгоритма
+-- | Р’РµСЂРЅСѓС‚СЊ Р°Р»РіРѕСЂРёС‚Рј+РєРІР°Р·РёСЃР»РѕРІР°СЂСЊ. Р”Р»СЏ 4x4 Р°Р»РіРѕСЂРёС‚Рј Р·Р°РїРёСЃС‹РІР°РµРј РєР°Рє xРџРћР”РђР›Р“РћР РРўРњ, Р° СЃР»РѕРІР°СЂСЊ Р±РµСЂС‘Рј РёР· РїРѕРґР°Р»РіРѕСЂРёС‚РјР°
 algomem method  =  AlgoMem { cmAlgorithm        = name
                            , cmAlgoMem          = i$compressionQuery (const 0) "GetAlgoMem" name_with_params
                            , cmCompressionMem   = error "cmCompressionMem"
@@ -168,14 +168,14 @@ algomem method  =  AlgoMem { cmAlgorithm        = name
                                                          "4x4":m | name_with_params@(name:_) <- subMethod4x4 m  ->  ("x"++name, join_method name_with_params)
                                                          name:_                                                 ->  (name, method)
 
--- |Подметод в 4x4 (удаляем из начала списка параметров имеющие вид \d.* или [a-z]\d.*, остаток и есть подметод 4x4)
+-- |РџРѕРґРјРµС‚РѕРґ РІ 4x4 (СѓРґР°Р»СЏРµРј РёР· РЅР°С‡Р°Р»Р° СЃРїРёСЃРєР° РїР°СЂР°РјРµС‚СЂРѕРІ РёРјРµСЋС‰РёРµ РІРёРґ \d.* РёР»Рё [a-z]\d.*, РѕСЃС‚Р°С‚РѕРє Рё РµСЃС‚СЊ РїРѕРґРјРµС‚РѕРґ 4x4)
 subMethod4x4  =  dropWhile (\param -> (length(param)>0 && isDigit (param!!0))  ||  (length(param)>1 && isDigit (param!!1)))
 
 
--- |Транслировать наименования методов сжатия zip/7z в объём памяти для упаковки/распаковки
+-- |РўСЂР°РЅСЃР»РёСЂРѕРІР°С‚СЊ РЅР°РёРјРµРЅРѕРІР°РЅРёСЏ РјРµС‚РѕРґРѕРІ СЃР¶Р°С‚РёСЏ zip/7z РІ РѕР±СЉС‘Рј РїР°РјСЏС‚Рё РґР»СЏ СѓРїР°РєРѕРІРєРё/СЂР°СЃРїР°РєРѕРІРєРё
 getMem_7z getter = sum . map (getter . algomem_7z)
 
--- | Вернуть алгоритм+словарь для методов сжатия в zip/7z
+-- | Р’РµСЂРЅСѓС‚СЊ Р°Р»РіРѕСЂРёС‚Рј+СЃР»РѕРІР°СЂСЊ РґР»СЏ РјРµС‚РѕРґРѕРІ СЃР¶Р°С‚РёСЏ РІ zip/7z
 algomem_7z method  =  AlgoMem {..}
     where (cmAlgorithm:params) = split_method method
           (cmAlgoMem, cmCompressionMem, cmDecompressionMem) =
@@ -195,7 +195,7 @@ algomem_7z method  =  AlgoMem {..}
                   "bcj2"       ->  (      0,  2*mb,      4*mb)
                   _            ->  (      0,     0,         0)
 
--- |Расшифровать запись объёма памяти: "512b", "32k", "8m" и так далее. "24" означает 2^24
+-- |Р Р°СЃС€РёС„СЂРѕРІР°С‚СЊ Р·Р°РїРёСЃСЊ РѕР±СЉС‘РјР° РїР°РјСЏС‚Рё: "512b", "32k", "8m" Рё С‚Р°Рє РґР°Р»РµРµ. "24" РѕР·РЅР°С‡Р°РµС‚ 2^24
 parseMem_7z memstr =
     case (parseNumber memstr '^') of
         (bytes, 'b')  ->  bytes
@@ -203,7 +203,7 @@ parseMem_7z memstr =
 
 
 ----------------------------------------------------------------------------------------------------
----- Чтение структуры входного архива --------------------------------------------------------------
+---- Р§С‚РµРЅРёРµ СЃС‚СЂСѓРєС‚СѓСЂС‹ РІС…РѕРґРЅРѕРіРѕ Р°СЂС…РёРІР° --------------------------------------------------------------
 ----------------------------------------------------------------------------------------------------
 
 -- |Open archive and list archive contents via callback
@@ -261,8 +261,8 @@ szReadInfo archive footer filter_f processFooterInfo arcname = do
   archiveType <- szArcGetStrProperty archive (-1) kpidType
   numFiles    <- szArcItems archive
   files       <- foreach [0..numFiles-1] (szArcGetItem filter_f archive arcname)  >>==  catMaybes
-  -- Получение списка солид-блоков в архиве
-  list        <- handle (\e -> return []) $ do   -- на случай исключения из-за отсутствия какого-либо из запрашиваемых атрибутов
+  -- РџРѕР»СѓС‡РµРЅРёРµ СЃРїРёСЃРєР° СЃРѕР»РёРґ-Р±Р»РѕРєРѕРІ РІ Р°СЂС…РёРІРµ
+  list        <- handle (\e -> return []) $ do   -- РЅР° СЃР»СѓС‡Р°Р№ РёСЃРєР»СЋС‡РµРЅРёСЏ РёР·-Р·Р° РѕС‚СЃСѓС‚СЃС‚РІРёСЏ РєР°РєРѕРіРѕ-Р»РёР±Рѕ РёР· Р·Р°РїСЂР°С€РёРІР°РµРјС‹С… Р°С‚СЂРёР±СѓС‚РѕРІ
                      foreach [0..numFiles-1] $ \item -> do
                          blck      <- szArcGetIntProperty  archive item kpidBlock
                          method    <- szArcGetStrProperty  archive item kpidMethod
@@ -319,7 +319,7 @@ szArcGetItemFileInfo archive arcname item = do
 
 
 ----------------------------------------------------------------------------------------------------
----- Распаковка архива -----------------------------------------------------------------------------
+---- Р Р°СЃРїР°РєРѕРІРєР° Р°СЂС…РёРІР° -----------------------------------------------------------------------------
 ----------------------------------------------------------------------------------------------------
 
 -- |Test/extract archive contents
@@ -340,7 +340,7 @@ szExtract command arcinfo can_be_extracted = do
 
 
 ----------------------------------------------------------------------------------------------------
----- Упаковка архива -------------------------------------------------------------------------------
+---- РЈРїР°РєРѕРІРєР° Р°СЂС…РёРІР° -------------------------------------------------------------------------------
 ----------------------------------------------------------------------------------------------------
 
 -- |Create archive using 7z.dll
@@ -401,11 +401,11 @@ szCompress command arcinfo in_arcname out_arcname out_arcnames' diskfiles result
                              , Pair "password"      (W$ opt_data_password command)
                              , Pair "callback"      (szCallback :: TABI.FUNCTION)
                              ]
-  -- Напечатаем статистику выполнения команды и сохраним её для возврата в вызывающую процедуру
+  -- РќР°РїРµС‡Р°С‚Р°РµРј СЃС‚Р°С‚РёСЃС‚РёРєСѓ РІС‹РїРѕР»РЅРµРЅРёСЏ РєРѕРјР°РЅРґС‹ Рё СЃРѕС…СЂР°РЅРёРј РµС‘ РґР»СЏ РІРѕР·РІСЂР°С‚Р° РІ РІС‹Р·С‹РІР°СЋС‰СѓСЋ РїСЂРѕС†РµРґСѓСЂСѓ
   uiDoneArchive  >>=  (results=:)
 
 
--- |Строка опции -ms для 7z.dll
+-- |РЎС‚СЂРѕРєР° РѕРїС†РёРё -ms РґР»СЏ 7z.dll
 cvt_solid_option x = case x of
   GroupNone       -> "1f"
   GroupByExt      -> "e"
@@ -413,12 +413,12 @@ cvt_solid_option x = case x of
   GroupByNumber n -> show n++"f"
   _               -> ""
 
--- |Преобразование опции -m в стиле FreeArc в опции для 7z.dll
+-- |РџСЂРµРѕР±СЂР°Р·РѕРІР°РЅРёРµ РѕРїС†РёРё -m РІ СЃС‚РёР»Рµ FreeArc РІ РѕРїС†РёРё РґР»СЏ 7z.dll
 cvt_method_option  =  first_step >>> step >>> step >>> step
         where first_step = changeTo (prepareSubsts _7zOptions)
               step       = changeTo (prepareSubsts _7zMethodSubsts)
 
--- |Перекодирование подопций опции -m FreeArc в их аналоги в 7z.dll
+-- |РџРµСЂРµРєРѕРґРёСЂРѕРІР°РЅРёРµ РїРѕРґРѕРїС†РёР№ РѕРїС†РёРё -m FreeArc РІ РёС… Р°РЅР°Р»РѕРіРё РІ 7z.dll
 _7zOptions = [
       ""
     , "t   = mt    ; Multithreading option"
@@ -431,7 +431,7 @@ _7zOptions = [
     , ""
     ]
 
--- |Сокращения для методов сжатия в 7z.dll
+-- |РЎРѕРєСЂР°С‰РµРЅРёСЏ РґР»СЏ РјРµС‚РѕРґРѕРІ СЃР¶Р°С‚РёСЏ РІ 7z.dll
 _7zMethodSubsts = [
       ""
     , "#x = #"
@@ -450,15 +450,15 @@ _7zMethodSubsts = [
     , "#t = ppmd:o=8:mem=96m"
     ]
 
--- |Разбить цепочку на отдельные методы сжатия
+-- |Р Р°Р·Р±РёС‚СЊ С†РµРїРѕС‡РєСѓ РЅР° РѕС‚РґРµР»СЊРЅС‹Рµ РјРµС‚РѕРґС‹ СЃР¶Р°С‚РёСЏ
 split_7z_compressor  =  split ' '
 
 
 ----------------------------------------------------------------------------------------------------
----- Callback для операций над архивом -------------------------------------------------------------
+---- Callback РґР»СЏ РѕРїРµСЂР°С†РёР№ РЅР°Рґ Р°СЂС…РёРІРѕРј -------------------------------------------------------------
 ----------------------------------------------------------------------------------------------------
 
--- |Создаёт Callback для распаковки архивов через 7z.dll
+-- |РЎРѕР·РґР°С‘С‚ Callback РґР»СЏ СЂР°СЃРїР°РєРѕРІРєРё Р°СЂС…РёРІРѕРІ С‡РµСЂРµР· 7z.dll
 createSzCallback command arcinfo can_be_extracted volumes = do
   saved_filename <- ref ""
   first_volume   <- ref True
@@ -466,14 +466,14 @@ createSzCallback command arcinfo can_be_extracted volumes = do
     --TABI.dump p
     service <- TABI.required p "request"
     case service of
-      -- Можно ли извлечь этот файл?
+      -- РњРѕР¶РЅРѕ Р»Рё РёР·РІР»РµС‡СЊ СЌС‚РѕС‚ С„Р°Р№Р»?
       "can_be_extracted?" -> do
                        let Just archive = arcSzArchive arcinfo
                        W outname <- TABI.required p "outname"
                        index     <- TABI.required p "index"
                        b <- can_be_extracted command (outname::String) (szArcGetItemFileInfo archive (cmd_arcname command) index)
                        return$ iif b 1 0
-      -- Запрос пароля расшифровки
+      -- Р—Р°РїСЂРѕСЃ РїР°СЂРѕР»СЏ СЂР°СЃС€РёС„СЂРѕРІРєРё
       "ask_password" -> do
                        password_buf  <- TABI.required p "password_buf"
                        password_size <- TABI.required p "password_size"
@@ -481,7 +481,7 @@ createSzCallback command arcinfo can_be_extracted volumes = do
                        when (length password < password_size) $ do
                          pokeArray0 0 password_buf (map (fromIntegral.ord) password :: [CWchar])
                        return aFREEARC_OK
-      -- Начало распаковки нового файла
+      -- РќР°С‡Р°Р»Рѕ СЂР°СЃРїР°РєРѕРІРєРё РЅРѕРІРѕРіРѕ С„Р°Р№Р»Р°
       "filename" -> do W filename <- TABI.required p "filename"
                        is_folder  <- TABI.required p "is_folder?"
                        mode       <- TABI.required p "mode"
@@ -489,7 +489,7 @@ createSzCallback command arcinfo can_be_extracted volumes = do
                                    (Left (filename, is_folder))
                        saved_filename =: filename
                        return aFREEARC_OK
-      -- Окончание распаковки файла
+      -- РћРєРѕРЅС‡Р°РЅРёРµ СЂР°СЃРїР°РєРѕРІРєРё С„Р°Р№Р»Р°
       "filedone" -> do operationResult <- TABI.required p "operationResult"
                        when (operationResult /= kOK) $ do
                          encrypted     <- TABI.required p "encrypted?"
@@ -503,14 +503,14 @@ createSzCallback command arcinfo can_be_extracted volumes = do
                                        | otherwise                                    -> UNKNOWN_ERROR
                          registerWarning$ err filename
                        return aFREEARC_OK
-      -- Общий обхём упаковываемых данных
+      -- РћР±С‰РёР№ РѕР±С…С‘Рј СѓРїР°РєРѕРІС‹РІР°РµРјС‹С… РґР°РЅРЅС‹С…
       "total"    -> do when (is_CMD_MODIFY$ cmd_name command)$ do
                          files      <- TABI.required p "files"
                          original   <- TABI.required p "original"
                          uiStartProcessing files original 0 0
                        uiStartFiles 1  -- should be called after uiStartProcessing
                        return aFREEARC_OK
-      -- Информируем пользователя о ходе распаковки
+      -- РРЅС„РѕСЂРјРёСЂСѓРµРј РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ Рѕ С…РѕРґРµ СЂР°СЃРїР°РєРѕРІРєРё
       "progress" -> do original   <- TABI.required p "original"
                        compressed <- TABI.required p "compressed"
                        uiUnpackedBytes           original
@@ -518,7 +518,7 @@ createSzCallback command arcinfo can_be_extracted volumes = do
                        uiCompressedBytes         compressed
                        guiUpdateProgressIndicator
                        return aFREEARC_OK
-      -- Начало нового тома
+      -- РќР°С‡Р°Р»Рѕ РЅРѕРІРѕРіРѕ С‚РѕРјР°
       "volume"   -> do W filename <- TABI.required p "filename"
                        whenM (val first_volume) $ do
                            first_volume =: False
@@ -526,12 +526,12 @@ createSzCallback command arcinfo can_be_extracted volumes = do
                        (volumes:: MVar [String]) .= (++[filename])
                        guiStartVolume filename
                        return aFREEARC_OK
-      -- Прочие (неподдерживаемые) callbacks
+      -- РџСЂРѕС‡РёРµ (РЅРµРїРѕРґРґРµСЂР¶РёРІР°РµРјС‹Рµ) callbacks
       _          -> do return aFREEARC_ERRCODE_NOT_IMPLEMENTED
 
 
 ----------------------------------------------------------------------------------------------------
----- Интерфейс к сишной части реализации -----------------------------------------------------------
+---- РРЅС‚РµСЂС„РµР№СЃ Рє СЃРёС€РЅРѕР№ С‡Р°СЃС‚Рё СЂРµР°Р»РёР·Р°С†РёРё -----------------------------------------------------------
 ----------------------------------------------------------------------------------------------------
 
 type SzArchive  = Ptr ()
@@ -574,7 +574,7 @@ withTempCWString action = allocaBytes (long_path_size*4) $ \ptr -> do
                              szChecked$ action ptr (i long_path_size)
                              peekCWString ptr
 
--- |Выполнить action с сериализованным в память массивом строк
+-- |Р’С‹РїРѕР»РЅРёС‚СЊ action СЃ СЃРµСЂРёР°Р»РёР·РѕРІР°РЅРЅС‹Рј РІ РїР°РјСЏС‚СЊ РјР°СЃСЃРёРІРѕРј СЃС‚СЂРѕРє
 withCWStringArray strings action =
   bracket (mapM newCWString strings)
           (mapM_ free)
@@ -593,7 +593,7 @@ szCheckedTABI action p = do
                      when (result/=0) $ do
                        throwIO$ ErrorCall "szCheckedTABI: error"
 
--- |Настроить обработку принудительного завершения операции, выполняемой 7z.dll
+-- |РќР°СЃС‚СЂРѕРёС‚СЊ РѕР±СЂР°Р±РѕС‚РєСѓ РїСЂРёРЅСѓРґРёС‚РµР»СЊРЅРѕРіРѕ Р·Р°РІРµСЂС€РµРЅРёСЏ РѕРїРµСЂР°С†РёРё, РІС‹РїРѕР»РЅСЏРµРјРѕР№ 7z.dll
 setupBreakHandling = do
   c_szSetBreakFlag 0
   whenM (val breakHandling_need_initialisation) $ do
@@ -677,7 +677,7 @@ kpidNoProperty:
 
 
 ----------------------------------------------------------------------------------------------------
----- Упаковываемый файл (или с диска, или из уже существующего архива) -----------------------------
+---- РЈРїР°РєРѕРІС‹РІР°РµРјС‹Р№ С„Р°Р№Р» (РёР»Рё СЃ РґРёСЃРєР°, РёР»Рё РёР· СѓР¶Рµ СЃСѓС‰РµСЃС‚РІСѓСЋС‰РµРіРѕ Р°СЂС…РёРІР°) -----------------------------
 ----------------------------------------------------------------------------------------------------
 
 -- |File to compress: either file on disk or compressed file in existing archive
@@ -703,29 +703,29 @@ data SzData = SzData { szCompsize  :: !FileSize
 type CompressedFile = FileToCompress
 
 
--- |Проверка того, что упаковываемый файл - из уже существующего архива, а не с диска
+-- |РџСЂРѕРІРµСЂРєР° С‚РѕРіРѕ, С‡С‚Рѕ СѓРїР°РєРѕРІС‹РІР°РµРјС‹Р№ С„Р°Р№Р» - РёР· СѓР¶Рµ СЃСѓС‰РµСЃС‚РІСѓСЋС‰РµРіРѕ Р°СЂС…РёРІР°, Р° РЅРµ СЃ РґРёСЃРєР°
 isCompressedFile CompressedFile{} = True
 isCompressedFile DiskFile{}       = False
 
--- |Проверка что упакованный файл принадлежит архиву, поддерживаемому 7z.dll
+-- |РџСЂРѕРІРµСЂРєР° С‡С‚Рѕ СѓРїР°РєРѕРІР°РЅРЅС‹Р№ С„Р°Р№Р» РїСЂРёРЅР°РґР»РµР¶РёС‚ Р°СЂС…РёРІСѓ, РїРѕРґРґРµСЂР¶РёРІР°РµРјРѕРјСѓ 7z.dll
 isCfSz = isJust.cfSzData
 
--- |Алгоритм сжатия, использованный для данного (сжатого) файла
+-- |РђР»РіРѕСЂРёС‚Рј СЃР¶Р°С‚РёСЏ, РёСЃРїРѕР»СЊР·РѕРІР°РЅРЅС‹Р№ РґР»СЏ РґР°РЅРЅРѕРіРѕ (СЃР¶Р°С‚РѕРіРѕ) С„Р°Р№Р»Р°
 cfCompressor cf | isCfSz cf = ["lzma"]
                 | otherwise = blCompressor (cfArcBlock cf)
 
--- |Это сжатый файл, использующий фейковый метод компрессии?
+-- |Р­С‚Рѕ СЃР¶Р°С‚С‹Р№ С„Р°Р№Р», РёСЃРїРѕР»СЊР·СѓСЋС‰РёР№ С„РµР№РєРѕРІС‹Р№ РјРµС‚РѕРґ РєРѕРјРїСЂРµСЃСЃРёРё?
 isCompressedFake file  =  isCompressedFile file  &&  isFakeCompressor (cfCompressor file)
 
--- |Сжатый размер файл, если доступен
+-- |РЎР¶Р°С‚С‹Р№ СЂР°Р·РјРµСЂ С„Р°Р№Р», РµСЃР»Рё РґРѕСЃС‚СѓРїРµРЅ
 cfCompsize = fmap szCompsize . cfSzData
 
--- |Это запаролированный файл?
+-- |Р­С‚Рѕ Р·Р°РїР°СЂРѕР»РёСЂРѕРІР°РЅРЅС‹Р№ С„Р°Р№Р»?
 cfIsEncrypted cf  =  case cfSzData cf of
-                       Just szData  ->  szEncrypted szData              -- данные получены из 7z.dll
-                       Nothing      ->  blIsEncrypted (cfArcBlock cf)   -- определяем по методу сжатия солид-блока
+                       Just szData  ->  szEncrypted szData              -- РґР°РЅРЅС‹Рµ РїРѕР»СѓС‡РµРЅС‹ РёР· 7z.dll
+                       Nothing      ->  blIsEncrypted (cfArcBlock cf)   -- РѕРїСЂРµРґРµР»СЏРµРј РїРѕ РјРµС‚РѕРґСѓ СЃР¶Р°С‚РёСЏ СЃРѕР»РёРґ-Р±Р»РѕРєР°
 
--- |Определить тип файла по группе, если она не проставлена - вычислить по имени
+-- |РћРїСЂРµРґРµР»РёС‚СЊ С‚РёРї С„Р°Р№Р»Р° РїРѕ РіСЂСѓРїРїРµ, РµСЃР»Рё РѕРЅР° РЅРµ РїСЂРѕСЃС‚Р°РІР»РµРЅР° - РІС‹С‡РёСЃР»РёС‚СЊ РїРѕ РёРјРµРЅРё
 cfType command file | group/=fiUndefinedGroup  =  opt_group2type command group
                     | otherwise                =  opt_find_type command fi
                                                     where fi    = cfFileInfo file
@@ -733,7 +733,7 @@ cfType command file | group/=fiUndefinedGroup  =  opt_group2type command group
 
 
 ----------------------------------------------------------------------------------------------------
----- Файл и его CRC - используется для передачи результатов упаковки -------------------------------
+---- Р¤Р°Р№Р» Рё РµРіРѕ CRC - РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ РґР»СЏ РїРµСЂРµРґР°С‡Рё СЂРµР·СѓР»СЊС‚Р°С‚РѕРІ СѓРїР°РєРѕРІРєРё -------------------------------
 ----------------------------------------------------------------------------------------------------
 
 -- |File and it's CRC
@@ -744,7 +744,7 @@ data FileWithCRC = FileWithCRC { fwCRC  :: {-# UNPACK #-} !CRC
 
 data FileType = FILE_ON_DISK | FILE_IN_ARCHIVE  deriving (Eq)
 
--- |Проверка того, что упакованный файл - из исходного архива, а не с диска
+-- |РџСЂРѕРІРµСЂРєР° С‚РѕРіРѕ, С‡С‚Рѕ СѓРїР°РєРѕРІР°РЅРЅС‹Р№ С„Р°Р№Р» - РёР· РёСЃС…РѕРґРЅРѕРіРѕ Р°СЂС…РёРІР°, Р° РЅРµ СЃ РґРёСЃРєР°
 isFILE_ON_DISK fw  =  fwType fw == FILE_ON_DISK
 
 -- |Convert FileToCompress to FileWithCRC

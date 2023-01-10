@@ -42,9 +42,9 @@ FILENAME CUI::GetOutDir()
 bool CUI::AllowProcessing (char cmd, int silent, FILENAME arcname, char* comment, int cmtsize, FILENAME _outdir)
 {
   strcpy (outdir, _outdir);
-  printf (". %s archive: %s\n",                       // Âûâåäåì èìÿ îáðàáàòûâàåìîãî àðõèâà
+  printf (". %s archive: %s\n",                       // Ð’Ñ‹Ð²ÐµÐ´ÐµÐ¼ Ð¸Ð¼Ñ Ð¾Ð±Ñ€Ð°Ð±Ð°Ñ‚Ñ‹Ð²Ð°ÐµÐ¼Ð¾Ð³Ð¾ Ð°Ñ€Ñ…Ð¸Ð²Ð°
     cmd=='l'||cmd=='v'? "Listing" : cmd=='t' ? "Testing" : "Extracting", drop_dirname(arcname));
-  if (cmtsize>0)                                      // Âûâåäåì àðõèâíûé êîììåíòàðèé
+  if (cmtsize>0)                                      // Ð’Ñ‹Ð²ÐµÐ´ÐµÐ¼ Ð°Ñ€Ñ…Ð¸Ð²Ð½Ñ‹Ð¹ ÐºÐ¾Ð¼Ð¼ÐµÐ½Ñ‚Ð°Ñ€Ð¸Ð¹
     printf("%*.*s\n", cmtsize, cmtsize, comment);
   return TRUE;
 }
@@ -68,7 +68,7 @@ char CUI::AskPassword  (char *pwd, int pwdbuf_size)
 
 
 /******************************************************************************
-** Ðåàëèçàöèÿ êîìàíäû ïîëó÷åíèÿ ëèñòèíãà àðõèâà *******************************
+** Ð ÐµÐ°Ð»Ð¸Ð·Ð°Ñ†Ð¸Ñ ÐºÐ¾Ð¼Ð°Ð½Ð´Ñ‹ Ð¿Ð¾Ð»ÑƒÑ‡ÐµÐ½Ð¸Ñ Ð»Ð¸ÑÑ‚Ð¸Ð½Ð³Ð° Ð°Ñ€Ñ…Ð¸Ð²Ð° *******************************
 ******************************************************************************/
 void CUI::ListHeader (COMMAND &command)
 {
@@ -93,23 +93,23 @@ void CUI::ListFooter (COMMAND &command)
 void CUI::ListFiles (DIRECTORY_BLOCK *dirblock, COMMAND &command)
 {
   int  b=0;                // current_data_block
-  bool Encrypted = FALSE;  // òåêóùèé ñîëèä-áëîê çàøèôðîâàí?
+  bool Encrypted = FALSE;  // Ñ‚ÐµÐºÑƒÑ‰Ð¸Ð¹ ÑÐ¾Ð»Ð¸Ð´-Ð±Ð»Ð¾Ðº Ð·Ð°ÑˆÐ¸Ñ„Ñ€Ð¾Ð²Ð°Ð½?
   uint64 packed=0;
   iterate_var (i, dirblock->total_files) {
-    // Óâåëè÷èì íîìåð ñîëèä-áëîêà åñëè ìû âûøëè çà ïîñëåäíèé ïðèíàäëåæàùèé åìó ôàéë
+    // Ð£Ð²ÐµÐ»Ð¸Ñ‡Ð¸Ð¼ Ð½Ð¾Ð¼ÐµÑ€ ÑÐ¾Ð»Ð¸Ð´-Ð±Ð»Ð¾ÐºÐ° ÐµÑÐ»Ð¸ Ð¼Ñ‹ Ð²Ñ‹ÑˆÐ»Ð¸ Ð·Ð° Ð¿Ð¾ÑÐ»ÐµÐ´Ð½Ð¸Ð¹ Ð¿Ñ€Ð¸Ð½Ð°Ð´Ð»ÐµÐ¶Ð°Ñ‰Ð¸Ð¹ ÐµÐ¼Ñƒ Ñ„Ð°Ð¹Ð»
     if (i >= dirblock->block_end(b))
       b++;
-    // Åñëè ýòî ïåðâûé ôàéë â ñîëèä-áëîêå - ñîáåð¸ì block-related èíôîðìàöèþ
+    // Ð•ÑÐ»Ð¸ ÑÑ‚Ð¾ Ð¿ÐµÑ€Ð²Ñ‹Ð¹ Ñ„Ð°Ð¹Ð» Ð² ÑÐ¾Ð»Ð¸Ð´-Ð±Ð»Ð¾ÐºÐµ - ÑÐ¾Ð±ÐµÑ€Ñ‘Ð¼ block-related Ð¸Ð½Ñ„Ð¾Ñ€Ð¼Ð°Ñ†Ð¸ÑŽ
     if (i == dirblock->block_start(b))
-    { // Çàïèøåì íà ïåðâûé ôàéë â áëîêå âåñü åãî óïàêîâàííûé ðàçìåð
+    { // Ð—Ð°Ð¿Ð¸ÑˆÐµÐ¼ Ð½Ð° Ð¿ÐµÑ€Ð²Ñ‹Ð¹ Ñ„Ð°Ð¹Ð» Ð² Ð±Ð»Ð¾ÐºÐµ Ð²ÐµÑÑŒ ÐµÐ³Ð¾ ÑƒÐ¿Ð°ÐºÐ¾Ð²Ð°Ð½Ð½Ñ‹Ð¹ Ñ€Ð°Ð·Ð¼ÐµÑ€
       packed = dirblock->data_block[b].compsize;
-      // Çàïîìíèì èíôîðìàöèþ î ñîëèä-áëîêå äëÿ èñïîëüçîâàíèÿ å¸ ñî âñåìè ôàéëàìè èç ýòîãî ñîëèä-áëîêà
+      // Ð—Ð°Ð¿Ð¾Ð¼Ð½Ð¸Ð¼ Ð¸Ð½Ñ„Ð¾Ñ€Ð¼Ð°Ñ†Ð¸ÑŽ Ð¾ ÑÐ¾Ð»Ð¸Ð´-Ð±Ð»Ð¾ÐºÐµ Ð´Ð»Ñ Ð¸ÑÐ¿Ð¾Ð»ÑŒÐ·Ð¾Ð²Ð°Ð½Ð¸Ñ ÐµÑ‘ ÑÐ¾ Ð²ÑÐµÐ¼Ð¸ Ñ„Ð°Ð¹Ð»Ð°Ð¼Ð¸ Ð¸Ð· ÑÑ‚Ð¾Ð³Ð¾ ÑÐ¾Ð»Ð¸Ð´-Ð±Ð»Ð¾ÐºÐ°
       char *c = dirblock->data_block[b].compressor;
       Encrypted = strstr (c, "+aes-")!=NULL || strstr (c, "+serpent-")!=NULL || strstr (c, "+blowfish-")!=NULL || strstr (c, "+twofish-")!=NULL;
     }
 
 
-    if (command.accept_file (dirblock, i)) { //   Åñëè ýòîò ôàéë òðåáóåòñÿ îáðàáîòàòü
+    if (command.accept_file (dirblock, i)) { //   Ð•ÑÐ»Ð¸ ÑÑ‚Ð¾Ñ‚ Ñ„Ð°Ð¹Ð» Ñ‚Ñ€ÐµÐ±ÑƒÐµÑ‚ÑÑ Ð¾Ð±Ñ€Ð°Ð±Ð¾Ñ‚Ð°Ñ‚ÑŒ
       unsigned long long filesize = dirblock->size[i];
       char timestr[100];  FormatDateTime (timestr, 100, dirblock->time[i]);
 

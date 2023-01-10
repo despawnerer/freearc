@@ -1,6 +1,6 @@
 {-# OPTIONS_GHC -cpp #-}
 ----------------------------------------------------------------------------------------------------
----- Получение и хранение информации о файлах, поиск файлов на диске.                           ----
+---- РџРѕР»СѓС‡РµРЅРёРµ Рё С…СЂР°РЅРµРЅРёРµ РёРЅС„РѕСЂРјР°С†РёРё Рѕ С„Р°Р№Р»Р°С…, РїРѕРёСЃРє С„Р°Р№Р»РѕРІ РЅР° РґРёСЃРєРµ.                           ----
 ----------------------------------------------------------------------------------------------------
 module FileInfo where
 
@@ -29,17 +29,17 @@ import UTF8Z
 
 
 ----------------------------------------------------------------------------------------------------
----- Компактное представление имени файла ----------------------------------------------------------
+---- РљРѕРјРїР°РєС‚РЅРѕРµ РїСЂРµРґСЃС‚Р°РІР»РµРЅРёРµ РёРјРµРЅРё С„Р°Р№Р»Р° ----------------------------------------------------------
 ----------------------------------------------------------------------------------------------------
 
--- |Хранение имён файлов в компактном виде с представлением быстрого доступа
--- к имени каталога, имени файла без каталога и расширению файла
+-- |РҐСЂР°РЅРµРЅРёРµ РёРјС‘РЅ С„Р°Р№Р»РѕРІ РІ РєРѕРјРїР°РєС‚РЅРѕРј РІРёРґРµ СЃ РїСЂРµРґСЃС‚Р°РІР»РµРЅРёРµРј Р±С‹СЃС‚СЂРѕРіРѕ РґРѕСЃС‚СѓРїР°
+-- Рє РёРјРµРЅРё РєР°С‚Р°Р»РѕРіР°, РёРјРµРЅРё С„Р°Р№Р»Р° Р±РµР· РєР°С‚Р°Р»РѕРіР° Рё СЂР°СЃС€РёСЂРµРЅРёСЋ С„Р°Р№Р»Р°
 data PackedFilePath = PackedFilePath
-  { fpPackedDirectory       :: !MyPackedString     -- Имя каталога
-  , fpPackedBasename        :: !MyPackedString     -- Имя файла без каталога, но с расширением
-  , fpLCExtension           :: !String             -- Расширение, переведённое в нижний регистр
-  , fpHash   :: {-# UNPACK #-} !Int32              -- Хеш от имени файла
-  , fpParent                :: !PackedFilePath     -- Структура PackedFilePath родительского каталога
+  { fpPackedDirectory       :: !MyPackedString     -- РРјСЏ РєР°С‚Р°Р»РѕРіР°
+  , fpPackedBasename        :: !MyPackedString     -- РРјСЏ С„Р°Р№Р»Р° Р±РµР· РєР°С‚Р°Р»РѕРіР°, РЅРѕ СЃ СЂР°СЃС€РёСЂРµРЅРёРµРј
+  , fpLCExtension           :: !String             -- Р Р°СЃС€РёСЂРµРЅРёРµ, РїРµСЂРµРІРµРґС‘РЅРЅРѕРµ РІ РЅРёР¶РЅРёР№ СЂРµРіРёСЃС‚СЂ
+  , fpHash   :: {-# UNPACK #-} !Int32              -- РҐРµС€ РѕС‚ РёРјРµРЅРё С„Р°Р№Р»Р°
+  , fpParent                :: !PackedFilePath     -- РЎС‚СЂСѓРєС‚СѓСЂР° PackedFilePath СЂРѕРґРёС‚РµР»СЊСЃРєРѕРіРѕ РєР°С‚Р°Р»РѕРіР°
   }
   | RootDir
 
@@ -47,12 +47,12 @@ instance Eq PackedFilePath where
   (==)  =  map2eq$ map3 (fpHash,fpPackedBasename,fpPackedDirectory)
 
 #ifdef FREEARC_PACKED_STRINGS
--- Использование упакованных строк уменьшает расход памяти в 2 раза
+-- РСЃРїРѕР»СЊР·РѕРІР°РЅРёРµ СѓРїР°РєРѕРІР°РЅРЅС‹С… СЃС‚СЂРѕРє СѓРјРµРЅСЊС€Р°РµС‚ СЂР°СЃС…РѕРґ РїР°РјСЏС‚Рё РІ 2 СЂР°Р·Р°
 type MyPackedString = PackedString
 myPackStr           = packString
 myUnpackStr         = unpackPS
 
--- |Заменяет повторения одинаковых расширений одной и той же строкой
+-- |Р—Р°РјРµРЅСЏРµС‚ РїРѕРІС‚РѕСЂРµРЅРёСЏ РѕРґРёРЅР°РєРѕРІС‹С… СЂР°СЃС€РёСЂРµРЅРёР№ РѕРґРЅРѕР№ Рё С‚РѕР№ Р¶Рµ СЃС‚СЂРѕРєРѕР№
 packext ext = unsafePerformIO$ do
   found <- Hash.lookup extsHash ext
   case found of
@@ -72,24 +72,24 @@ packext             = id
 fpDirectory  =  myUnpackStr.fpPackedDirectory
 fpBasename   =  myUnpackStr.fpPackedBasename
 
--- |Виртуальное поле: полное имя файла, включая каталог и расширение
+-- |Р’РёСЂС‚СѓР°Р»СЊРЅРѕРµ РїРѕР»Рµ: РїРѕР»РЅРѕРµ РёРјСЏ С„Р°Р№Р»Р°, РІРєР»СЋС‡Р°СЏ РєР°С‚Р°Р»РѕРі Рё СЂР°СЃС€РёСЂРµРЅРёРµ
 fpFullname fp  =  fpDirectory fp </> fpBasename fp
 
--- |Ускоренное вычисление упакованного полного имени
+-- |РЈСЃРєРѕСЂРµРЅРЅРѕРµ РІС‹С‡РёСЃР»РµРЅРёРµ СѓРїР°РєРѕРІР°РЅРЅРѕРіРѕ РїРѕР»РЅРѕРіРѕ РёРјРµРЅРё
 fpPackedFullname fp  =  if fpPackedDirectory fp == myPackStr ""
                           then fpPackedBasename fp
                           else myPackStr (fpFullname fp)
 
 
--- |Создание упакованного представления из имени файла
+-- |РЎРѕР·РґР°РЅРёРµ СѓРїР°РєРѕРІР°РЅРЅРѕРіРѕ РїСЂРµРґСЃС‚Р°РІР»РµРЅРёСЏ РёР· РёРјРµРЅРё С„Р°Р№Р»Р°
 packFilePath parent fullname  =  packFilePath2 parent dir name
   where (dir,name) = splitDirFilename fullname
 
--- |Создание упакованного представления из имени каталога и имени файла без каталога
+-- |РЎРѕР·РґР°РЅРёРµ СѓРїР°РєРѕРІР°РЅРЅРѕРіРѕ РїСЂРµРґСЃС‚Р°РІР»РµРЅРёСЏ РёР· РёРјРµРЅРё РєР°С‚Р°Р»РѕРіР° Рё РёРјРµРЅРё С„Р°Р№Р»Р° Р±РµР· РєР°С‚Р°Р»РѕРіР°
 packFilePath2       parent dir        name  =  packFilePathPacked2 parent (myPackStr dir) name
 packFilePathPacked2 parent packed_dir name  =  packFilePathPacked3 parent packed_dir name (packext$ filenameLower$ getFileSuffix name)
 
--- |Создание упакованного представления из имени каталога, имени файла без каталога и расширения.
+-- |РЎРѕР·РґР°РЅРёРµ СѓРїР°РєРѕРІР°РЅРЅРѕРіРѕ РїСЂРµРґСЃС‚Р°РІР»РµРЅРёСЏ РёР· РёРјРµРЅРё РєР°С‚Р°Р»РѕРіР°, РёРјРµРЅРё С„Р°Р№Р»Р° Р±РµР· РєР°С‚Р°Р»РѕРіР° Рё СЂР°СЃС€РёСЂРµРЅРёСЏ.
 packFilePath3 parent dir name lcext              =  packFilePathPacked3 parent (myPackStr dir) name lcext
 packFilePathPacked3 parent packed_dir name lcext =
   PackedFilePath { fpPackedDirectory    =  packed_dir
@@ -99,29 +99,29 @@ packFilePathPacked3 parent packed_dir name lcext =
                  , fpParent             =  parent
                  }
 
--- |Создать структуру для базового каталога при поиске файлов
+-- |РЎРѕР·РґР°С‚СЊ СЃС‚СЂСѓРєС‚СѓСЂСѓ РґР»СЏ Р±Р°Р·РѕРІРѕРіРѕ РєР°С‚Р°Р»РѕРіР° РїСЂРё РїРѕРёСЃРєРµ С„Р°Р№Р»РѕРІ
 packParentDirPath dir  =
-  PackedFilePath { fpPackedDirectory    =  myPackStr ""   -- Чтобы не тратить зря время,
-                 , fpPackedBasename     =  myPackStr dir  -- помещаем имя каталога целиком в Basename
+  PackedFilePath { fpPackedDirectory    =  myPackStr ""   -- Р§С‚РѕР±С‹ РЅРµ С‚СЂР°С‚РёС‚СЊ Р·СЂСЏ РІСЂРµРјСЏ,
+                 , fpPackedBasename     =  myPackStr dir  -- РїРѕРјРµС‰Р°РµРј РёРјСЏ РєР°С‚Р°Р»РѕРіР° С†РµР»РёРєРѕРј РІ Basename
                  , fpLCExtension        =  ""
                  , fpHash               =  filenameHash 0 (filter (not.isPathSeparator) dir)
                  , fpParent             =  RootDir
                  }
 
--- |Хеш по полному имени файла (без разделителей каталога!).
--- Для ускорения его вычисления используется `dirhash` - хеш имени каталога, содержащего файл,
--- и `basename` - имя файла без имени каталога
+-- |РҐРµС€ РїРѕ РїРѕР»РЅРѕРјСѓ РёРјРµРЅРё С„Р°Р№Р»Р° (Р±РµР· СЂР°Р·РґРµР»РёС‚РµР»РµР№ РєР°С‚Р°Р»РѕРіР°!).
+-- Р”Р»СЏ СѓСЃРєРѕСЂРµРЅРёСЏ РµРіРѕ РІС‹С‡РёСЃР»РµРЅРёСЏ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ `dirhash` - С…РµС€ РёРјРµРЅРё РєР°С‚Р°Р»РѕРіР°, СЃРѕРґРµСЂР¶Р°С‰РµРіРѕ С„Р°Р№Р»,
+-- Рё `basename` - РёРјСЏ С„Р°Р№Р»Р° Р±РµР· РёРјРµРЅРё РєР°С‚Р°Р»РѕРіР°
 filenameHash {-dirhash basename-}  =  foldl (\h c -> h*37+i(ord c))
 
 {-# INLINE filenameHash #-}
 
 
 ----------------------------------------------------------------------------------------------------
----- Сопоставление имён файлов с регулярными выражениями -------------------------------------------
+---- РЎРѕРїРѕСЃС‚Р°РІР»РµРЅРёРµ РёРјС‘РЅ С„Р°Р№Р»РѕРІ СЃ СЂРµРіСѓР»СЏСЂРЅС‹РјРё РІС‹СЂР°Р¶РµРЅРёСЏРјРё -------------------------------------------
 ----------------------------------------------------------------------------------------------------
 
--- |Сопоставить имя файла с маской `filespec`.
--- Маски "*", "*.ext" или имя файла без каталога - обрабатываются особо
+-- |РЎРѕРїРѕСЃС‚Р°РІРёС‚СЊ РёРјСЏ С„Р°Р№Р»Р° СЃ РјР°СЃРєРѕР№ `filespec`.
+-- РњР°СЃРєРё "*", "*.ext" РёР»Рё РёРјСЏ С„Р°Р№Р»Р° Р±РµР· РєР°С‚Р°Р»РѕРіР° - РѕР±СЂР°Р±Р°С‚С‹РІР°СЋС‚СЃСЏ РѕСЃРѕР±Рѕ
 match_FP getName filespec =
   if filespec==reANY_FILE  then const True  else
     case (splitFilename3 filespec) of
@@ -129,71 +129,71 @@ match_FP getName filespec =
       ("", _,   _  ) -> match  (filenameLower filespec) . filenameLower . getName
       _              -> match  (filenameLower filespec) . filenameLower . fpFullname
 
--- |Соответствует ли путь к файлу `filepath` хоть одной из масок `filespecs`?
+-- |РЎРѕРѕС‚РІРµС‚СЃС‚РІСѓРµС‚ Р»Рё РїСѓС‚СЊ Рє С„Р°Р№Р»Сѓ `filepath` С…РѕС‚СЊ РѕРґРЅРѕР№ РёР· РјР°СЃРѕРє `filespecs`?
 match_filespecs getName {-filespecs filepath-}  =  anyf . map (match_FP getName)
 
--- |Маска, которой соответствует любое имя файла
+-- |РњР°СЃРєР°, РєРѕС‚РѕСЂРѕР№ СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓРµС‚ Р»СЋР±РѕРµ РёРјСЏ С„Р°Р№Р»Р°
 reANY_FILE = "*"
 
 
 ----------------------------------------------------------------------------------------------------
----- Информация о файле ----------------------------------------------------------------------------
+---- РРЅС„РѕСЂРјР°С†РёСЏ Рѕ С„Р°Р№Р»Рµ ----------------------------------------------------------------------------
 ----------------------------------------------------------------------------------------------------
 
--- Типы данных для..
-type FileCount = Int              -- количества файлов
-type FileSize  = Integer          -- размера файла или позиции чтения/записи в нём
-aFILESIZE_MIN  = -(2^63)          -- очень маленькое значение типа FileSize
-type FileTime  = CTime            -- времени создания/модификации/чтения файла
-aMINIMUM_POSSIBLE_FILETIME = 0 :: FileTime  -- ^Минимальное datetime, которое только может быть у файла. Соответствует 1 января 1970 г.
+-- РўРёРїС‹ РґР°РЅРЅС‹С… РґР»СЏ..
+type FileCount = Int              -- РєРѕР»РёС‡РµСЃС‚РІР° С„Р°Р№Р»РѕРІ
+type FileSize  = Integer          -- СЂР°Р·РјРµСЂР° С„Р°Р№Р»Р° РёР»Рё РїРѕР·РёС†РёРё С‡С‚РµРЅРёСЏ/Р·Р°РїРёСЃРё РІ РЅС‘Рј
+aFILESIZE_MIN  = -(2^63)          -- РѕС‡РµРЅСЊ РјР°Р»РµРЅСЊРєРѕРµ Р·РЅР°С‡РµРЅРёРµ С‚РёРїР° FileSize
+type FileTime  = CTime            -- РІСЂРµРјРµРЅРё СЃРѕР·РґР°РЅРёСЏ/РјРѕРґРёС„РёРєР°С†РёРё/С‡С‚РµРЅРёСЏ С„Р°Р№Р»Р°
+aMINIMUM_POSSIBLE_FILETIME = 0 :: FileTime  -- ^РњРёРЅРёРјР°Р»СЊРЅРѕРµ datetime, РєРѕС‚РѕСЂРѕРµ С‚РѕР»СЊРєРѕ РјРѕР¶РµС‚ Р±С‹С‚СЊ Сѓ С„Р°Р№Р»Р°. РЎРѕРѕС‚РІРµС‚СЃС‚РІСѓРµС‚ 1 СЏРЅРІР°СЂСЏ 1970 Рі.
 aMAXIMUM_POSSIBLE_FILETIME = (i (maxBound :: Int32)) :: FileTime
-type FileAttr  = FileAttributes   -- досовских атрибутов файла
-type FileGroup = Int              -- номера группы в arc.groups
+type FileAttr  = FileAttributes   -- РґРѕСЃРѕРІСЃРєРёС… Р°С‚СЂРёР±СѓС‚РѕРІ С„Р°Р№Р»Р°
+type FileGroup = Int              -- РЅРѕРјРµСЂР° РіСЂСѓРїРїС‹ РІ arc.groups
 
--- |Структура, хранящая всю необходимую нам информацию о файле
+-- |РЎС‚СЂСѓРєС‚СѓСЂР°, С…СЂР°РЅСЏС‰Р°СЏ РІСЃСЋ РЅРµРѕР±С…РѕРґРёРјСѓСЋ РЅР°Рј РёРЅС„РѕСЂРјР°С†РёСЋ Рѕ С„Р°Р№Р»Рµ
 data FileInfo = FileInfo
-  { fiFilteredName         :: !PackedFilePath  -- Имя файла, сопоставляемое с указанными в командной строке
-  , fiDiskName             :: !PackedFilePath  -- "Внешнее" имя файла - для чтения/записи файлов на диске
-  , fiStoredName           :: !PackedFilePath  -- "Внутреннее" имя файла - сохраняемое в оглавлении архива
-  , fiSize  :: {-# UNPACK #-} !FileSize        -- Размер файла (0 для каталогов)
-  , fiTime  :: {-# UNPACK #-} !FileTime        -- Дата/время создания файла
-  , fiAttr  :: {-# UNPACK #-} !FileAttr        -- Досовские атрибуты файла
-  , fiIsDir :: {-# UNPACK #-} !Bool            -- Это каталог?
-  , fiGroup :: {-# UNPACK #-} !FileGroup       -- Номер группы в arc.groups
+  { fiFilteredName         :: !PackedFilePath  -- РРјСЏ С„Р°Р№Р»Р°, СЃРѕРїРѕСЃС‚Р°РІР»СЏРµРјРѕРµ СЃ СѓРєР°Р·Р°РЅРЅС‹РјРё РІ РєРѕРјР°РЅРґРЅРѕР№ СЃС‚СЂРѕРєРµ
+  , fiDiskName             :: !PackedFilePath  -- "Р’РЅРµС€РЅРµРµ" РёРјСЏ С„Р°Р№Р»Р° - РґР»СЏ С‡С‚РµРЅРёСЏ/Р·Р°РїРёСЃРё С„Р°Р№Р»РѕРІ РЅР° РґРёСЃРєРµ
+  , fiStoredName           :: !PackedFilePath  -- "Р’РЅСѓС‚СЂРµРЅРЅРµРµ" РёРјСЏ С„Р°Р№Р»Р° - СЃРѕС…СЂР°РЅСЏРµРјРѕРµ РІ РѕРіР»Р°РІР»РµРЅРёРё Р°СЂС…РёРІР°
+  , fiSize  :: {-# UNPACK #-} !FileSize        -- Р Р°Р·РјРµСЂ С„Р°Р№Р»Р° (0 РґР»СЏ РєР°С‚Р°Р»РѕРіРѕРІ)
+  , fiTime  :: {-# UNPACK #-} !FileTime        -- Р”Р°С‚Р°/РІСЂРµРјСЏ СЃРѕР·РґР°РЅРёСЏ С„Р°Р№Р»Р°
+  , fiAttr  :: {-# UNPACK #-} !FileAttr        -- Р”РѕСЃРѕРІСЃРєРёРµ Р°С‚СЂРёР±СѓС‚С‹ С„Р°Р№Р»Р°
+  , fiIsDir :: {-# UNPACK #-} !Bool            -- Р­С‚Рѕ РєР°С‚Р°Р»РѕРі?
+  , fiGroup :: {-# UNPACK #-} !FileGroup       -- РќРѕРјРµСЂ РіСЂСѓРїРїС‹ РІ arc.groups
   }
 
--- |Битовые поля в fiAttr
+-- |Р‘РёС‚РѕРІС‹Рµ РїРѕР»СЏ РІ fiAttr
 aFI_ATTR_READONLY = 0x01
 aFI_ATTR_HIDDEN   = 0x02
 aFI_ATTR_SYSTEM   = 0x04
 aFI_ATTR_ARCHIVE  = 0x20
 
--- |Преобразовать FileInfo в имя файла на диске
+-- |РџСЂРµРѕР±СЂР°Р·РѕРІР°С‚СЊ FileInfo РІ РёРјСЏ С„Р°Р№Р»Р° РЅР° РґРёСЃРєРµ
 diskName     = fpFullname.fiDiskName
 storedName   = fpFullname.fiStoredName
 filteredName = fpFullname.fiFilteredName
 
--- |Преобразовать FileInfo в базовое имя файла
+-- |РџСЂРµРѕР±СЂР°Р·РѕРІР°С‚СЊ FileInfo РІ Р±Р°Р·РѕРІРѕРµ РёРјСЏ С„Р°Р№Р»Р°
 baseName     = fpBasename.fiStoredName
 
--- |Специальные файлы (каталоги, симлинки и тому подобное) не требуют упаковки
+-- |РЎРїРµС†РёР°Р»СЊРЅС‹Рµ С„Р°Р№Р»С‹ (РєР°С‚Р°Р»РѕРіРё, СЃРёРјР»РёРЅРєРё Рё С‚РѕРјСѓ РїРѕРґРѕР±РЅРѕРµ) РЅРµ С‚СЂРµР±СѓСЋС‚ СѓРїР°РєРѕРІРєРё
 fiSpecialFile = fiIsDir
 
--- |Номер группы, проставляемый там, где он не используется.
+-- |РќРѕРјРµСЂ РіСЂСѓРїРїС‹, РїСЂРѕСЃС‚Р°РІР»СЏРµРјС‹Р№ С‚Р°Рј, РіРґРµ РѕРЅ РЅРµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ.
 fiUndefinedGroup = -1
 
--- |Заменить код ошибки в определении DateTime максимально возможным значением DateTime (поскольку эта ошибка обычно возникает когда время позже 2038-го года)
+-- |Р—Р°РјРµРЅРёС‚СЊ РєРѕРґ РѕС€РёР±РєРё РІ РѕРїСЂРµРґРµР»РµРЅРёРё DateTime РјР°РєСЃРёРјР°Р»СЊРЅРѕ РІРѕР·РјРѕР¶РЅС‹Рј Р·РЅР°С‡РµРЅРёРµРј DateTime (РїРѕСЃРєРѕР»СЊРєСѓ СЌС‚Р° РѕС€РёР±РєР° РѕР±С‹С‡РЅРѕ РІРѕР·РЅРёРєР°РµС‚ РєРѕРіРґР° РІСЂРµРјСЏ РїРѕР·Р¶Рµ 2038-РіРѕ РіРѕРґР°)
 fiTimeCorrect t | t<aMINIMUM_POSSIBLE_FILETIME  =  aMAXIMUM_POSSIBLE_FILETIME
                 | otherwise                     =  t
 
--- |При выходе даты за поддерживаемые диапазон (до 2038 г.) возвращать последнее значение из этого диапазона
+-- |РџСЂРё РІС‹С…РѕРґРµ РґР°С‚С‹ Р·Р° РїРѕРґРґРµСЂР¶РёРІР°РµРјС‹Рµ РґРёР°РїР°Р·РѕРЅ (РґРѕ 2038 Рі.) РІРѕР·РІСЂР°С‰Р°С‚СЊ РїРѕСЃР»РµРґРЅРµРµ Р·РЅР°С‡РµРЅРёРµ РёР· СЌС‚РѕРіРѕ РґРёР°РїР°Р·РѕРЅР°
 stat_mtime p_stat  =  raw_stat_mtime p_stat  >>==  fiTimeCorrect
 
--- |Строка атрибутов файла, используемая при выводе листинга архива
+-- |РЎС‚СЂРѕРєР° Р°С‚СЂРёР±СѓС‚РѕРІ С„Р°Р№Р»Р°, РёСЃРїРѕР»СЊР·СѓРµРјР°СЏ РїСЂРё РІС‹РІРѕРґРµ Р»РёСЃС‚РёРЅРіР° Р°СЂС…РёРІР°
 fiAttrStr fi = '.' : (if fiIsDir fi then 'D' else '.') : zipWith check [aFI_ATTR_READONLY, aFI_ATTR_HIDDEN, aFI_ATTR_SYSTEM, aFI_ATTR_ARCHIVE,0] "RHSA."
   where check n c  =  if fiAttr fi .&. n > 0  then c  else '.'
 
--- |Создать структуру FileInfo для каталога с заданным именем
+-- |РЎРѕР·РґР°С‚СЊ СЃС‚СЂСѓРєС‚СѓСЂСѓ FileInfo РґР»СЏ РєР°С‚Р°Р»РѕРіР° СЃ Р·Р°РґР°РЅРЅС‹Рј РёРјРµРЅРµРј
 createParentDirFileInfo fiFilteredName fiDiskName fiStoredName =
   FileInfo { fiFilteredName  =  packParentDirPath fiFilteredName
            , fiDiskName      =  packParentDirPath fiDiskName
@@ -205,13 +205,13 @@ createParentDirFileInfo fiFilteredName fiDiskName fiStoredName =
            , fiGroup         =  fiUndefinedGroup
            }
 
--- |Перечитать информацию о файле после его открытия (на случай, если файл успел измениться).
---  Возвращает некорректные fiAttr (под юниксом) и fiGroup
+-- |РџРµСЂРµС‡РёС‚Р°С‚СЊ РёРЅС„РѕСЂРјР°С†РёСЋ Рѕ С„Р°Р№Р»Рµ РїРѕСЃР»Рµ РµРіРѕ РѕС‚РєСЂС‹С‚РёСЏ (РЅР° СЃР»СѓС‡Р°Р№, РµСЃР»Рё С„Р°Р№Р» СѓСЃРїРµР» РёР·РјРµРЅРёС‚СЊСЃСЏ).
+--  Р’РѕР·РІСЂР°С‰Р°РµС‚ РЅРµРєРѕСЂСЂРµРєС‚РЅС‹Рµ fiAttr (РїРѕРґ СЋРЅРёРєСЃРѕРј) Рё fiGroup
 rereadFileInfo fi file = do
   getFileInfo (fiFilteredName fi) (fiDiskName fi) (fiStoredName fi)
 
--- |Создать структуру FileInfo с информацией о заданном файле.
---  Возвращает некорректные fiAttr (под юниксом) и fiGroup
+-- |РЎРѕР·РґР°С‚СЊ СЃС‚СЂСѓРєС‚СѓСЂСѓ FileInfo СЃ РёРЅС„РѕСЂРјР°С†РёРµР№ Рѕ Р·Р°РґР°РЅРЅРѕРј С„Р°Р№Р»Рµ.
+--  Р’РѕР·РІСЂР°С‰Р°РµС‚ РЅРµРєРѕСЂСЂРµРєС‚РЅС‹Рµ fiAttr (РїРѕРґ СЋРЅРёРєСЃРѕРј) Рё fiGroup
 getFileInfo fiFilteredName fiDiskName fiStoredName  =
     let filename = fpFullname fiDiskName in do
     fileWithStatus "getFileInfo" filename $ \p_stat -> do
@@ -222,7 +222,7 @@ getFileInfo fiFilteredName fiDiskName fiStoredName  =
       return$ Just$ FileInfo fiFilteredName fiDiskName fiStoredName fiSize fiTime 0 fiIsDir fiUndefinedGroup
   `catch`
     \e -> do registerWarning$ CANT_GET_FILEINFO filename
-             return Nothing  -- В случае ошибки при выполнении stat возвращаем Nothing
+             return Nothing  -- Р’ СЃР»СѓС‡Р°Рµ РѕС€РёР±РєРё РїСЂРё РІС‹РїРѕР»РЅРµРЅРёРё stat РІРѕР·РІСЂР°С‰Р°РµРј Nothing
 
 
 -- |Get file's date/time
@@ -235,10 +235,10 @@ setFileDateTimeAttr filename fileinfo  =  setFileDateTime filename (fiTime filei
 
 
 ----------------------------------------------------------------------------------------------------
----- Процесс поиска файлов на диске ----------------------------------------------------------------
+---- РџСЂРѕС†РµСЃСЃ РїРѕРёСЃРєР° С„Р°Р№Р»РѕРІ РЅР° РґРёСЃРєРµ ----------------------------------------------------------------
 ----------------------------------------------------------------------------------------------------
 
--- |Настройки для процесса поиска файлов на диске
+-- |РќР°СЃС‚СЂРѕР№РєРё РґР»СЏ РїСЂРѕС†РµСЃСЃР° РїРѕРёСЃРєР° С„Р°Р№Р»РѕРІ РЅР° РґРёСЃРєРµ
 data FindFiles = FindFiles
     { ff_disk_eq_filtered   :: Bool
     , ff_stored_eq_filtered :: Bool
@@ -249,12 +249,12 @@ data FindFiles = FindFiles
     }
 
 
--- |Вернуть FileInfo файлов и каталогов (исключая "." и ".."), находящихся в каталоге `parent`
-getDirectoryContents_FileInfo ff parent{-родительская структура FileInfo-} = do
-  let -- Полное дисковое имя род. каталога
+-- |Р’РµСЂРЅСѓС‚СЊ FileInfo С„Р°Р№Р»РѕРІ Рё РєР°С‚Р°Р»РѕРіРѕРІ (РёСЃРєР»СЋС‡Р°СЏ "." Рё ".."), РЅР°С…РѕРґСЏС‰РёС…СЃСЏ РІ РєР°С‚Р°Р»РѕРіРµ `parent`
+getDirectoryContents_FileInfo ff parent{-СЂРѕРґРёС‚РµР»СЊСЃРєР°СЏ СЃС‚СЂСѓРєС‚СѓСЂР° FileInfo-} = do
+  let -- РџРѕР»РЅРѕРµ РґРёСЃРєРѕРІРѕРµ РёРјСЏ СЂРѕРґ. РєР°С‚Р°Р»РѕРіР°
       diskDirName = fpFullname$ fiDiskName parent
-      -- Упакованные строки с дисковым, фильтруемым и запоминаемым именем род. каталога
-      -- Эти имена могут совпадать при отсутствии -ap/-dp, что позволяет нам экономить память в этих случаях
+      -- РЈРїР°РєРѕРІР°РЅРЅС‹Рµ СЃС‚СЂРѕРєРё СЃ РґРёСЃРєРѕРІС‹Рј, С„РёР»СЊС‚СЂСѓРµРјС‹Рј Рё Р·Р°РїРѕРјРёРЅР°РµРјС‹Рј РёРјРµРЅРµРј СЂРѕРґ. РєР°С‚Р°Р»РѕРіР°
+      -- Р­С‚Рё РёРјРµРЅР° РјРѕРіСѓС‚ СЃРѕРІРїР°РґР°С‚СЊ РїСЂРё РѕС‚СЃСѓС‚СЃС‚РІРёРё -ap/-dp, С‡С‚Рѕ РїРѕР·РІРѕР»СЏРµС‚ РЅР°Рј СЌРєРѕРЅРѕРјРёС‚СЊ РїР°РјСЏС‚СЊ РІ СЌС‚РёС… СЃР»СѓС‡Р°СЏС…
       packedDisk  = myPackStr diskDirName
       packedFiltered = if ff.$ff_disk_eq_filtered
                           then packedDisk
@@ -262,47 +262,47 @@ getDirectoryContents_FileInfo ff parent{-родительская структура FileInfo-} = do
       packedStored   = if ff.$ff_stored_eq_filtered
                           then packedFiltered
                           else myPackStr$ fpFullname$ fiStoredName   parent_or_root
-      -- Выбрать parent или root в качестве родительской записи (последнее - только при -ep0)
+      -- Р’С‹Р±СЂР°С‚СЊ parent РёР»Рё root РІ РєР°С‡РµСЃС‚РІРµ СЂРѕРґРёС‚РµР»СЊСЃРєРѕР№ Р·Р°РїРёСЃРё (РїРѕСЃР»РµРґРЅРµРµ - С‚РѕР»СЊРєРѕ РїСЂРё -ep0)
       parent_or_root = (ff.$ff_parent_or_root) parent
 
-      -- Вызвать функцию f, передав ей объекты фильтруемого, дискового и запомненного имени
+      -- Р’С‹Р·РІР°С‚СЊ С„СѓРЅРєС†РёСЋ f, РїРµСЂРµРґР°РІ РµР№ РѕР±СЉРµРєС‚С‹ С„РёР»СЊС‚СЂСѓРµРјРѕРіРѕ, РґРёСЃРєРѕРІРѕРіРѕ Рё Р·Р°РїРѕРјРЅРµРЅРЅРѕРіРѕ РёРјРµРЅРё
       make_names f name = f (packFilePathPacked3 (fiFilteredName parent)          packedFiltered  name lcext)
                             (packFilePathPacked3 (fiDiskName     parent)          packedDisk      name lcext)
                             (packFilePathPacked3 (fiStoredName   parent_or_root)  packedStored    name lcext)
                           where lcext  =  packext$ filenameLower$ getFileSuffix name
 
-  (dirList (diskDirName|||".")) .$handleFindErrors diskDirName  -- Получим список файлов в каталоге, обрабатывая ошибки чтения каталога,
-    >>== filter exclude_special_names                           -- Исключим из списка "." и ".."
-    >>= (mapMaybeM $! make_names getFileInfo)                   -- Превратим имена файлов в структуры FileInfo и уберём из списка файлы, на которых споткнулся `stat`
+  (dirList (diskDirName|||".")) .$handleFindErrors diskDirName  -- РџРѕР»СѓС‡РёРј СЃРїРёСЃРѕРє С„Р°Р№Р»РѕРІ РІ РєР°С‚Р°Р»РѕРіРµ, РѕР±СЂР°Р±Р°С‚С‹РІР°СЏ РѕС€РёР±РєРё С‡С‚РµРЅРёСЏ РєР°С‚Р°Р»РѕРіР°,
+    >>== filter exclude_special_names                           -- РСЃРєР»СЋС‡РёРј РёР· СЃРїРёСЃРєР° "." Рё ".."
+    >>= (mapMaybeM $! make_names getFileInfo)                   -- РџСЂРµРІСЂР°С‚РёРј РёРјРµРЅР° С„Р°Р№Р»РѕРІ РІ СЃС‚СЂСѓРєС‚СѓСЂС‹ FileInfo Рё СѓР±РµСЂС‘Рј РёР· СЃРїРёСЃРєР° С„Р°Р№Р»С‹, РЅР° РєРѕС‚РѕСЂС‹С… СЃРїРѕС‚РєРЅСѓР»СЃСЏ `stat`
 
 
--- |Добавить exception handler, вызываемый при ошибках получения списка файлов в каталоге
+-- |Р”РѕР±Р°РІРёС‚СЊ exception handler, РІС‹Р·С‹РІР°РµРјС‹Р№ РїСЂРё РѕС€РёР±РєР°С… РїРѕР»СѓС‡РµРЅРёСЏ СЃРїРёСЃРєР° С„Р°Р№Р»РѕРІ РІ РєР°С‚Р°Р»РѕРіРµ
 handleFindErrors dir =
   handleJust ioErrors $ \e -> do
-    -- Сообщение об ошибке не печатается для каталогов "/System Volume Information"
+    -- РЎРѕРѕР±С‰РµРЅРёРµ РѕР± РѕС€РёР±РєРµ РЅРµ РїРµС‡Р°С‚Р°РµС‚СЃСЏ РґР»СЏ РєР°С‚Р°Р»РѕРіРѕРІ "/System Volume Information"
     d <- myCanonicalizePath dir
     unless (stripRoot d `strLowerEq` "System Volume Information") $ do
       registerWarning$ CANT_READ_DIRECTORY dir
     return defaultValue
 
--- |Создать список файлов в `dir`, удовлетворяющих `accept_f` и отослать результат в `process_f`.
--- Если recursive==True - повторить эти действия рекурсивно в каждом найденном подкаталоге
+-- |РЎРѕР·РґР°С‚СЊ СЃРїРёСЃРѕРє С„Р°Р№Р»РѕРІ РІ `dir`, СѓРґРѕРІР»РµС‚РІРѕСЂСЏСЋС‰РёС… `accept_f` Рё РѕС‚РѕСЃР»Р°С‚СЊ СЂРµР·СѓР»СЊС‚Р°С‚ РІ `process_f`.
+-- Р•СЃР»Рё recursive==True - РїРѕРІС‚РѕСЂРёС‚СЊ СЌС‚Рё РґРµР№СЃС‚РІРёСЏ СЂРµРєСѓСЂСЃРёРІРЅРѕ РІ РєР°Р¶РґРѕРј РЅР°Р№РґРµРЅРЅРѕРј РїРѕРґРєР°С‚Р°Р»РѕРіРµ
 findFiles_FileInfo dir ff@FindFiles{ff_accept_f=accept_f, ff_process_f=process_f, ff_recursive=recursive} = do
   if recursive  then recursiveM processDir dir  else do processDir dir; return ()
     where processDir dir = do
             dirContents  <-  getDirectoryContents_FileInfo ff dir
-            process_f `unlessNull` (filter accept_f dirContents)   -- Обработать отфильтрованные файлы, если их список непуст
-            return                 (filter fiIsDir  dirContents)   -- Возвратить список подкаталогов для рекурсивной обработки
+            process_f `unlessNull` (filter accept_f dirContents)   -- РћР±СЂР°Р±РѕС‚Р°С‚СЊ РѕС‚С„РёР»СЊС‚СЂРѕРІР°РЅРЅС‹Рµ С„Р°Р№Р»С‹, РµСЃР»Рё РёС… СЃРїРёСЃРѕРє РЅРµРїСѓСЃС‚
+            return                 (filter fiIsDir  dirContents)   -- Р’РѕР·РІСЂР°С‚РёС‚СЊ СЃРїРёСЃРѕРє РїРѕРґРєР°С‚Р°Р»РѕРіРѕРІ РґР»СЏ СЂРµРєСѓСЂСЃРёРІРЅРѕР№ РѕР±СЂР°Р±РѕС‚РєРё
 
 {-# NOINLINE getDirectoryContents_FileInfo #-}
 {-# NOINLINE findFiles_FileInfo #-}
 
 
 ----------------------------------------------------------------------------------------------------
----- Поиск и обработка файлов, удовлетворяющих заданным критериям ----------------------------------
+---- РџРѕРёСЃРє Рё РѕР±СЂР°Р±РѕС‚РєР° С„Р°Р№Р»РѕРІ, СѓРґРѕРІР»РµС‚РІРѕСЂСЏСЋС‰РёС… Р·Р°РґР°РЅРЅС‹Рј РєСЂРёС‚РµСЂРёСЏРј ----------------------------------
 ----------------------------------------------------------------------------------------------------
 
--- |Условия поиска файлов на диске
+-- |РЈСЃР»РѕРІРёСЏ РїРѕРёСЃРєР° С„Р°Р№Р»РѕРІ РЅР° РґРёСЃРєРµ
 data FileFind = FileFind
     { ff_ep             :: !Int
     , ff_scan_subdirs   :: !Bool
@@ -314,7 +314,7 @@ data FileFind = FileFind
     , ff_disk_basedir   :: !String
     }
 
--- |Найти [рекурсивно] все файлы, удовлетворяющие маске `filespec`, и вернуть их список
+-- |РќР°Р№С‚Рё [СЂРµРєСѓСЂСЃРёРІРЅРѕ] РІСЃРµ С„Р°Р№Р»С‹, СѓРґРѕРІР»РµС‚РІРѕСЂСЏСЋС‰РёРµ РјР°СЃРєРµ `filespec`, Рё РІРµСЂРЅСѓС‚СЊ РёС… СЃРїРёСЃРѕРє
 find_files scan_subdirs filespec  =  find_and_filter_files [filespec] doNothing $
     FileFind { ff_ep             = -1
              , ff_scan_subdirs   = scan_subdirs
@@ -326,7 +326,7 @@ find_files scan_subdirs filespec  =  find_and_filter_files [filespec] doNothing 
              , ff_disk_basedir   = ""
              }
 
--- |Составить список всех файлов и подкаталогов в каталоге
+-- |РЎРѕСЃС‚Р°РІРёС‚СЊ СЃРїРёСЃРѕРє РІСЃРµС… С„Р°Р№Р»РѕРІ Рё РїРѕРґРєР°С‚Р°Р»РѕРіРѕРІ РІ РєР°С‚Р°Р»РѕРіРµ
 dir_list directory  =  find_and_filter_files [directory </> reANY_FILE] doNothing $
     FileFind { ff_ep             = 0
              , ff_scan_subdirs   = False
@@ -339,29 +339,29 @@ dir_list directory  =  find_and_filter_files [directory </> reANY_FILE] doNothin
              }
 
 
--- |Найти все файлы, удовлетворяющие критерию отбора `ff`,
--- и вернуть их список
+-- |РќР°Р№С‚Рё РІСЃРµ С„Р°Р№Р»С‹, СѓРґРѕРІР»РµС‚РІРѕСЂСЏСЋС‰РёРµ РєСЂРёС‚РµСЂРёСЋ РѕС‚Р±РѕСЂР° `ff`,
+-- Рё РІРµСЂРЅСѓС‚СЊ РёС… СЃРїРёСЃРѕРє
 find_and_filter_files filespecs process_f ff = do
-  concat ==<< withList (\list -> do  -- Сконкатенировать списки файлов, найденных в каждом подкаталоге
+  concat ==<< withList (\list -> do  -- РЎРєРѕРЅРєР°С‚РµРЅРёСЂРѕРІР°С‚СЊ СЃРїРёСЃРєРё С„Р°Р№Р»РѕРІ, РЅР°Р№РґРµРЅРЅС‹С… РІ РєР°Р¶РґРѕРј РїРѕРґРєР°С‚Р°Р»РѕРіРµ
     find_filter_and_process_files filespecs ff $ \files -> do
       process_f files
       list <<= files)
 
--- |Найти все файлы, удовлетворяющие критерию отбора `ff`,
--- и послать их список по частям в выходной канал процесса
+-- |РќР°Р№С‚Рё РІСЃРµ С„Р°Р№Р»С‹, СѓРґРѕРІР»РµС‚РІРѕСЂСЏСЋС‰РёРµ РєСЂРёС‚РµСЂРёСЋ РѕС‚Р±РѕСЂР° `ff`,
+-- Рё РїРѕСЃР»Р°С‚СЊ РёС… СЃРїРёСЃРѕРє РїРѕ С‡Р°СЃС‚СЏРј РІ РІС‹С…РѕРґРЅРѕР№ РєР°РЅР°Р» РїСЂРѕС†РµСЃСЃР°
 find_and_filter_files_PROCESS filespecs ff pipe = do
   find_filter_and_process_files filespecs ff (sendP pipe)
-  sendP pipe []  -- сигнал "А кино-то уже кончилось!" :)
+  sendP pipe []  -- СЃРёРіРЅР°Р» "Рђ РєРёРЅРѕ-С‚Рѕ СѓР¶Рµ РєРѕРЅС‡РёР»РѕСЃСЊ!" :)
 
 
--- |Найти [рекурсивно] все файлы, описываемые масками `filespecs` и критерием отбора `filter_f`,
--- и выполнить над каждым списком файлов, найденных в одном каталоге, операцию `process_f`
+-- |РќР°Р№С‚Рё [СЂРµРєСѓСЂСЃРёРІРЅРѕ] РІСЃРµ С„Р°Р№Р»С‹, РѕРїРёСЃС‹РІР°РµРјС‹Рµ РјР°СЃРєР°РјРё `filespecs` Рё РєСЂРёС‚РµСЂРёРµРј РѕС‚Р±РѕСЂР° `filter_f`,
+-- Рё РІС‹РїРѕР»РЅРёС‚СЊ РЅР°Рґ РєР°Р¶РґС‹Рј СЃРїРёСЃРєРѕРј С„Р°Р№Р»РѕРІ, РЅР°Р№РґРµРЅРЅС‹С… РІ РѕРґРЅРѕРј РєР°С‚Р°Р»РѕРіРµ, РѕРїРµСЂР°С†РёСЋ `process_f`
 find_filter_and_process_files filespecs ff@FileFind{ ff_ep=ep, ff_scan_subdirs=scan_subdirs, ff_include_dirs=include_dirs, ff_filter_f=filter_f, ff_group_f=group_f, ff_arc_basedir=arc_basedir, ff_disk_basedir=disk_basedir, ff_no_nst_filters=no_nst_filters} process_f
 
-  -- Сгруппировать маски по имени каталога, и обработать каждую из этих групп отдельно
+  -- РЎРіСЂСѓРїРїРёСЂРѕРІР°С‚СЊ РјР°СЃРєРё РїРѕ РёРјРµРЅРё РєР°С‚Р°Р»РѕРіР°, Рё РѕР±СЂР°Р±РѕС‚Р°С‚СЊ РєР°Р¶РґСѓСЋ РёР· СЌС‚РёС… РіСЂСѓРїРї РѕС‚РґРµР»СЊРЅРѕ
   = do curdir  <-  getCurrentDirectory >>== translatePath
 {-
-       -- Поиск файлов как в RAR
+       -- РџРѕРёСЃРє С„Р°Р№Р»РѕРІ РєР°Рє РІ RAR
        let doit f = do
              let re = isRegExp f
              isdir <- isDirExists f
@@ -369,7 +369,7 @@ find_filter_and_process_files filespecs ff@FileFind{ ff_ep=ep, ff_scan_subdirs=s
              if not re && -r-    then getStat f `catch` "WARNING: file %s not found"
              else                     find (re || !-r-) f
 -}
-       -- Заменить имена каталогов dir на две маски "dir dir/" чтобы охватить сам каталог и все файлы в нём
+       -- Р—Р°РјРµРЅРёС‚СЊ РёРјРµРЅР° РєР°С‚Р°Р»РѕРіРѕРІ dir РЅР° РґРІРµ РјР°СЃРєРё "dir dir/" С‡С‚РѕР±С‹ РѕС…РІР°С‚РёС‚СЊ СЃР°Рј РєР°С‚Р°Р»РѕРі Рё РІСЃРµ С„Р°Р№Р»С‹ РІ РЅС‘Рј
        modified_filespecs <- foreach filespecs $ \filespec -> do
          isDir <- if hasTrailingPathSeparator filespec
                     then return True
@@ -381,25 +381,25 @@ find_filter_and_process_files filespecs ff@FileFind{ ff_ep=ep, ff_scan_subdirs=s
        mapM_ (find_files_in_one_dir curdir False) $ sort_and_groupOn (filenameLower.takeDirectory) modified_filespecs
 
   where
-    -- Обработать группу масок, относящихся к одному каталогу
+    -- РћР±СЂР°Р±РѕС‚Р°С‚СЊ РіСЂСѓРїРїСѓ РјР°СЃРѕРє, РѕС‚РЅРѕСЃСЏС‰РёС…СЃСЏ Рє РѕРґРЅРѕРјСѓ РєР°С‚Р°Р»РѕРіСѓ
     find_files_in_one_dir curdir addDir filespecs = do
       findFiles_FileInfo root FindFiles{ff_process_f=process_f.map_group_f, ff_recursive=recursive, ff_disk_eq_filtered=disk_eq_filtered, ff_stored_eq_filtered=stored_eq_filtered, ff_parent_or_root=parent_or_root, ff_accept_f=accept_f}
 
-      where dirname  =  takeDirectory (head filespecs)  -- Общий для всех масок каталог
-            masks    =  map takeFileName filespecs      -- Маски без этого имени каталога
-            root     =  createParentDirFileInfo         -- Базовый FileInfo для этого поиска:
-                            dirname                     --   базовый каталог для фильтрации файлов
-                            diskdir                     --   базовый каталог на диске
-                            arcdir                      --   базовый каталог в архиве
+      where dirname  =  takeDirectory (head filespecs)  -- РћР±С‰РёР№ РґР»СЏ РІСЃРµС… РјР°СЃРѕРє РєР°С‚Р°Р»РѕРі
+            masks    =  map takeFileName filespecs      -- РњР°СЃРєРё Р±РµР· СЌС‚РѕРіРѕ РёРјРµРЅРё РєР°С‚Р°Р»РѕРіР°
+            root     =  createParentDirFileInfo         -- Р‘Р°Р·РѕРІС‹Р№ FileInfo РґР»СЏ СЌС‚РѕРіРѕ РїРѕРёСЃРєР°:
+                            dirname                     --   Р±Р°Р·РѕРІС‹Р№ РєР°С‚Р°Р»РѕРі РґР»СЏ С„РёР»СЊС‚СЂР°С†РёРё С„Р°Р№Р»РѕРІ
+                            diskdir                     --   Р±Р°Р·РѕРІС‹Р№ РєР°С‚Р°Р»РѕРі РЅР° РґРёСЃРєРµ
+                            arcdir                      --   Р±Р°Р·РѕРІС‹Р№ РєР°С‚Р°Р»РѕРі РІ Р°СЂС…РёРІРµ
 
-            -- Базовый каталог на диске
+            -- Р‘Р°Р·РѕРІС‹Р№ РєР°С‚Р°Р»РѕРі РЅР° РґРёСЃРєРµ
             diskdir           =  disk_basedir </> dirname
-            -- Имена файлов на диске и в ком. строке совпадают?
+            -- РРјРµРЅР° С„Р°Р№Р»РѕРІ РЅР° РґРёСЃРєРµ Рё РІ РєРѕРј. СЃС‚СЂРѕРєРµ СЃРѕРІРїР°РґР°СЋС‚?
             disk_eq_filtered  =  diskdir==dirname
-            -- Полный путь к базовому каталогу на диске для -ep2/-ep3
+            -- РџРѕР»РЅС‹Р№ РїСѓС‚СЊ Рє Р±Р°Р·РѕРІРѕРјСѓ РєР°С‚Р°Р»РѕРіСѓ РЅР° РґРёСЃРєРµ РґР»СЏ -ep2/-ep3
             full_dirname      =  curdir </> diskdir
 
-            -- Базовый каталог в архиве
+            -- Р‘Р°Р·РѕРІС‹Р№ РєР°С‚Р°Р»РѕРі РІ Р°СЂС…РёРІРµ
             arcdir     =  remove_unsafe_dirs (arc_basedir </> arc_subdir)
             arc_subdir =  case ep of
                             0 -> ""                        -- -ep:     exclude any paths from names
@@ -407,23 +407,23 @@ find_filter_and_process_files filespecs ff@FileFind{ ff_ep=ep, ff_scan_subdirs=s
                             2 -> full_dirname.$stripRoot   -- -ep2:    full absolute path without "d:\"
                             3 -> full_dirname              -- -ep3:    full absolute path with "d:\"
                             _ -> dirname.$stripRoot        -- Default: full relative path
-            -- Выбирает parent или root каталог в зависимости от опции -ep
+            -- Р’С‹Р±РёСЂР°РµС‚ parent РёР»Рё root РєР°С‚Р°Р»РѕРі РІ Р·Р°РІРёСЃРёРјРѕСЃС‚Рё РѕС‚ РѕРїС†РёРё -ep
             parent_or_root      =  if ep==0  then const root  else id
-            -- Имена файлов внутри архива и в ком. строке совпадают?
+            -- РРјРµРЅР° С„Р°Р№Р»РѕРІ РІРЅСѓС‚СЂРё Р°СЂС…РёРІР° Рё РІ РєРѕРј. СЃС‚СЂРѕРєРµ СЃРѕРІРїР°РґР°СЋС‚?
             stored_eq_filtered  =  arcdir==dirname && ep/=0
 
-            -- Одно из имён указано как "dir/"?
+            -- РћРґРЅРѕ РёР· РёРјС‘РЅ СѓРєР°Р·Р°РЅРѕ РєР°Рє "dir/"?
             dir_slash    =  dirname>"" && masks `contains` ""
-            -- Сканировать подкаталоги если указана опция "-r" или одно из имён указано как "dir/"
+            -- РЎРєР°РЅРёСЂРѕРІР°С‚СЊ РїРѕРґРєР°С‚Р°Р»РѕРіРё РµСЃР»Рё СѓРєР°Р·Р°РЅР° РѕРїС†РёСЏ "-r" РёР»Рё РѕРґРЅРѕ РёР· РёРјС‘РЅ СѓРєР°Р·Р°РЅРѕ РєР°Рє "dir/"
             recursive    =  scan_subdirs || dir_slash
-            -- Включить в список все файлы/каталоги, если одно из имён указано как "dir/" или "*" или "dir/*"
+            -- Р’РєР»СЋС‡РёС‚СЊ РІ СЃРїРёСЃРѕРє РІСЃРµ С„Р°Р№Р»С‹/РєР°С‚Р°Р»РѕРіРё, РµСЃР»Рё РѕРґРЅРѕ РёР· РёРјС‘РЅ СѓРєР°Р·Р°РЅРѕ РєР°Рє "dir/" РёР»Рё "*" РёР»Рё "dir/*"
             include_all  =  dir_slash || masks `contains` reANY_FILE
-            -- Предикат, определяющий какие файлы и каталоги будут включены в создаваемый список:
-            --   для каталогов это зависит от опций --[no]dirs, by default - при условии "[dir/]* -r" || "dir/" и отсутствии фильтров отбора файлов -n/-s../-t..
-            --   для файлов проверяется соответствие предикату `filter_f` и одной из масок
+            -- РџСЂРµРґРёРєР°С‚, РѕРїСЂРµРґРµР»СЏСЋС‰РёР№ РєР°РєРёРµ С„Р°Р№Р»С‹ Рё РєР°С‚Р°Р»РѕРіРё Р±СѓРґСѓС‚ РІРєР»СЋС‡РµРЅС‹ РІ СЃРѕР·РґР°РІР°РµРјС‹Р№ СЃРїРёСЃРѕРє:
+            --   РґР»СЏ РєР°С‚Р°Р»РѕРіРѕРІ СЌС‚Рѕ Р·Р°РІРёСЃРёС‚ РѕС‚ РѕРїС†РёР№ --[no]dirs, by default - РїСЂРё СѓСЃР»РѕРІРёРё "[dir/]* -r" || "dir/" Рё РѕС‚СЃСѓС‚СЃС‚РІРёРё С„РёР»СЊС‚СЂРѕРІ РѕС‚Р±РѕСЂР° С„Р°Р№Р»РѕРІ -n/-s../-t..
+            --   РґР»СЏ С„Р°Р№Р»РѕРІ РїСЂРѕРІРµСЂСЏРµС‚СЃСЏ СЃРѕРѕС‚РІРµС‚СЃС‚РІРёРµ РїСЂРµРґРёРєР°С‚Сѓ `filter_f` Рё РѕРґРЅРѕР№ РёР· РјР°СЃРѕРє
             accept_f fi | fiIsDir fi  =  include_dirs `defaultVal` (addDir && baseName fi `elem` masks  ||  no_nst_filters && recursive && include_all)
                         | otherwise   =  filter_f fi && (include_all || match_filespecs fpBasename masks (fiFilteredName fi))
-            -- Устанавливает в [FileInfo] номера групп fiGroup функцией, переданной в group_f
+            -- РЈСЃС‚Р°РЅР°РІР»РёРІР°РµС‚ РІ [FileInfo] РЅРѕРјРµСЂР° РіСЂСѓРїРї fiGroup С„СѓРЅРєС†РёРµР№, РїРµСЂРµРґР°РЅРЅРѕР№ РІ group_f
             map_group_f = case group_f of
                             Nothing -> id
                             Just f  -> map (\x -> x {fiGroup = f x})

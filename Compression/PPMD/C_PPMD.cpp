@@ -40,7 +40,7 @@ void _STDCALL PrintInfo (_PPMD_FILE* DecodedFile, _PPMD_FILE* EncodedFile)      
 
 
 /*-------------------------------------------------*/
-/* Реализация ppmd_*_compress                      */
+/* Р РµР°Р»РёР·Р°С†РёСЏ ppmd_*_compress                      */
 /*-------------------------------------------------*/
 #define _USE_THREAD_KEYWORD
 
@@ -71,10 +71,10 @@ static FARPROC ppmd_compress2 = NULL;
 
 
 /*-------------------------------------------------*/
-/* Реализация класса PPMD_METHOD                  */
+/* Р РµР°Р»РёР·Р°С†РёСЏ РєР»Р°СЃСЃР° PPMD_METHOD                  */
 /*-------------------------------------------------*/
 
-// Конструктор, присваивающий параметрам метода сжатия значения по умолчанию
+// РљРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ, РїСЂРёСЃРІР°РёРІР°СЋС‰РёР№ РїР°СЂР°РјРµС‚СЂР°Рј РјРµС‚РѕРґР° СЃР¶Р°С‚РёСЏ Р·РЅР°С‡РµРЅРёСЏ РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ
 PPMD_METHOD::PPMD_METHOD()
 {
   order    = 10;
@@ -83,7 +83,7 @@ PPMD_METHOD::PPMD_METHOD()
   chunk    = 0;
 }
 
-// Диспетчеризатор функций упаковки/распаковки
+// Р”РёСЃРїРµС‚С‡РµСЂРёР·Р°С‚РѕСЂ С„СѓРЅРєС†РёР№ СѓРїР°РєРѕРІРєРё/СЂР°СЃРїР°РєРѕРІРєРё
 int ppmd_dispatch (int ENCODE, int order, MemSize mem, int MRMethod, MemSize chunk, CALLBACK_FUNC *callback, void *auxdata)
 {
   // Use faster function from DLL if possible
@@ -99,7 +99,7 @@ int ppmd_dispatch (int ENCODE, int order, MemSize mem, int MRMethod, MemSize chu
   return ((int (*)(int, int, MemSize, int, MemSize, CALLBACK_FUNC*, void*)) f) (ENCODE, order, mem, MRMethod, chunk, callback, auxdata);
 }
 
-// Функция распаковки
+// Р¤СѓРЅРєС†РёСЏ СЂР°СЃРїР°РєРѕРІРєРё
 int PPMD_METHOD::decompress (CALLBACK_FUNC *callback, void *auxdata)
 {
   return ppmd_dispatch (FALSE, order, mem, MRMethod, chunk, callback, auxdata);
@@ -107,13 +107,13 @@ int PPMD_METHOD::decompress (CALLBACK_FUNC *callback, void *auxdata)
 
 #ifndef FREEARC_DECOMPRESS_ONLY
 
-// Функция упаковки
+// Р¤СѓРЅРєС†РёСЏ СѓРїР°РєРѕРІРєРё
 int PPMD_METHOD::compress (CALLBACK_FUNC *callback, void *auxdata)
 {
   return ppmd_dispatch (TRUE, order, mem, MRMethod, chunk, callback, auxdata);
 }
 
-// Изменить потребность в памяти, заодно оттюнинговав order
+// РР·РјРµРЅРёС‚СЊ РїРѕС‚СЂРµР±РЅРѕСЃС‚СЊ РІ РїР°РјСЏС‚Рё, Р·Р°РѕРґРЅРѕ РѕС‚С‚СЋРЅРёРЅРіРѕРІР°РІ order
 void PPMD_METHOD::SetCompressionMem (MemSize _mem)
 {
   if (_mem==0)  return;
@@ -125,7 +125,7 @@ void PPMD_METHOD::SetCompressionMem (MemSize _mem)
 #endif  // !defined (FREEARC_DECOMPRESS_ONLY)
 
 
-// Записать в buf[MAX_METHOD_STRLEN] строку, описывающую метод сжатия и его параметры (функция, обратная к parse_PPMD)
+// Р—Р°РїРёСЃР°С‚СЊ РІ buf[MAX_METHOD_STRLEN] СЃС‚СЂРѕРєСѓ, РѕРїРёСЃС‹РІР°СЋС‰СѓСЋ РјРµС‚РѕРґ СЃР¶Р°С‚РёСЏ Рё РµРіРѕ РїР°СЂР°РјРµС‚СЂС‹ (С„СѓРЅРєС†РёСЏ, РѕР±СЂР°С‚РЅР°СЏ Рє parse_PPMD)
 void PPMD_METHOD::ShowCompressionMethod (char *buf, bool purify)
 {
   char MemStr[100], ChunkStr[100];
@@ -134,43 +134,43 @@ void PPMD_METHOD::ShowCompressionMethod (char *buf, bool purify)
   sprintf (buf, "ppmd:%d:%s%s%s%s", order, MemStr, MRMethod==2? ":r2": (MRMethod==1? ":r":""), chunk?":c":"", chunk?ChunkStr:"");
 }
 
-// Конструирует объект типа PPMD_METHOD с заданными параметрами упаковки
-// или возвращает NULL, если это другой метод сжатия или допущена ошибка в параметрах
+// РљРѕРЅСЃС‚СЂСѓРёСЂСѓРµС‚ РѕР±СЉРµРєС‚ С‚РёРїР° PPMD_METHOD СЃ Р·Р°РґР°РЅРЅС‹РјРё РїР°СЂР°РјРµС‚СЂР°РјРё СѓРїР°РєРѕРІРєРё
+// РёР»Рё РІРѕР·РІСЂР°С‰Р°РµС‚ NULL, РµСЃР»Рё СЌС‚Рѕ РґСЂСѓРіРѕР№ РјРµС‚РѕРґ СЃР¶Р°С‚РёСЏ РёР»Рё РґРѕРїСѓС‰РµРЅР° РѕС€РёР±РєР° РІ РїР°СЂР°РјРµС‚СЂР°С…
 COMPRESSION_METHOD* parse_PPMD (char** parameters)
 {
   if (strcmp (parameters[0], "ppmd") == 0) {
-    // Если название метода (нулевой параметр) - "ppmd", то разберём остальные параметры
+    // Р•СЃР»Рё РЅР°Р·РІР°РЅРёРµ РјРµС‚РѕРґР° (РЅСѓР»РµРІРѕР№ РїР°СЂР°РјРµС‚СЂ) - "ppmd", С‚Рѕ СЂР°Р·Р±РµСЂС‘Рј РѕСЃС‚Р°Р»СЊРЅС‹Рµ РїР°СЂР°РјРµС‚СЂС‹
 
     PPMD_METHOD *p = new PPMD_METHOD;
-    int error = 0;  // Признак того, что при разборе параметров произошла ошибка
+    int error = 0;  // РџСЂРёР·РЅР°Рє С‚РѕРіРѕ, С‡С‚Рѕ РїСЂРё СЂР°Р·Р±РѕСЂРµ РїР°СЂР°РјРµС‚СЂРѕРІ РїСЂРѕРёР·РѕС€Р»Р° РѕС€РёР±РєР°
 
-    // Переберём все параметры метода (или выйдем раньше при возникновении ошибки при разборе очередного параметра)
+    // РџРµСЂРµР±РµСЂС‘Рј РІСЃРµ РїР°СЂР°РјРµС‚СЂС‹ РјРµС‚РѕРґР° (РёР»Рё РІС‹Р№РґРµРј СЂР°РЅСЊС€Рµ РїСЂРё РІРѕР·РЅРёРєРЅРѕРІРµРЅРёРё РѕС€РёР±РєРё РїСЂРё СЂР°Р·Р±РѕСЂРµ РѕС‡РµСЂРµРґРЅРѕРіРѕ РїР°СЂР°РјРµС‚СЂР°)
     while (*++parameters && !error)
     {
       char *param = *parameters;
       if (start_with (param, "mem")) {
-        param+=2;  // Обработать "mem..." как "m..."
+        param+=2;  // РћР±СЂР°Р±РѕС‚Р°С‚СЊ "mem..." РєР°Рє "m..."
       }
-      if (strlen(param)==1) switch (*param) {    // Однобуквенные параметры
+      if (strlen(param)==1) switch (*param) {    // РћРґРЅРѕР±СѓРєРІРµРЅРЅС‹Рµ РїР°СЂР°РјРµС‚СЂС‹
         case 'r':  p->MRMethod = 1; continue;
       }
-      else switch (*param) {                    // Параметры, содержащие значения
+      else switch (*param) {                    // РџР°СЂР°РјРµС‚СЂС‹, СЃРѕРґРµСЂР¶Р°С‰РёРµ Р·РЅР°С‡РµРЅРёСЏ
         case 'm':  p->mem      = parseMem (param+1, &error); continue;
         case 'o':  p->order    = parseInt (param+1, &error); continue;
         case 'r':  p->MRMethod = parseInt (param+1, &error); continue;
         case 'c':  p->chunk    = parseMem (param+1, &error); continue;
       }
-      // Сюда мы попадаем, если в параметре не указано его название
-      // Если этот параметр удастся разобрать как целое число (т.е. в нём - только цифры),
-      // то присвоим его значение полю order, иначе попробуем разобрать его как mem
+      // РЎСЋРґР° РјС‹ РїРѕРїР°РґР°РµРј, РµСЃР»Рё РІ РїР°СЂР°РјРµС‚СЂРµ РЅРµ СѓРєР°Р·Р°РЅРѕ РµРіРѕ РЅР°Р·РІР°РЅРёРµ
+      // Р•СЃР»Рё СЌС‚РѕС‚ РїР°СЂР°РјРµС‚СЂ СѓРґР°СЃС‚СЃСЏ СЂР°Р·РѕР±СЂР°С‚СЊ РєР°Рє С†РµР»РѕРµ С‡РёСЃР»Рѕ (С‚.Рµ. РІ РЅС‘Рј - С‚РѕР»СЊРєРѕ С†РёС„СЂС‹),
+      // С‚Рѕ РїСЂРёСЃРІРѕРёРј РµРіРѕ Р·РЅР°С‡РµРЅРёРµ РїРѕР»СЋ order, РёРЅР°С‡Рµ РїРѕРїСЂРѕР±СѓРµРј СЂР°Р·РѕР±СЂР°С‚СЊ РµРіРѕ РєР°Рє mem
       int n = parseInt (param, &error);
       if (!error) p->order = n;
       else        error=0, p->mem = parseMem (param, &error);
     }
-    if (error || p->mem<MIN_MEM || p->order<MIN_O || p->order>MAX_O)  {delete p; return NULL;}  // Ошибка при парсинге параметров метода или значение параметра за пределами допустимого
+    if (error || p->mem<MIN_MEM || p->order<MIN_O || p->order>MAX_O)  {delete p; return NULL;}  // РћС€РёР±РєР° РїСЂРё РїР°СЂСЃРёРЅРіРµ РїР°СЂР°РјРµС‚СЂРѕРІ РјРµС‚РѕРґР° РёР»Рё Р·РЅР°С‡РµРЅРёРµ РїР°СЂР°РјРµС‚СЂР° Р·Р° РїСЂРµРґРµР»Р°РјРё РґРѕРїСѓСЃС‚РёРјРѕРіРѕ
     return p;
   } else
-    return NULL;   // Это не метод ppmd
+    return NULL;   // Р­С‚Рѕ РЅРµ РјРµС‚РѕРґ ppmd
 }
 
-static int PPMD_x = AddCompressionMethod (parse_PPMD);   // Зарегистрируем парсер метода PPMD
+static int PPMD_x = AddCompressionMethod (parse_PPMD);   // Р—Р°СЂРµРіРёСЃС‚СЂРёСЂСѓРµРј РїР°СЂСЃРµСЂ РјРµС‚РѕРґР° PPMD

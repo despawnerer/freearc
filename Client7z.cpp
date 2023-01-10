@@ -81,7 +81,7 @@ HINSTANCE g_hInstance;
 int g_CodePage = -1;
 
 
-// Ôëàã, óñòàíàâëèâàåìûé â 1 êîãäà íóæíî ýêñòðåííî ïðåðâàòü âïîëíÿåìóþ îïåðàöèþ
+// Ð¤Ð»Ð°Ð³, ÑƒÑÑ‚Ð°Ð½Ð°Ð²Ð»Ð¸Ð²Ð°ÐµÐ¼Ñ‹Ð¹ Ð² 1 ÐºÐ¾Ð³Ð´Ð° Ð½ÑƒÐ¶Ð½Ð¾ ÑÐºÑÑ‚Ñ€ÐµÐ½Ð½Ð¾ Ð¿Ñ€ÐµÑ€Ð²Ð°Ñ‚ÑŒ Ð²Ð¿Ð¾Ð»Ð½ÑÐµÐ¼ÑƒÑŽ Ð¾Ð¿ÐµÑ€Ð°Ñ†Ð¸ÑŽ
 int BreakFlag = 0;
 extern "C" void c_szSetBreakFlag (int flag)
 {
@@ -1221,11 +1221,11 @@ extern "C" int c_szExtract (TABI_ELEMENT* params)
 #include "7zip/UI/Common/SortUtils.cpp"
 
 static TABI_FUNCTION *cb;
-static int            arc_files;            // Êîëè÷åñòâî ôàéëîâ èç îðèãèíàëüíîãî àðõèâà,
-static UInt32*        arc_filelist;         //   èõ íîìåðà,
-static wchar_t**      new_names    = NULL;  //   è íîâûå èìåíà
-static wchar_t**      disk_names   = NULL;  // Ôàéëû äëÿ óïàêîâêè ñ äèñêà
-static wchar_t**      stored_names = NULL;  //   è èìåíà, êîòîðûå èì äàòü â àðõèâå
+static int            arc_files;            // ÐšÐ¾Ð»Ð¸Ñ‡ÐµÑÑ‚Ð²Ð¾ Ñ„Ð°Ð¹Ð»Ð¾Ð² Ð¸Ð· Ð¾Ñ€Ð¸Ð³Ð¸Ð½Ð°Ð»ÑŒÐ½Ð¾Ð³Ð¾ Ð°Ñ€Ñ…Ð¸Ð²Ð°,
+static UInt32*        arc_filelist;         //   Ð¸Ñ… Ð½Ð¾Ð¼ÐµÑ€Ð°,
+static wchar_t**      new_names    = NULL;  //   Ð¸ Ð½Ð¾Ð²Ñ‹Ðµ Ð¸Ð¼ÐµÐ½Ð°
+static wchar_t**      disk_names   = NULL;  // Ð¤Ð°Ð¹Ð»Ñ‹ Ð´Ð»Ñ ÑƒÐ¿Ð°ÐºÐ¾Ð²ÐºÐ¸ Ñ Ð´Ð¸ÑÐºÐ°
+static wchar_t**      stored_names = NULL;  //   Ð¸ Ð¸Ð¼ÐµÐ½Ð°, ÐºÐ¾Ñ‚Ð¾Ñ€Ñ‹Ðµ Ð¸Ð¼ Ð´Ð°Ñ‚ÑŒ Ð² Ð°Ñ€Ñ…Ð¸Ð²Ðµ
 static int            last_index = -1;
 #include "Client7zUpdate.cpp"
 
@@ -1428,15 +1428,15 @@ extern "C" int c_szCompress (TABI_ELEMENT* params)
     wchar_t  *arcType             =             (p._wstr("arctype"));       // Archive type (7z, zip...)
     wchar_t  *in_arcname          =             (p._wstr("in_arcname"));
     wchar_t  *out_arcname         =             (p._wstr("out_arcname"));
-              arc_files           =             (p._int ("files"));          // Êîëè÷åñòâî ôàéëîâ èç îðèãèíàëüíîãî àðõèâà,
-              arc_filelist        = (UInt32 *)  (p._ptr ("filelist"));       //   èõ íîìåðà,
-              new_names           = (wchar_t **)(p._ptr ("new_names"));      //   è íîâûå èìåíà
-              disk_names          = (wchar_t **)(p._ptr ("disk_names"));     // Ôàéëû äëÿ óïàêîâêè ñ äèñêà
-              stored_names        = (wchar_t **)(p._ptr ("stored_names"));   //   è èìåíà, êîòîðûå èì äàòü â àðõèâå
-    wchar_t  *password            =             (p._wstr("password"));       // Ïàðîëü øèôðîâàíèÿ
-    int       volumes             =             (p._int ("volumes"));        // Ðàçìåð ìàññèâà volume_sizes
-    UInt64   *volume_sizes        = (UInt64 *)  (p._ptr ("volume_sizes"));;  // Ðàçìåð òîìîâ àðõèâà
-    wchar_t  *sfxModule           =             (p._wstr("sfx"));            // Ôàéë sfx-ìîäóëÿ, "-" äëÿ óäàëåíèÿ ñóùåñòâóþùåãî ìîäóëÿ, èëè "--" ÷òîáû íè÷åãî íå ìåíÿòü
+              arc_files           =             (p._int ("files"));          // ÐšÐ¾Ð»Ð¸Ñ‡ÐµÑÑ‚Ð²Ð¾ Ñ„Ð°Ð¹Ð»Ð¾Ð² Ð¸Ð· Ð¾Ñ€Ð¸Ð³Ð¸Ð½Ð°Ð»ÑŒÐ½Ð¾Ð³Ð¾ Ð°Ñ€Ñ…Ð¸Ð²Ð°,
+              arc_filelist        = (UInt32 *)  (p._ptr ("filelist"));       //   Ð¸Ñ… Ð½Ð¾Ð¼ÐµÑ€Ð°,
+              new_names           = (wchar_t **)(p._ptr ("new_names"));      //   Ð¸ Ð½Ð¾Ð²Ñ‹Ðµ Ð¸Ð¼ÐµÐ½Ð°
+              disk_names          = (wchar_t **)(p._ptr ("disk_names"));     // Ð¤Ð°Ð¹Ð»Ñ‹ Ð´Ð»Ñ ÑƒÐ¿Ð°ÐºÐ¾Ð²ÐºÐ¸ Ñ Ð´Ð¸ÑÐºÐ°
+              stored_names        = (wchar_t **)(p._ptr ("stored_names"));   //   Ð¸ Ð¸Ð¼ÐµÐ½Ð°, ÐºÐ¾Ñ‚Ð¾Ñ€Ñ‹Ðµ Ð¸Ð¼ Ð´Ð°Ñ‚ÑŒ Ð² Ð°Ñ€Ñ…Ð¸Ð²Ðµ
+    wchar_t  *password            =             (p._wstr("password"));       // ÐŸÐ°Ñ€Ð¾Ð»ÑŒ ÑˆÐ¸Ñ„Ñ€Ð¾Ð²Ð°Ð½Ð¸Ñ
+    int       volumes             =             (p._int ("volumes"));        // Ð Ð°Ð·Ð¼ÐµÑ€ Ð¼Ð°ÑÑÐ¸Ð²Ð° volume_sizes
+    UInt64   *volume_sizes        = (UInt64 *)  (p._ptr ("volume_sizes"));;  // Ð Ð°Ð·Ð¼ÐµÑ€ Ñ‚Ð¾Ð¼Ð¾Ð² Ð°Ñ€Ñ…Ð¸Ð²Ð°
+    wchar_t  *sfxModule           =             (p._wstr("sfx"));            // Ð¤Ð°Ð¹Ð» sfx-Ð¼Ð¾Ð´ÑƒÐ»Ñ, "-" Ð´Ð»Ñ ÑƒÐ´Ð°Ð»ÐµÐ½Ð¸Ñ ÑÑƒÑ‰ÐµÑÑ‚Ð²ÑƒÑŽÑ‰ÐµÐ³Ð¾ Ð¼Ð¾Ð´ÑƒÐ»Ñ, Ð¸Ð»Ð¸ "--" Ñ‡Ñ‚Ð¾Ð±Ñ‹ Ð½Ð¸Ñ‡ÐµÐ³Ð¾ Ð½Ðµ Ð¼ÐµÐ½ÑÑ‚ÑŒ
 
     last_index = -1;
 
@@ -1489,7 +1489,7 @@ extern "C" int c_szCompress (TABI_ELEMENT* params)
 
     NWildcard::CCensor censor;  // fake censor
 
-    // Ïîäîáðàòü ôîðìàò àðõèâà ïî îïöèè -t è èìåíè ñîçäàâàåìîãî àðõèâà
+    // ÐŸÐ¾Ð´Ð¾Ð±Ñ€Ð°Ñ‚ÑŒ Ñ„Ð¾Ñ€Ð¼Ð°Ñ‚ Ð°Ñ€Ñ…Ð¸Ð²Ð° Ð¿Ð¾ Ð¾Ð¿Ñ†Ð¸Ð¸ -t Ð¸ Ð¸Ð¼ÐµÐ½Ð¸ ÑÐ¾Ð·Ð´Ð°Ð²Ð°ÐµÐ¼Ð¾Ð³Ð¾ Ð°Ñ€Ñ…Ð¸Ð²Ð°
     CIntVector formatIndices;
     if (!codecs->FindFormatForArchiveType(arcType, formatIndices))
       throw "unsupported archive type";

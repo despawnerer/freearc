@@ -1,6 +1,6 @@
 ----------------------------------------------------------------------------------------------------
----- Процесс упаковки данных и служебной информации архива, и записи упакованных данных в архив.----
----- Вызывается из ArcCreate.hs                                                                 ----
+---- РџСЂРѕС†РµСЃСЃ СѓРїР°РєРѕРІРєРё РґР°РЅРЅС‹С… Рё СЃР»СѓР¶РµР±РЅРѕР№ РёРЅС„РѕСЂРјР°С†РёРё Р°СЂС…РёРІР°, Рё Р·Р°РїРёСЃРё СѓРїР°РєРѕРІР°РЅРЅС‹С… РґР°РЅРЅС‹С… РІ Р°СЂС…РёРІ.----
+---- Р’С‹Р·С‹РІР°РµС‚СЃСЏ РёР· ArcCreate.hs                                                                 ----
 ----------------------------------------------------------------------------------------------------
 module ArcvProcessCompress where
 
@@ -27,23 +27,23 @@ import ArcvProcessExtract
 import ArcvProcessRead
 
 
--- |Процесс упаковки данных и служебной информации архива, и записи упакованных данных в архив.
--- Также возвращает через backdoor служебную информацию о блоках, созданных при записи архива
+-- |РџСЂРѕС†РµСЃСЃ СѓРїР°РєРѕРІРєРё РґР°РЅРЅС‹С… Рё СЃР»СѓР¶РµР±РЅРѕР№ РёРЅС„РѕСЂРјР°С†РёРё Р°СЂС…РёРІР°, Рё Р·Р°РїРёСЃРё СѓРїР°РєРѕРІР°РЅРЅС‹С… РґР°РЅРЅС‹С… РІ Р°СЂС…РёРІ.
+-- РўР°РєР¶Рµ РІРѕР·РІСЂР°С‰Р°РµС‚ С‡РµСЂРµР· backdoor СЃР»СѓР¶РµР±РЅСѓСЋ РёРЅС„РѕСЂРјР°С†РёСЋ Рѕ Р±Р»РѕРєР°С…, СЃРѕР·РґР°РЅРЅС‹С… РїСЂРё Р·Р°РїРёСЃРё Р°СЂС…РёРІР°
 compress_AND_write_to_archive_PROCESS archive command backdoor pipe = do
 
-  -- Процедура отображения в UI входных данных
+  -- РџСЂРѕС†РµРґСѓСЂР° РѕС‚РѕР±СЂР°Р¶РµРЅРёСЏ РІ UI РІС…РѕРґРЅС‹С… РґР°РЅРЅС‹С…
   let display (FileStart fi)               =  uiStartFile      "" (Right fi)
       display (DataChunk buf len)          =  return ()
       display (CorrectTotals files bytes)  =  uiCorrectTotal   files bytes
       display (FakeFiles cfiles)           =  uiFakeFiles      (map cfFileInfo cfiles) 0
       display _                            =  return ()
 
-  -- Процедура записи упакованных данных в архив
+  -- РџСЂРѕС†РµРґСѓСЂР° Р·Р°РїРёСЃРё СѓРїР°РєРѕРІР°РЅРЅС‹С… РґР°РЅРЅС‹С… РІ Р°СЂС…РёРІ
   let write_to_archive (DataBuf buf len) =  do archiveWriteBuf archive buf len
                                                return len
       write_to_archive  NoMoreData       =  return 0
 
-  -- Процедура копирования целиком солид-блока из входного архива в выходной без переупаковки
+  -- РџСЂРѕС†РµРґСѓСЂР° РєРѕРїРёСЂРѕРІР°РЅРёСЏ С†РµР»РёРєРѕРј СЃРѕР»РёРґ-Р±Р»РѕРєР° РёР· РІС…РѕРґРЅРѕРіРѕ Р°СЂС…РёРІР° РІ РІС‹С…РѕРґРЅРѕР№ Р±РµР· РїРµСЂРµСѓРїР°РєРѕРІРєРё
   let copy_block = do
         CopySolidBlock files <- receiveP pipe
         let block       = (cfArcBlock (head files))
@@ -53,18 +53,18 @@ compress_AND_write_to_archive_PROCESS archive command backdoor pipe = do
         return ()
 
   repeat_while (receiveP pipe) (notTheEnd) $ \msg -> case msg of
-    DebugLog str -> do   -- Напечатать отладочное сообщение
+    DebugLog str -> do   -- РќР°РїРµС‡Р°С‚Р°С‚СЊ РѕС‚Р»Р°РґРѕС‡РЅРѕРµ СЃРѕРѕР±С‰РµРЅРёРµ
         debugLog str
     DebugLog0 str -> do
         debugLog0 str
     CompressData block_type compressor real_compressor just_copy -> do
-        case block_type of             -- Сообщим UI какого типа данные сейчас будут паковаться
+        case block_type of             -- РЎРѕРѕР±С‰РёРј UI РєР°РєРѕРіРѕ С‚РёРїР° РґР°РЅРЅС‹Рµ СЃРµР№С‡Р°СЃ Р±СѓРґСѓС‚ РїР°РєРѕРІР°С‚СЊСЃСЏ
             DATA_BLOCK  ->  uiStartFiles (length real_compressor)
             DIR_BLOCK   ->  uiStartDirectory
             _           ->  uiStartControlData
-        result <- ref 0   -- количество байт, записанных в последнем вызове write_to_archive
+        result <- ref 0   -- РєРѕР»РёС‡РµСЃС‚РІРѕ Р±Р°Р№С‚, Р·Р°РїРёСЃР°РЅРЅС‹С… РІ РїРѕСЃР»РµРґРЅРµРј РІС‹Р·РѕРІРµ write_to_archive
 
-        -- Подсчёт CRC (только для служебных блоков) и количества байт в неупакованных данных блока
+        -- РџРѕРґСЃС‡С‘С‚ CRC (С‚РѕР»СЊРєРѕ РґР»СЏ СЃР»СѓР¶РµР±РЅС‹С… Р±Р»РѕРєРѕРІ) Рё РєРѕР»РёС‡РµСЃС‚РІР° Р±Р°Р№С‚ РІ РЅРµСѓРїР°РєРѕРІР°РЅРЅС‹С… РґР°РЅРЅС‹С… Р±Р»РѕРєР°
         crc      <- ref aINIT_CRC
         origsize <- ref 0
         let update_crc (DataChunk buf len) =  do when (block_type/=DATA_BLOCK) $ do
@@ -72,7 +72,7 @@ compress_AND_write_to_archive_PROCESS archive command backdoor pipe = do
                                                  origsize += i len
             update_crc _                   =  return ()
 
-        -- Выясним, нужно ли шифрование для этого блока
+        -- Р’С‹СЏСЃРЅРёРј, РЅСѓР¶РЅРѕ Р»Рё С€РёС„СЂРѕРІР°РЅРёРµ РґР»СЏ СЌС‚РѕРіРѕ Р±Р»РѕРєР°
         let useEncryption = password>""
             password = case block_type of
                          DATA_BLOCK     -> opt_data_password command
@@ -84,51 +84,51 @@ compress_AND_write_to_archive_PROCESS archive command backdoor pipe = do
                          _              -> error$ "Unexpected block type "++show (fromEnum block_type)++" in compress_AND_write_to_archive_PROCESS"
             algorithm = command.$ opt_encryption_algorithm
 
-        -- Если для этого блока нужно использовать шифрование, то добавить алгоритм шифрования
-        -- к цепочке методов сжатия. В реально вызываемый алгоритм шифрования передаётся key и initVector,
-        -- а в архиве запоминаются salt и checkCode, необходимый для быстрой проверки пароля
+        -- Р•СЃР»Рё РґР»СЏ СЌС‚РѕРіРѕ Р±Р»РѕРєР° РЅСѓР¶РЅРѕ РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ С€РёС„СЂРѕРІР°РЅРёРµ, С‚Рѕ РґРѕР±Р°РІРёС‚СЊ Р°Р»РіРѕСЂРёС‚Рј С€РёС„СЂРѕРІР°РЅРёСЏ
+        -- Рє С†РµРїРѕС‡РєРµ РјРµС‚РѕРґРѕРІ СЃР¶Р°С‚РёСЏ. Р’ СЂРµР°Р»СЊРЅРѕ РІС‹Р·С‹РІР°РµРјС‹Р№ Р°Р»РіРѕСЂРёС‚Рј С€РёС„СЂРѕРІР°РЅРёСЏ РїРµСЂРµРґР°С‘С‚СЃСЏ key Рё initVector,
+        -- Р° РІ Р°СЂС…РёРІРµ Р·Р°РїРѕРјРёРЅР°СЋС‚СЃСЏ salt Рё checkCode, РЅРµРѕР±С…РѕРґРёРјС‹Р№ РґР»СЏ Р±С‹СЃС‚СЂРѕР№ РїСЂРѕРІРµСЂРєРё РїР°СЂРѕР»СЏ
         (add_real_encryption, add_encryption_info) <- if useEncryption
                                                          then generateEncryption algorithm password   -- not thread-safe due to use of PRNG!
                                                          else return (id,id)
 
-        -- Окончательное ограничение метода сжатия объёмом доступной памяти - непосредственно перед стартом алгоритма.
-        -- Запоминаем в массиве окончательно использованные методы сжатия
+        -- РћРєРѕРЅС‡Р°С‚РµР»СЊРЅРѕРµ РѕРіСЂР°РЅРёС‡РµРЅРёРµ РјРµС‚РѕРґР° СЃР¶Р°С‚РёСЏ РѕР±СЉС‘РјРѕРј РґРѕСЃС‚СѓРїРЅРѕР№ РїР°РјСЏС‚Рё - РЅРµРїРѕСЃСЂРµРґСЃС‚РІРµРЅРЅРѕ РїРµСЂРµРґ СЃС‚Р°СЂС‚РѕРј Р°Р»РіРѕСЂРёС‚РјР°.
+        -- Р—Р°РїРѕРјРёРЅР°РµРј РІ РјР°СЃСЃРёРІРµ РѕРєРѕРЅС‡Р°С‚РµР»СЊРЅРѕ РёСЃРїРѕР»СЊР·РѕРІР°РЅРЅС‹Рµ РјРµС‚РѕРґС‹ СЃР¶Р°С‚РёСЏ
         final_compressor <- newListArray (1,length real_compressor) real_compressor :: IO (IOArray Int String)
         let limit_memory num method = do
-              if num > length real_compressor  then return method  else do  -- пропускаем процедуру для алгоритмов шифрования, которые добавляются ниже
+              if num > length real_compressor  then return method  else do  -- РїСЂРѕРїСѓСЃРєР°РµРј РїСЂРѕС†РµРґСѓСЂСѓ РґР»СЏ Р°Р»РіРѕСЂРёС‚РјРѕРІ С€РёС„СЂРѕРІР°РЅРёСЏ, РєРѕС‚РѕСЂС‹Рµ РґРѕР±Р°РІР»СЏСЋС‚СЃСЏ РЅРёР¶Рµ
               newMethod <- method.$limit_compression command
               writeArray final_compressor num newMethod
               return newMethod
 
-        ; times <- uiStartDeCompression "compression"               -- создать структуру для учёта времени упаковки
+        ; times <- uiStartDeCompression "compression"               -- СЃРѕР·РґР°С‚СЊ СЃС‚СЂСѓРєС‚СѓСЂСѓ РґР»СЏ СѓС‡С‘С‚Р° РІСЂРµРјРµРЅРё СѓРїР°РєРѕРІРєРё
 
-        -- Процесс упаковки одним алгоритмом
+        -- РџСЂРѕС†РµСЃСЃ СѓРїР°РєРѕРІРєРё РѕРґРЅРёРј Р°Р»РіРѕСЂРёС‚РјРѕРј
         let compressP = de_compress_PROCESS freearcCompress times command limit_memory
-        -- Последовательность процессов упаковки, соответствующая последовательности алгоритмов `real_compressor`
+        -- РџРѕСЃР»РµРґРѕРІР°С‚РµР»СЊРЅРѕСЃС‚СЊ РїСЂРѕС†РµСЃСЃРѕРІ СѓРїР°РєРѕРІРєРё, СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓСЋС‰Р°СЏ РїРѕСЃР»РµРґРѕРІР°С‚РµР»СЊРЅРѕСЃС‚Рё Р°Р»РіРѕСЂРёС‚РјРѕРІ `real_compressor`
         let real_crypted_compressor = add_real_encryption real_compressor
             processes = zipWith compressP real_crypted_compressor [1..]
             compressa = case real_crypted_compressor of
                           [_] -> storing_PROCESS |> last processes
                           _   -> storing_PROCESS |> foldl1 (|>) (init processes) |> last processes
-        -- Процедура упаковки, вызывающая процесс упаковки со всеми необходимыми процедурами для получения/отправки данных
+        -- РџСЂРѕС†РµРґСѓСЂР° СѓРїР°РєРѕРІРєРё, РІС‹Р·С‹РІР°СЋС‰Р°СЏ РїСЂРѕС†РµСЃСЃ СѓРїР°РєРѕРІРєРё СЃРѕ РІСЃРµРјРё РЅРµРѕР±С…РѕРґРёРјС‹РјРё РїСЂРѕС†РµРґСѓСЂР°РјРё РґР»СЏ РїРѕР»СѓС‡РµРЅРёСЏ/РѕС‚РїСЂР°РІРєРё РґР°РЅРЅС‹С…
         let compress_block  =  runFuncP compressa (do x<-receiveP pipe; display x; update_crc x; return x)
                                                   (send_backP pipe)
                                                   (write_to_archive .>>= writeIORef result)
                                                   (val result)
-        -- Выбрать между процедурой упаковки и процедурой копирования целиком солид-блока из входного архива
+        -- Р’С‹Р±СЂР°С‚СЊ РјРµР¶РґСѓ РїСЂРѕС†РµРґСѓСЂРѕР№ СѓРїР°РєРѕРІРєРё Рё РїСЂРѕС†РµРґСѓСЂРѕР№ РєРѕРїРёСЂРѕРІР°РЅРёСЏ С†РµР»РёРєРѕРј СЃРѕР»РёРґ-Р±Р»РѕРєР° РёР· РІС…РѕРґРЅРѕРіРѕ Р°СЂС…РёРІР°
         let compress_f  =  if just_copy  then copy_block  else compress_block
 
-        -- Упаковать один солид-блок
+        -- РЈРїР°РєРѕРІР°С‚СЊ РѕРґРёРЅ СЃРѕР»РёРґ-Р±Р»РѕРє
         pos_begin <- archiveGetPos archive
-        ;   compress_f                                              -- упаковать данные
-        ; uiFinishDeCompression times `on_` block_type==DATA_BLOCK  -- учесть в UI чистое время операции
-        ; uiUpdateProgressIndicator 0                               -- отметить, что прочитанные данные уже обработаны
+        ;   compress_f                                              -- СѓРїР°РєРѕРІР°С‚СЊ РґР°РЅРЅС‹Рµ
+        ; uiFinishDeCompression times `on_` block_type==DATA_BLOCK  -- СѓС‡РµСЃС‚СЊ РІ UI С‡РёСЃС‚РѕРµ РІСЂРµРјСЏ РѕРїРµСЂР°С†РёРё
+        ; uiUpdateProgressIndicator 0                               -- РѕС‚РјРµС‚РёС‚СЊ, С‡С‚Рѕ РїСЂРѕС‡РёС‚Р°РЅРЅС‹Рµ РґР°РЅРЅС‹Рµ СѓР¶Рµ РѕР±СЂР°Р±РѕС‚Р°РЅС‹
         pos_end   <- archiveGetPos archive
 
-        -- Возвратить в первый процесс информацию о только что созданном блоке
-        -- вместе со списком содержащихся в нём файлов
-        (Directory dir)  <-  receiveP pipe   -- Получим от первого процесса список файлов в блоке
-        crc'             <-  val crc >>== finishCRC     -- Вычислим окончательное значение CRC
+        -- Р’РѕР·РІСЂР°С‚РёС‚СЊ РІ РїРµСЂРІС‹Р№ РїСЂРѕС†РµСЃСЃ РёРЅС„РѕСЂРјР°С†РёСЋ Рѕ С‚РѕР»СЊРєРѕ С‡С‚Рѕ СЃРѕР·РґР°РЅРЅРѕРј Р±Р»РѕРєРµ
+        -- РІРјРµСЃС‚Рµ СЃРѕ СЃРїРёСЃРєРѕРј СЃРѕРґРµСЂР¶Р°С‰РёС…СЃСЏ РІ РЅС‘Рј С„Р°Р№Р»РѕРІ
+        (Directory dir)  <-  receiveP pipe   -- РџРѕР»СѓС‡РёРј РѕС‚ РїРµСЂРІРѕРіРѕ РїСЂРѕС†РµСЃСЃР° СЃРїРёСЃРѕРє С„Р°Р№Р»РѕРІ РІ Р±Р»РѕРєРµ
+        crc'             <-  val crc >>== finishCRC     -- Р’С‹С‡РёСЃР»РёРј РѕРєРѕРЅС‡Р°С‚РµР»СЊРЅРѕРµ Р·РЅР°С‡РµРЅРёРµ CRC
         origsize'        <-  val origsize
         write_compressor <-  if just_copy then return compressor
                                           else getElems final_compressor >>== add_encryption_info >>== compressionDeleteTempCompressors
@@ -146,15 +146,15 @@ compress_AND_write_to_archive_PROCESS archive command backdoor pipe = do
 
 
 {-# NOINLINE storing_PROCESS #-}
--- |Вспомогательный процесс, перекодирующий поток Instruction в поток CompressionData
+-- |Р’СЃРїРѕРјРѕРіР°С‚РµР»СЊРЅС‹Р№ РїСЂРѕС†РµСЃСЃ, РїРµСЂРµРєРѕРґРёСЂСѓСЋС‰РёР№ РїРѕС‚РѕРє Instruction РІ РїРѕС‚РѕРє CompressionData
 storing_PROCESS pipe = do
   let send (DataChunk buf len)  =  failOnTerminated  >>  resend_data pipe (DataBuf buf len)  >>  send_backP pipe (buf,len)
       send  DataEnd             =  resend_data pipe NoMoreData >> return ()
       send _                    =  return ()
 
-  -- По окончании сообщим следующему процессу, что данных больше нет
+  -- РџРѕ РѕРєРѕРЅС‡Р°РЅРёРё СЃРѕРѕР±С‰РёРј СЃР»РµРґСѓСЋС‰РµРјСѓ РїСЂРѕС†РµСЃСЃСѓ, С‡С‚Рѕ РґР°РЅРЅС‹С… Р±РѕР»СЊС€Рµ РЅРµС‚
   ensureCtrlBreak "send DataEnd" (send DataEnd)$ do
-    -- Цикл перекодирования инструкций
+    -- Р¦РёРєР» РїРµСЂРµРєРѕРґРёСЂРѕРІР°РЅРёСЏ РёРЅСЃС‚СЂСѓРєС†РёР№
     repeat_while (receiveP pipe) (notDataEnd) (send)
   return ()
 

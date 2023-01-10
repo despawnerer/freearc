@@ -1,4 +1,4 @@
-// C_LZ4.cpp - интерфейс FreeArc к алгоритмам сжатия LZ4 и LZ4HC
+// C_LZ4.cpp - РёРЅС‚РµСЂС„РµР№СЃ FreeArc Рє Р°Р»РіРѕСЂРёС‚РјР°Рј СЃР¶Р°С‚РёСЏ LZ4 Рё LZ4HC
 
 extern "C" {
 #include "C_LZ4.h"
@@ -21,7 +21,7 @@ namespace LZ4HC {
 // Version of LZ4 compressed data format
 #define LZ4_VERSION 1
 
-// Упаковка/распаковка в памяти
+// РЈРїР°РєРѕРІРєР°/СЂР°СЃРїР°РєРѕРІРєР° РІ РїР°РјСЏС‚Рё
 int LZ4_METHOD::DeCompressMem (COMPRESSION direction, void *input, int inputSize, void *output, int *outputSize, CALLBACK_FUNC *callback, void *auxdata, void **CodecState)
 {
   if (direction==COMPRESS)
@@ -45,26 +45,26 @@ int LZ4_METHOD::DeCompressMem (COMPRESSION direction, void *input, int inputSize
   }
 }
 
-// Функция распаковки
+// Р¤СѓРЅРєС†РёСЏ СЂР°СЃРїР°РєРѕРІРєРё
 int LZ4_METHOD::decompress (CALLBACK_FUNC *callback, void *auxdata)
 {
     int errcode = FREEARC_OK;   // Error code returned by last operation or FREEARC_OK
-    BYTE* In = NULL;            // указатель на входные данные
-    BYTE* Out= NULL;            // указатель на выходные данные
+    BYTE* In = NULL;            // СѓРєР°Р·Р°С‚РµР»СЊ РЅР° РІС…РѕРґРЅС‹Рµ РґР°РЅРЅС‹Рµ
+    BYTE* Out= NULL;            // СѓРєР°Р·Р°С‚РµР»СЊ РЅР° РІС‹С…РѕРґРЅС‹Рµ РґР°РЅРЅС‹Рµ
     BIGALLOC (BYTE, In,  BlockSize);
     BIGALLOC (BYTE, Out, BlockSize);
     int len; READ_LEN_OR_EOF (len, In, 1);
     if (len!=1 || *In!=LZ4_VERSION)  ReturnErrorCode(FREEARC_ERRCODE_BAD_COMPRESSED_DATA);
     for(;;) {
-        int InSize, OutSize;     // количество байт во входном и выходном буфере, соответственно
+        int InSize, OutSize;     // РєРѕР»РёС‡РµСЃС‚РІРѕ Р±Р°Р№С‚ РІРѕ РІС…РѕРґРЅРѕРј Рё РІС‹С…РѕРґРЅРѕРј Р±СѓС„РµСЂРµ, СЃРѕРѕС‚РІРµС‚СЃС‚РІРµРЅРЅРѕ
         READ4_OR_EOF (InSize);
         if (InSize<0) {
-            // Скопировать неупакованные данные
+            // РЎРєРѕРїРёСЂРѕРІР°С‚СЊ РЅРµСѓРїР°РєРѕРІР°РЅРЅС‹Рµ РґР°РЅРЅС‹Рµ
             InSize = -InSize;
             READ  (In, InSize);
             WRITE (In, InSize);
         } else {
-            // Произвести декодирование и получить размер выходных данных
+            // РџСЂРѕРёР·РІРµСЃС‚Рё РґРµРєРѕРґРёСЂРѕРІР°РЅРёРµ Рё РїРѕР»СѓС‡РёС‚СЊ СЂР°Р·РјРµСЂ РІС‹С…РѕРґРЅС‹С… РґР°РЅРЅС‹С…
             READ  (In, InSize);
             // LZ4_uncompress_unknownOutputSize() returns output size, or negative value if decompression failed
             OutSize  =  LZ4_uncompress_unknownOutputSize ((const char*)In, (char*)Out, InSize, BlockSize);
@@ -79,28 +79,28 @@ finished:
 
 #ifndef FREEARC_DECOMPRESS_ONLY
 
-// Функция упаковки
+// Р¤СѓРЅРєС†РёСЏ СѓРїР°РєРѕРІРєРё
 int LZ4_METHOD::compress (CALLBACK_FUNC *callback, void *auxdata)
 {
     int errcode = FREEARC_OK;   // Error code returned by last operation or FREEARC_OK
-    BYTE* In = NULL;            // указатель на входные данные
-    BYTE* Out= NULL;            // указатель на выходные данные
+    BYTE* In = NULL;            // СѓРєР°Р·Р°С‚РµР»СЊ РЅР° РІС…РѕРґРЅС‹Рµ РґР°РЅРЅС‹Рµ
+    BYTE* Out= NULL;            // СѓРєР°Р·Р°С‚РµР»СЊ РЅР° РІС‹С…РѕРґРЅС‹Рµ РґР°РЅРЅС‹Рµ
     BIGALLOC (BYTE, In,  BlockSize);
     BIGALLOC (BYTE, Out, LZ4_compressBound(BlockSize));
     for (bool FirstTime=true;;FirstTime=false)
     {
-        int InSize, OutSize;     // количество байт во входном и выходном буфере, соответственно
+        int InSize, OutSize;     // РєРѕР»РёС‡РµСЃС‚РІРѕ Р±Р°Р№С‚ РІРѕ РІС…РѕРґРЅРѕРј Рё РІС‹С…РѕРґРЅРѕРј Р±СѓС„РµСЂРµ, СЃРѕРѕС‚РІРµС‚СЃС‚РІРµРЅРЅРѕ
     	READ_LEN_OR_EOF (InSize, In, BlockSize);
         if (FirstTime) {*Out = LZ4_VERSION;  WRITE (Out, 1);}
         // LZ4_compress*() return compressed size, or 0 if the compression failed for any reason
         OutSize  =  Compressor?  LZ4HC::LZ4_compressHC      ((const char*)In, (char*)Out, InSize)
                               :  LZ4_compress_limitedOutput ((const char*)In, (char*)Out, InSize, InSize);
         if (OutSize<=0  ||  MinCompression>0 && OutSize>=(double(InSize)*MinCompression)/100) {
-            // Упаковать данные [достаточно хорошо] не удалось, запишем вместо них исходные данные
-            WRITE4 (-InSize);      // Отрицательное число в качестве длины блока - признак Stored блока
+            // РЈРїР°РєРѕРІР°С‚СЊ РґР°РЅРЅС‹Рµ [РґРѕСЃС‚Р°С‚РѕС‡РЅРѕ С…РѕСЂРѕС€Рѕ] РЅРµ СѓРґР°Р»РѕСЃСЊ, Р·Р°РїРёС€РµРј РІРјРµСЃС‚Рѕ РЅРёС… РёСЃС…РѕРґРЅС‹Рµ РґР°РЅРЅС‹Рµ
+            WRITE4 (-InSize);      // РћС‚СЂРёС†Р°С‚РµР»СЊРЅРѕРµ С‡РёСЃР»Рѕ РІ РєР°С‡РµСЃС‚РІРµ РґР»РёРЅС‹ Р±Р»РѕРєР° - РїСЂРёР·РЅР°Рє Stored Р±Р»РѕРєР°
             WRITE  (In, InSize);
         } else {
-            // Данные успешно упакованы
+            // Р”Р°РЅРЅС‹Рµ СѓСЃРїРµС€РЅРѕ СѓРїР°РєРѕРІР°РЅС‹
             WRITE4 (OutSize);
             WRITE  (Out, OutSize);
         }
@@ -110,7 +110,7 @@ finished:
     return errcode;
 }
 
-// Получить объём памяти, используемой при упаковке
+// РџРѕР»СѓС‡РёС‚СЊ РѕР±СЉС‘Рј РїР°РјСЏС‚Рё, РёСЃРїРѕР»СЊР·СѓРµРјРѕР№ РїСЂРё СѓРїР°РєРѕРІРєРµ
 MemSize LZ4_METHOD::GetCompressionMem()
 {
   return (compress_all_at_once? 0 : BlockSize*2)
@@ -120,7 +120,7 @@ MemSize LZ4_METHOD::GetCompressionMem()
 #endif  // !defined (FREEARC_DECOMPRESS_ONLY)
 
 
-// Конструктор, присваивающий параметрам метода сжатия значения по умолчанию
+// РљРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ, РїСЂРёСЃРІР°РёРІР°СЋС‰РёР№ РїР°СЂР°РјРµС‚СЂР°Рј РјРµС‚РѕРґР° СЃР¶Р°С‚РёСЏ Р·РЅР°С‡РµРЅРёСЏ РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ
 LZ4_METHOD::LZ4_METHOD()
 {
   Compressor     = 0;
@@ -129,7 +129,7 @@ LZ4_METHOD::LZ4_METHOD()
   MinCompression = 100;
 }
 
-// Записать в buf[MAX_METHOD_STRLEN] строку, описывающую метод сжатия и его параметры (функция, обратная к parse_LZ4)
+// Р—Р°РїРёСЃР°С‚СЊ РІ buf[MAX_METHOD_STRLEN] СЃС‚СЂРѕРєСѓ, РѕРїРёСЃС‹РІР°СЋС‰СѓСЋ РјРµС‚РѕРґ СЃР¶Р°С‚РёСЏ Рё РµРіРѕ РїР°СЂР°РјРµС‚СЂС‹ (С„СѓРЅРєС†РёСЏ, РѕР±СЂР°С‚РЅР°СЏ Рє parse_LZ4)
 void LZ4_METHOD::ShowCompressionMethod (char *buf, bool purify)
 {
   LZ4_METHOD defaults; char BlockSizeStr[100], HashSizeStr[100], CompressorStr[100], MinCompressionStr[100];
@@ -146,40 +146,40 @@ void LZ4_METHOD::ShowCompressionMethod (char *buf, bool purify)
                     MinCompressionStr);
 }
 
-// Конструирует объект типа LZ4_METHOD с заданными параметрами упаковки
-// или возвращает NULL, если это другой метод сжатия или допущена ошибка в параметрах
+// РљРѕРЅСЃС‚СЂСѓРёСЂСѓРµС‚ РѕР±СЉРµРєС‚ С‚РёРїР° LZ4_METHOD СЃ Р·Р°РґР°РЅРЅС‹РјРё РїР°СЂР°РјРµС‚СЂР°РјРё СѓРїР°РєРѕРІРєРё
+// РёР»Рё РІРѕР·РІСЂР°С‰Р°РµС‚ NULL, РµСЃР»Рё СЌС‚Рѕ РґСЂСѓРіРѕР№ РјРµС‚РѕРґ СЃР¶Р°С‚РёСЏ РёР»Рё РґРѕРїСѓС‰РµРЅР° РѕС€РёР±РєР° РІ РїР°СЂР°РјРµС‚СЂР°С…
 COMPRESSION_METHOD* parse_LZ4 (char** parameters)
 {
   if (strcmp (parameters[0], "lz4") == 0) {
-    // Если название метода (нулевой параметр) - "lz4", то разберём остальные параметры
+    // Р•СЃР»Рё РЅР°Р·РІР°РЅРёРµ РјРµС‚РѕРґР° (РЅСѓР»РµРІРѕР№ РїР°СЂР°РјРµС‚СЂ) - "lz4", С‚Рѕ СЂР°Р·Р±РµСЂС‘Рј РѕСЃС‚Р°Р»СЊРЅС‹Рµ РїР°СЂР°РјРµС‚СЂС‹
 
     LZ4_METHOD *p = new LZ4_METHOD;
-    int error = 0;  // Признак того, что при разборе параметров произошла ошибка
+    int error = 0;  // РџСЂРёР·РЅР°Рє С‚РѕРіРѕ, С‡С‚Рѕ РїСЂРё СЂР°Р·Р±РѕСЂРµ РїР°СЂР°РјРµС‚СЂРѕРІ РїСЂРѕРёР·РѕС€Р»Р° РѕС€РёР±РєР°
 
-    // Переберём все параметры метода (или выйдем раньше при возникновении ошибки при разборе очередного параметра)
+    // РџРµСЂРµР±РµСЂС‘Рј РІСЃРµ РїР°СЂР°РјРµС‚СЂС‹ РјРµС‚РѕРґР° (РёР»Рё РІС‹Р№РґРµРј СЂР°РЅСЊС€Рµ РїСЂРё РІРѕР·РЅРёРєРЅРѕРІРµРЅРёРё РѕС€РёР±РєРё РїСЂРё СЂР°Р·Р±РѕСЂРµ РѕС‡РµСЂРµРґРЅРѕРіРѕ РїР°СЂР°РјРµС‚СЂР°)
     while (*++parameters && !error)
     {
       char* param = *parameters;
       if (strequ(param,"hc"))  {p->Compressor = 2; continue;}
-      else switch (*param) {                    // Параметры, содержащие значения
+      else switch (*param) {                    // РџР°СЂР°РјРµС‚СЂС‹, СЃРѕРґРµСЂР¶Р°С‰РёРµ Р·РЅР°С‡РµРЅРёСЏ
         case 'c':  p->Compressor= parseInt (param+1, &error); continue;
         case 'b':  p->BlockSize = parseMem (param+1, &error); continue;
         case 'h':  p->HashSize  = parseMem (param+1, &error); continue;
       }
-      // Если параметр заканчивается знаком процента. то попробуем распарсить его как "N%"
+      // Р•СЃР»Рё РїР°СЂР°РјРµС‚СЂ Р·Р°РєР°РЅС‡РёРІР°РµС‚СЃСЏ Р·РЅР°РєРѕРј РїСЂРѕС†РµРЅС‚Р°. С‚Рѕ РїРѕРїСЂРѕР±СѓРµРј СЂР°СЃРїР°СЂСЃРёС‚СЊ РµРіРѕ РєР°Рє "N%"
       if (last_char(param) == '%') {
         char str[100]; strcpy(str,param); last_char(str) = '\0';
         int n = parseInt (str, &error);
         if (!error) { p->MinCompression = n; continue; }
         error=0;
       }
-      // Неизвестная опция
+      // РќРµРёР·РІРµСЃС‚РЅР°СЏ РѕРїС†РёСЏ
       error=1;
     }
-    if (error)  {delete p; return NULL;}  // Ошибка при парсинге параметров метода
+    if (error)  {delete p; return NULL;}  // РћС€РёР±РєР° РїСЂРё РїР°СЂСЃРёРЅРіРµ РїР°СЂР°РјРµС‚СЂРѕРІ РјРµС‚РѕРґР°
     return p;
   } else
-    return NULL;   // Это не метод lz4a
+    return NULL;   // Р­С‚Рѕ РЅРµ РјРµС‚РѕРґ lz4a
 }
 
-static int LZ4_x = AddCompressionMethod (parse_LZ4);   // Зарегистрируем парсер метода LZ4
+static int LZ4_x = AddCompressionMethod (parse_LZ4);   // Р—Р°СЂРµРіРёСЃС‚СЂРёСЂСѓРµРј РїР°СЂСЃРµСЂ РјРµС‚РѕРґР° LZ4

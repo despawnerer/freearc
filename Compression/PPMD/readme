@@ -1,8 +1,8 @@
-Изменения, внесённые в код PPMD:
+тВм┬з┬м╥Р┬н╥Р┬н╨Б╨┐, ╤Ю┬н╥Р╨▒╤Б┬н┬н╨╗╥Р ╤Ю ╨Д┬о┬д PPMD:
 
-1. в PPMdType.h использован класс PRIME_STREAM, настроенный на использование callbacks
-2. BOOL _STDCALL StartSubAllocator(UINT t) - теперь получает размер памяти в байтах, а не мегабайтах
+1. ╤Ю PPMdType.h ╨Б╨▒╨З┬о┬л╨╝┬з┬о╤Ю┬а┬н ╨Д┬л┬а╨▒╨▒ PRIME_STREAM, ┬н┬а╨▒╨▓╨░┬о╥Р┬н┬н╨╗┬й ┬н┬а ╨Б╨▒╨З┬о┬л╨╝┬з┬о╤Ю┬а┬н╨Б╥Р callbacks
+2. BOOL _STDCALL StartSubAllocator(UINT t) - ╨▓╥Р╨З╥Р╨░╨╝ ╨З┬о┬л╨│╨╖┬а╥Р╨▓ ╨░┬а┬з┬м╥Р╨░ ╨З┬а┬м╨┐╨▓╨Б ╤Ю ╨О┬а┬й╨▓┬а╨╡, ┬а ┬н╥Р ┬м╥Р╨И┬а╨О┬а┬й╨▓┬а╨╡
 3. static void _STDCALL StartModelRare(int _MaxOrder,MR_METHOD _MRMethod)
-   чтобы заменить ::MaxOrder/::MRMethod на MaxOrder/MRMethod
-4. Максимальный порядок модели: MAX_O=128
-5. Компилируется только с -O1 !
+   ╨╖╨▓┬о╨О╨╗ ┬з┬а┬м╥Р┬н╨Б╨▓╨╝ ::MaxOrder/::MRMethod ┬н┬а MaxOrder/MRMethod
+4. ╨К┬а╨Д╨▒╨Б┬м┬а┬л╨╝┬н╨╗┬й ╨З┬о╨░╨┐┬д┬о╨Д ┬м┬о┬д╥Р┬л╨Б: MAX_O=128
+5. ╨Й┬о┬м╨З╨Б┬л╨Б╨░╨│╥Р╨▓╨▒╨┐ ╨▓┬о┬л╨╝╨Д┬о ╨▒ -O1 !

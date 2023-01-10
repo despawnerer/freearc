@@ -84,7 +84,7 @@ const int table_dist=256*1024, table_shift=128;
 #define LOOKAHEAD 256
 
 
-// Округлим размер хеша с учётом hash_row_width
+// РћРєСЂСѓРіР»РёРј СЂР°Р·РјРµСЂ С…РµС€Р° СЃ СѓС‡С‘С‚РѕРј hash_row_width
 uint round_to_nearest_hashsize (LongMemSize hashsize, uint hash_row_width)
 {return mymin (round_to_nearest_power_of(mymin(hashsize,2*gb-1) / hash_row_width, 2) * hash_row_width, 2*gb-1);}
 

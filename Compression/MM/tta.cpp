@@ -517,7 +517,7 @@ finished:
 // 3. cobalp?
 // 4. class Buffer?
 
-// ХОЗЧАСТЬ ************************************************************************
+// РҐРћР—Р§РђРЎРўР¬ ************************************************************************
 #include <stdlib.h>
 #include <stdio.h>
 #include <io.h>
@@ -588,7 +588,7 @@ int writeFILE (/*void* param,*/ void* buf, int size)
     return 0;
 }
 
-// Разбор командной строки, чтение входных данных, вызов encode/decode, и запись выходных данных
+// Р Р°Р·Р±РѕСЂ РєРѕРјР°РЅРґРЅРѕР№ СЃС‚СЂРѕРєРё, С‡С‚РµРЅРёРµ РІС…РѕРґРЅС‹С… РґР°РЅРЅС‹С…, РІС‹Р·РѕРІ encode/decode, Рё Р·Р°РїРёСЃСЊ РІС‹С…РѕРґРЅС‹С… РґР°РЅРЅС‹С…
 int main (int argc, char **argv)
 {
     int tta_level   = 3;  // Compression level (1..3, higher means tighter and slower compression)
@@ -646,7 +646,7 @@ int main (int argc, char **argv)
         exit(2);
     }
 
-    // Записать выходные данные, если был указан выходной файл
+    // Р—Р°РїРёСЃР°С‚СЊ РІС‹С…РѕРґРЅС‹Рµ РґР°РЅРЅС‹Рµ, РµСЃР»Рё Р±С‹Р» СѓРєР°Р·Р°РЅ РІС‹С…РѕРґРЅРѕР№ С„Р°Р№Р»
     fout = fopen( argc==3? argv[2] : "NUL", "wb" );
     if (fout == NULL) {
         printf( "\n Can't open %s for write\n", argv[2]);
@@ -658,7 +658,7 @@ int main (int argc, char **argv)
     stime = time(NULL);
     data_size = filelength(fileno(fin));
 
-    // Произвести упаковку или распаковку
+    // РџСЂРѕРёР·РІРµСЃС‚Рё СѓРїР°РєРѕРІРєСѓ РёР»Рё СЂР°СЃРїР°РєРѕРІРєСѓ
     !unpack
       ? tta_compress   (tta_level, skip_header, is_float, num_chan, word_size, offset, raw_data, readFILE, fin, writeFILE, fout)
       : tta_decompress (readFILE, fin, writeFILE, fout);

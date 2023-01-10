@@ -71,7 +71,7 @@ char *prepare_cmd (EXTERNAL_METHOD *p, char *cmd, bool *write_stdin, bool *read_
         cmd = strdup_msg (cmd);
     }
 
-    // Теперь уберём из команд ссылки на stdin/stdout и взведём соответствующие флаги
+    // РўРµРїРµСЂСЊ СѓР±РµСЂС‘Рј РёР· РєРѕРјР°РЅРґ СЃСЃС‹Р»РєРё РЅР° stdin/stdout Рё РІР·РІРµРґС‘Рј СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓСЋС‰РёРµ С„Р»Р°РіРё
     char *cmd1 = str_replace (cmd,  " <stdin>", "");   *write_stdin = strstr(cmd, " <stdin>") != NULL;
     char *cmd2 = str_replace (cmd1, " <stdout>", "");  *read_stdout = strstr(cmd, " <stdout>")!= NULL;
     delete cmd;
@@ -146,7 +146,7 @@ struct Waiter
     MYPIPE WriterPipe, ReaderPipe;  CLOSE_FD CloseStdErr;
     Thread WriterThread, ReaderThread;
     COMPRESSION direction; int useHeader; CALLBACK_FUNC *callback; void *auxdata;
-    bool write_stdin, read_stdout;             // Записывать в stdin/читать stdout запущенной команды вместо передачи данных в файлах
+    bool write_stdin, read_stdout;             // Р—Р°РїРёСЃС‹РІР°С‚СЊ РІ stdin/С‡РёС‚Р°С‚СЊ stdout Р·Р°РїСѓС‰РµРЅРЅРѕР№ РєРѕРјР°РЅРґС‹ РІРјРµСЃС‚Рѕ РїРµСЂРµРґР°С‡Рё РґР°РЅРЅС‹С… РІ С„Р°Р№Р»Р°С…
     volatile int errcode;
 
     bool be_quiet()  {return !debug_mode && write_stdin && read_stdout;}
@@ -162,7 +162,7 @@ struct Waiter
 static THREAD_FUNC_RET_TYPE THREAD_FUNC_CALL_TYPE WriteToExternalProgram (void *param)
 {
     Waiter *w = (Waiter*) param;  CALLBACK_FUNC *callback = w->callback;  void *auxdata = w->auxdata;
-    int x;                                                // код, возвращённый последней операцией чтения/записи
+    int x;                                                // РєРѕРґ, РІРѕР·РІСЂР°С‰С‘РЅРЅС‹Р№ РїРѕСЃР»РµРґРЅРµР№ РѕРїРµСЂР°С†РёРµР№ С‡С‚РµРЅРёСЏ/Р·Р°РїРёСЃРё
     BYTE* Buf = (BYTE*) malloc_msg(LARGE_BUFFER_SIZE);
     while ( (x = callback ("read", Buf, LARGE_BUFFER_SIZE, auxdata)) > 0 )
     {
@@ -170,7 +170,7 @@ static THREAD_FUNC_RET_TYPE THREAD_FUNC_CALL_TYPE WriteToExternalProgram (void *
     }
 finished:
     FreeAndNil(Buf);
-    if (x<0 && w->errcode==0)    // x>=0, если всё в порядке, и код ошибки иначе
+    if (x<0 && w->errcode==0)    // x>=0, РµСЃР»Рё РІСЃС‘ РІ РїРѕСЂСЏРґРєРµ, Рё РєРѕРґ РѕС€РёР±РєРё РёРЅР°С‡Рµ
       w->errcode = x;
     return 0;
 }
@@ -179,7 +179,7 @@ finished:
 static THREAD_FUNC_RET_TYPE THREAD_FUNC_CALL_TYPE ReadFromExternalProgram (void *param)
 {
     Waiter *w = (Waiter*) param;  CALLBACK_FUNC *callback = w->callback;  void *auxdata = w->auxdata;
-    int x;                                                // код, возвращённый последней операцией чтения/записи
+    int x;                                                // РєРѕРґ, РІРѕР·РІСЂР°С‰С‘РЅРЅС‹Р№ РїРѕСЃР»РµРґРЅРµР№ РѕРїРµСЂР°С†РёРµР№ С‡С‚РµРЅРёСЏ/Р·Р°РїРёСЃРё
     BYTE* Buf = (BYTE*) malloc_msg(LARGE_BUFFER_SIZE);
     BYTE compressed[1] = {1};
     if (w->direction==COMPRESS && w->useHeader)   checked_write(compressed,1);
@@ -189,17 +189,17 @@ static THREAD_FUNC_RET_TYPE THREAD_FUNC_CALL_TYPE ReadFromExternalProgram (void 
     }
 finished:
     FreeAndNil(Buf);
-    if (x<0 && w->errcode==0)    // x>=0, если всё в порядке, и код ошибки иначе
+    if (x<0 && w->errcode==0)    // x>=0, РµСЃР»Рё РІСЃС‘ РІ РїРѕСЂСЏРґРєРµ, Рё РєРѕРґ РѕС€РёР±РєРё РёРЅР°С‡Рµ
       w->errcode = x;
     return 0;
 }
 
-// Пока идёт процесс манипуляции с stdin/stdout, другим сюда лучше не соваться (включая индикатор прогресса в хаскельной части)
+// РџРѕРєР° РёРґС‘С‚ РїСЂРѕС†РµСЃСЃ РјР°РЅРёРїСѓР»СЏС†РёРё СЃ stdin/stdout, РґСЂСѓРіРёРј СЃСЋРґР° Р»СѓС‡С€Рµ РЅРµ СЃРѕРІР°С‚СЊСЃСЏ (РІРєР»СЋС‡Р°СЏ РёРЅРґРёРєР°С‚РѕСЂ РїСЂРѕРіСЂРµСЃСЃР° РІ С…Р°СЃРєРµР»СЊРЅРѕР№ С‡Р°СЃС‚Рё)
 Mutex SynchronizeConio;
 void SynchronizeConio_Enter(void) {SynchronizeConio.Enter();}
 void SynchronizeConio_Leave(void) {SynchronizeConio.Leave();}
 
-// Подготавливает stdin/stdout/stderr потоки к запуску внешней программы
+// РџРѕРґРіРѕС‚Р°РІР»РёРІР°РµС‚ stdin/stdout/stderr РїРѕС‚РѕРєРё Рє Р·Р°РїСѓСЃРєСѓ РІРЅРµС€РЅРµР№ РїСЂРѕРіСЂР°РјРјС‹
 int StartThreads (void *param)
 {
     Waiter *w = (Waiter*) param;
@@ -210,7 +210,7 @@ int StartThreads (void *param)
     return 0;
 }
 
-// Восстанавливает stdin/stdout/stderr и выполняет треды, производящие обмен с запущенной программой
+// Р’РѕСЃСЃС‚Р°РЅР°РІР»РёРІР°РµС‚ stdin/stdout/stderr Рё РІС‹РїРѕР»РЅСЏРµС‚ С‚СЂРµРґС‹, РїСЂРѕРёР·РІРѕРґСЏС‰РёРµ РѕР±РјРµРЅ СЃ Р·Р°РїСѓС‰РµРЅРЅРѕР№ РїСЂРѕРіСЂР°РјРјРѕР№
 int WaitThreads (void *param)
 {
     Waiter *w = (Waiter*) param;
@@ -220,17 +220,17 @@ int WaitThreads (void *param)
     SynchronizeConio_Leave();
     if (w->write_stdin)  w->WriterThread.Create (WriteToExternalProgram,  w);
     if (w->read_stdout)  w->ReaderThread.Create (ReadFromExternalProgram, w);
-    if (w->write_stdin)  w->WriterThread.Wait(),  w->WriterPipe.Close();     // Сначала закрываем поток данных из нашей программы во внешнюю
-    if (w->read_stdout)  w->ReaderThread.Wait(),  w->ReaderPipe.Close();     // И только затем ждём завершения потока данных из внешней программы в нашу
+    if (w->write_stdin)  w->WriterThread.Wait(),  w->WriterPipe.Close();     // РЎРЅР°С‡Р°Р»Р° Р·Р°РєСЂС‹РІР°РµРј РїРѕС‚РѕРє РґР°РЅРЅС‹С… РёР· РЅР°С€РµР№ РїСЂРѕРіСЂР°РјРјС‹ РІРѕ РІРЅРµС€РЅСЋСЋ
+    if (w->read_stdout)  w->ReaderThread.Wait(),  w->ReaderPipe.Close();     // Р С‚РѕР»СЊРєРѕ Р·Р°С‚РµРј Р¶РґС‘Рј Р·Р°РІРµСЂС€РµРЅРёСЏ РїРѕС‚РѕРєР° РґР°РЅРЅС‹С… РёР· РІРЅРµС€РЅРµР№ РїСЂРѕРіСЂР°РјРјС‹ РІ РЅР°С€Сѓ
     return 0;
 }
 
 
 /*-------------------------------------------------*/
-/* Реализация класса EXTERNAL_METHOD               */
+/* Р РµР°Р»РёР·Р°С†РёСЏ РєР»Р°СЃСЃР° EXTERNAL_METHOD               */
 /*-------------------------------------------------*/
 
-// Упаковка/распаковка
+// РЈРїР°РєРѕРІРєР°/СЂР°СЃРїР°РєРѕРІРєР°
 int EXTERNAL_METHOD::DeCompress (COMPRESSION direction, CALLBACK_FUNC *callback, void *auxdata)
 {
     MYDIR t;  if (!t.create_tempdir())  return FREEARC_ERRCODE_WRITE;
@@ -240,11 +240,11 @@ int EXTERNAL_METHOD::DeCompress (COMPRESSION direction, CALLBACK_FUNC *callback,
     Waiter w(direction, useHeader, callback, auxdata);
     char *cmd = prepare_cmd (this, direction==COMPRESS? packcmd : unpackcmd, &w.write_stdin, &w.read_stdout);
 
-    BYTE* Buf = NULL;                                     // буфер, используемый для чтения/записи данных
-    int x;                                                // код, возвращённый последней операцией чтения/записи
-    int ExitCode = 0;                                     // код возврата внешней программы
+    BYTE* Buf = NULL;                                     // Р±СѓС„РµСЂ, РёСЃРїРѕР»СЊР·СѓРµРјС‹Р№ РґР»СЏ С‡С‚РµРЅРёСЏ/Р·Р°РїРёСЃРё РґР°РЅРЅС‹С…
+    int x;                                                // РєРѕРґ, РІРѕР·РІСЂР°С‰С‘РЅРЅС‹Р№ РїРѕСЃР»РµРґРЅРµР№ РѕРїРµСЂР°С†РёРµР№ С‡С‚РµРЅРёСЏ/Р·Р°РїРёСЃРё
+    int ExitCode = 0;                                     // РєРѕРґ РІРѕР·РІСЂР°С‚Р° РІРЅРµС€РЅРµР№ РїСЂРѕРіСЂР°РјРјС‹
 
-    // Перепишем входные данные во временный файл
+    // РџРµСЂРµРїРёС€РµРј РІС…РѕРґРЅС‹Рµ РґР°РЅРЅС‹Рµ РІРѕ РІСЂРµРјРµРЅРЅС‹Р№ С„Р°Р№Р»
     infile.remove();
     uint64 bytes = 0;
     BYTE runCmd = 1;
@@ -254,10 +254,10 @@ int EXTERNAL_METHOD::DeCompress (COMPRESSION direction, CALLBACK_FUNC *callback,
       Buf = (BYTE*) malloc_msg(LARGE_BUFFER_SIZE);
       while ( (x = callback ("read", Buf, LARGE_BUFFER_SIZE, auxdata)) > 0 )
       {
-          if (!infile.isopen()) {// Не открываем файл пока не прочтём хоть сколько-нибудь данных (для решения проблем с перепаковкой солид-блоков)
+          if (!infile.isopen()) {// РќРµ РѕС‚РєСЂС‹РІР°РµРј С„Р°Р№Р» РїРѕРєР° РЅРµ РїСЂРѕС‡С‚С‘Рј С…РѕС‚СЊ СЃРєРѕР»СЊРєРѕ-РЅРёР±СѓРґСЊ РґР°РЅРЅС‹С… (РґР»СЏ СЂРµС€РµРЅРёСЏ РїСЂРѕР±Р»РµРј СЃ РїРµСЂРµРїР°РєРѕРІРєРѕР№ СЃРѕР»РёРґ-Р±Р»РѕРєРѕРІ)
               if (!infile.tryOpen(WRITE_MODE))           {x=FREEARC_ERRCODE_WRITE; goto finished;}
           }
-          if (runCmd!=0 && runCmd!=1) {// Для совместимости со старыми версиями FreeArc, которые не добавляли 1 перед сжатыми данными (убрать из FreeArc 1.0!)
+          if (runCmd!=0 && runCmd!=1) {// Р”Р»СЏ СЃРѕРІРјРµСЃС‚РёРјРѕСЃС‚Рё СЃРѕ СЃС‚Р°СЂС‹РјРё РІРµСЂСЃРёСЏРјРё FreeArc, РєРѕС‚РѕСЂС‹Рµ РЅРµ РґРѕР±Р°РІР»СЏР»Рё 1 РїРµСЂРµРґ СЃР¶Р°С‚С‹РјРё РґР°РЅРЅС‹РјРё (СѓР±СЂР°С‚СЊ РёР· FreeArc 1.0!)
               outfile = "data7777";
               bytes += 1;
               if (write(infile.handle,&runCmd,1) != 1)   {x=FREEARC_ERRCODE_WRITE; goto finished;}
@@ -268,11 +268,11 @@ int EXTERNAL_METHOD::DeCompress (COMPRESSION direction, CALLBACK_FUNC *callback,
       }
       FreeAndNil(Buf);
       infile.close();
-      if (x)  goto finished;   // Если при чтении/записи произошла ошибка - выходим
+      if (x)  goto finished;   // Р•СЃР»Рё РїСЂРё С‡С‚РµРЅРёРё/Р·Р°РїРёСЃРё РїСЂРѕРёР·РѕС€Р»Р° РѕС€РёР±РєР° - РІС‹С…РѕРґРёРј
     }
 
-    // Если cmd пусто - диск используется просто для буферизации данных перед дальнейшим сжатием.
-    // Если runCmd==0 - данные были скопированы без сжатия
+    // Р•СЃР»Рё cmd РїСѓСЃС‚Рѕ - РґРёСЃРє РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ РїСЂРѕСЃС‚Рѕ РґР»СЏ Р±СѓС„РµСЂРёР·Р°С†РёРё РґР°РЅРЅС‹С… РїРµСЂРµРґ РґР°Р»СЊРЅРµР№С€РёРј СЃР¶Р°С‚РёРµРј.
+    // Р•СЃР»Рё runCmd==0 - РґР°РЅРЅС‹Рµ Р±С‹Р»Рё СЃРєРѕРїРёСЂРѕРІР°РЅС‹ Р±РµР· СЃР¶Р°С‚РёСЏ
     outfile.remove();
     if (*cmd && runCmd) {
         MYFILE _tcmd(cmd); // utf8->utf16 conversion
@@ -290,7 +290,7 @@ int EXTERNAL_METHOD::DeCompress (COMPRESSION direction, CALLBACK_FUNC *callback,
         infile.rename (outfile);
     }
 
-    // Откроем выходной файл, если команда завершилась успешно и его можно открыть
+    // РћС‚РєСЂРѕРµРј РІС‹С…РѕРґРЅРѕР№ С„Р°Р№Р», РµСЃР»Рё РєРѕРјР°РЅРґР° Р·Р°РІРµСЂС€РёР»Р°СЃСЊ СѓСЃРїРµС€РЅРѕ Рё РµРіРѕ РјРѕР¶РЅРѕ РѕС‚РєСЂС‹С‚СЊ
     if(ExitCode==0)    outfile.tryOpen (READ_MODE);
     if (outfile.isopen()) {
         infile.remove();
@@ -306,7 +306,7 @@ int EXTERNAL_METHOD::DeCompress (COMPRESSION direction, CALLBACK_FUNC *callback,
         if (direction==COMPRESS)                         checked_write(uncompressed,1);
     }
 
-    // Прочитаем выходные данные из файла
+    // РџСЂРѕС‡РёС‚Р°РµРј РІС‹С…РѕРґРЅС‹Рµ РґР°РЅРЅС‹Рµ РёР· С„Р°Р№Р»Р°
     QUASIWRITE (outfile.size());
     Buf = (BYTE*) malloc_msg(LARGE_BUFFER_SIZE);
     while ((x = read (outfile.handle, Buf, LARGE_BUFFER_SIZE)) > 0)
@@ -316,11 +316,11 @@ int EXTERNAL_METHOD::DeCompress (COMPRESSION direction, CALLBACK_FUNC *callback,
 finished:
     FreeAndNil(Buf);
     delete cmd;
-    return x;         // 0, если всё в порядке, и код ошибки иначе
+    return x;         // 0, РµСЃР»Рё РІСЃС‘ РІ РїРѕСЂСЏРґРєРµ, Рё РєРѕРґ РѕС€РёР±РєРё РёРЅР°С‡Рµ
 }
 
 
-// Универсальный метод: возвращаем различные простые характеристики метода сжатия
+// РЈРЅРёРІРµСЂСЃР°Р»СЊРЅС‹Р№ РјРµС‚РѕРґ: РІРѕР·РІСЂР°С‰Р°РµРј СЂР°Р·Р»РёС‡РЅС‹Рµ РїСЂРѕСЃС‚С‹Рµ С…Р°СЂР°РєС‚РµСЂРёСЃС‚РёРєРё РјРµС‚РѕРґР° СЃР¶Р°С‚РёСЏ
 int EXTERNAL_METHOD::doit (char *what, int param, void *data, CALLBACK_FUNC *callback)
 {
     if      (strequ (what,"external?"))                     return 1;
@@ -334,7 +334,7 @@ int EXTERNAL_METHOD::doit (char *what, int param, void *data, CALLBACK_FUNC *cal
 
 double myround (double x)  {return floor(x+0.5);}
 
-// Изменить потребность в памяти, заодно оттюнинговав order
+// РР·РјРµРЅРёС‚СЊ РїРѕС‚СЂРµР±РЅРѕСЃС‚СЊ РІ РїР°РјСЏС‚Рё, Р·Р°РѕРґРЅРѕ РѕС‚С‚СЋРЅРёРЅРіРѕРІР°РІ order
 void EXTERNAL_METHOD::SetCompressionMem (MemSize _mem)
 {
     if (can_set_mem && _mem>0) {
@@ -346,7 +346,7 @@ void EXTERNAL_METHOD::SetCompressionMem (MemSize _mem)
 #endif  // !defined (FREEARC_DECOMPRESS_ONLY)
 
 
-// Записать в buf[MAX_METHOD_STRLEN] строку, описывающую метод сжатия и его параметры (функция, обратная к parse_EXTERNAL)
+// Р—Р°РїРёСЃР°С‚СЊ РІ buf[MAX_METHOD_STRLEN] СЃС‚СЂРѕРєСѓ, РѕРїРёСЃС‹РІР°СЋС‰СѓСЋ РјРµС‚РѕРґ СЃР¶Р°С‚РёСЏ Рё РµРіРѕ РїР°СЂР°РјРµС‚СЂС‹ (С„СѓРЅРєС†РёСЏ, РѕР±СЂР°С‚РЅР°СЏ Рє parse_EXTERNAL)
 void EXTERNAL_METHOD::ShowCompressionMethod (char *buf, bool purify)
 {
     if (strequ (name, "pmm")) {
@@ -363,13 +363,13 @@ void EXTERNAL_METHOD::ShowCompressionMethod (char *buf, bool purify)
     }
 }
 
-// Конструирует объект типа EXTERNAL_METHOD/PPMonstr с заданными параметрами упаковки
-// или возвращает NULL, если это другой метод сжатия или допущена ошибка в параметрах
+// РљРѕРЅСЃС‚СЂСѓРёСЂСѓРµС‚ РѕР±СЉРµРєС‚ С‚РёРїР° EXTERNAL_METHOD/PPMonstr СЃ Р·Р°РґР°РЅРЅС‹РјРё РїР°СЂР°РјРµС‚СЂР°РјРё СѓРїР°РєРѕРІРєРё
+// РёР»Рё РІРѕР·РІСЂР°С‰Р°РµС‚ NULL, РµСЃР»Рё СЌС‚Рѕ РґСЂСѓРіРѕР№ РјРµС‚РѕРґ СЃР¶Р°С‚РёСЏ РёР»Рё РґРѕРїСѓС‰РµРЅР° РѕС€РёР±РєР° РІ РїР°СЂР°РјРµС‚СЂР°С…
 COMPRESSION_METHOD* parse_PPMONSTR (char** parameters)
 {
-  // Если название метода (нулевой параметр) - "pmm", то разберём остальные параметры
+  // Р•СЃР»Рё РЅР°Р·РІР°РЅРёРµ РјРµС‚РѕРґР° (РЅСѓР»РµРІРѕР№ РїР°СЂР°РјРµС‚СЂ) - "pmm", С‚Рѕ СЂР°Р·Р±РµСЂС‘Рј РѕСЃС‚Р°Р»СЊРЅС‹Рµ РїР°СЂР°РјРµС‚СЂС‹
   if (strcmp (parameters[0], "pmm") == 0) {
-    // Дефолтные значения параметров для метода сжатия PPMonstr
+    // Р”РµС„РѕР»С‚РЅС‹Рµ Р·РЅР°С‡РµРЅРёСЏ РїР°СЂР°РјРµС‚СЂРѕРІ РґР»СЏ РјРµС‚РѕРґР° СЃР¶Р°С‚РёСЏ PPMonstr
     EXTERNAL_METHOD *p = new EXTERNAL_METHOD;
     p->name           = "pmm";
     p->MinCompression = 100;
@@ -381,33 +381,33 @@ COMPRESSION_METHOD* parse_PPMONSTR (char** parameters)
     p->datafile       = "$$arcdatafile$$.tmp";
     p->packedfile     = "$$arcdatafile$$.pmm";
 
-    int error = 0;  // Признак того, что при разборе параметров произошла ошибка
+    int error = 0;  // РџСЂРёР·РЅР°Рє С‚РѕРіРѕ, С‡С‚Рѕ РїСЂРё СЂР°Р·Р±РѕСЂРµ РїР°СЂР°РјРµС‚СЂРѕРІ РїСЂРѕРёР·РѕС€Р»Р° РѕС€РёР±РєР°
 
-    // Переберём все параметры метода (или выйдем раньше при возникновении ошибки при разборе очередного параметра)
+    // РџРµСЂРµР±РµСЂС‘Рј РІСЃРµ РїР°СЂР°РјРµС‚СЂС‹ РјРµС‚РѕРґР° (РёР»Рё РІС‹Р№РґРµРј СЂР°РЅСЊС€Рµ РїСЂРё РІРѕР·РЅРёРєРЅРѕРІРµРЅРёРё РѕС€РёР±РєРё РїСЂРё СЂР°Р·Р±РѕСЂРµ РѕС‡РµСЂРµРґРЅРѕРіРѕ РїР°СЂР°РјРµС‚СЂР°)
     while (*++parameters && !error)
     {
       char *param = *parameters;
       if (start_with (param, "mem")) {
-        param+=2;  // Обработать "mem..." как "m..."
+        param+=2;  // РћР±СЂР°Р±РѕС‚Р°С‚СЊ "mem..." РєР°Рє "m..."
       }
-      if (strlen(param)==1) switch (*param) {    // Однобуквенные параметры
+      if (strlen(param)==1) switch (*param) {    // РћРґРЅРѕР±СѓРєРІРµРЅРЅС‹Рµ РїР°СЂР°РјРµС‚СЂС‹
         case 'r':  p->MRMethod = 1; continue;
       }
-      else switch (*param) {                    // Параметры, содержащие значения
+      else switch (*param) {                    // РџР°СЂР°РјРµС‚СЂС‹, СЃРѕРґРµСЂР¶Р°С‰РёРµ Р·РЅР°С‡РµРЅРёСЏ
         case 'm':  p->cmem = p->dmem = parseMem (param+1, &error); continue;
         case 'o':  p->order          = parseInt (param+1, &error); continue;
         case 'r':  p->MRMethod       = parseInt (param+1, &error); continue;
       }
-      // Сюда мы попадаем, если в параметре не указано его название
-      // Если этот параметр удастся разобрать как целое число (т.е. в нём - только цифры),
-      // то присвоим его значение полю order, иначе попробуем разобрать его как mem
+      // РЎСЋРґР° РјС‹ РїРѕРїР°РґР°РµРј, РµСЃР»Рё РІ РїР°СЂР°РјРµС‚СЂРµ РЅРµ СѓРєР°Р·Р°РЅРѕ РµРіРѕ РЅР°Р·РІР°РЅРёРµ
+      // Р•СЃР»Рё СЌС‚РѕС‚ РїР°СЂР°РјРµС‚СЂ СѓРґР°СЃС‚СЃСЏ СЂР°Р·РѕР±СЂР°С‚СЊ РєР°Рє С†РµР»РѕРµ С‡РёСЃР»Рѕ (С‚.Рµ. РІ РЅС‘Рј - С‚РѕР»СЊРєРѕ С†РёС„СЂС‹),
+      // С‚Рѕ РїСЂРёСЃРІРѕРёРј РµРіРѕ Р·РЅР°С‡РµРЅРёРµ РїРѕР»СЋ order, РёРЅР°С‡Рµ РїРѕРїСЂРѕР±СѓРµРј СЂР°Р·РѕР±СЂР°С‚СЊ РµРіРѕ РєР°Рє mem
       int n = parseInt (param, &error);
       if (!error) p->order = n;
       else        error=0, p->cmem = p->dmem = parseMem (param, &error);
     }
-    if (error)  {delete p; return NULL;}  // Ошибка при парсинге параметров метода
+    if (error)  {delete p; return NULL;}  // РћС€РёР±РєР° РїСЂРё РїР°СЂСЃРёРЅРіРµ РїР°СЂР°РјРµС‚СЂРѕРІ РјРµС‚РѕРґР°
 
-    // Создаёт packcmd/unpackcmd для PPMonstr
+    // РЎРѕР·РґР°С‘С‚ packcmd/unpackcmd РґР»СЏ PPMonstr
     char cmd[100];
     sprintf (cmd, "ppmonstr e -o%d -m%d -r%d %s", p->order, p->cmem>>20, p->MRMethod, p->datafile);
     p->packcmd = strdup_msg(cmd);
@@ -416,26 +416,26 @@ COMPRESSION_METHOD* parse_PPMONSTR (char** parameters)
 
     return p;
   } else {
-    return NULL;   // Это не метод PPMONSTR
+    return NULL;   // Р­С‚Рѕ РЅРµ РјРµС‚РѕРґ PPMONSTR
   }
 }
 
-static int PPMONSTR_x = AddCompressionMethod (parse_PPMONSTR);   // Зарегистрируем парсер метода PPMONSTR
+static int PPMONSTR_x = AddCompressionMethod (parse_PPMONSTR);   // Р—Р°СЂРµРіРёСЃС‚СЂРёСЂСѓРµРј РїР°СЂСЃРµСЂ РјРµС‚РѕРґР° PPMONSTR
 
 
 
 
-// ПОДДЕРЖКА ПРОИЗВОЛЬНЫХ ВНЕШНИХ УПАКОВЩИКОВ **********************************************************************
+// РџРћР”Р”Р•Р Р–РљРђ РџР РћРР—Р’РћР›Р¬РќР«РҐ Р’РќР•РЁРќРРҐ РЈРџРђРљРћР’Р©РРљРћР’ **********************************************************************
 
-// Конструирует объект типа EXTERNAL_METHOD с заданными параметрами упаковки
-// или возвращает NULL, если это другой метод сжатия или допущена ошибка в параметрах
+// РљРѕРЅСЃС‚СЂСѓРёСЂСѓРµС‚ РѕР±СЉРµРєС‚ С‚РёРїР° EXTERNAL_METHOD СЃ Р·Р°РґР°РЅРЅС‹РјРё РїР°СЂР°РјРµС‚СЂР°РјРё СѓРїР°РєРѕРІРєРё
+// РёР»Рё РІРѕР·РІСЂР°С‰Р°РµС‚ NULL, РµСЃР»Рё СЌС‚Рѕ РґСЂСѓРіРѕР№ РјРµС‚РѕРґ СЃР¶Р°С‚РёСЏ РёР»Рё РґРѕРїСѓС‰РµРЅР° РѕС€РёР±РєР° РІ РїР°СЂР°РјРµС‚СЂР°С…
 COMPRESSION_METHOD* parse_EXTERNAL (char** parameters, void *method_template)
 {
   if (strequ (parameters[0], ((EXTERNAL_METHOD*)method_template)->name)) {
-    // Если название метода (нулевой параметр) соответствует названию проверяемого EXTERNAL метода, то разберём остальные параметры
+    // Р•СЃР»Рё РЅР°Р·РІР°РЅРёРµ РјРµС‚РѕРґР° (РЅСѓР»РµРІРѕР№ РїР°СЂР°РјРµС‚СЂ) СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓРµС‚ РЅР°Р·РІР°РЅРёСЋ РїСЂРѕРІРµСЂСЏРµРјРѕРіРѕ EXTERNAL РјРµС‚РѕРґР°, С‚Рѕ СЂР°Р·Р±РµСЂС‘Рј РѕСЃС‚Р°Р»СЊРЅС‹Рµ РїР°СЂР°РјРµС‚СЂС‹
     EXTERNAL_METHOD *p = new EXTERNAL_METHOD (*(EXTERNAL_METHOD*)method_template);
 
-    // Копируем параметры метода внутрь нашего объекта
+    // РљРѕРїРёСЂСѓРµРј РїР°СЂР°РјРµС‚СЂС‹ РјРµС‚РѕРґР° РІРЅСѓС‚СЂСЊ РЅР°С€РµРіРѕ РѕР±СЉРµРєС‚Р°
     char **param = parameters+1, **opt = p->options, *place = p->option_strings;
     while (*param)
     {
@@ -447,14 +447,14 @@ COMPRESSION_METHOD* parse_EXTERNAL (char** parameters, void *method_template)
 
     return p;
   } else {
-    return NULL;   // Это не метод EXTERNAL
+    return NULL;   // Р­С‚Рѕ РЅРµ РјРµС‚РѕРґ EXTERNAL
   }
 }
 
 
-// Добавить в таблицу методов сжатия описанный пользователем в arc.ini внешний упаковщик.
-// params содержит описание упаковщика из arc.ini. Возвращает 1, если описание корректно.
-// Пример описания:
+// Р”РѕР±Р°РІРёС‚СЊ РІ С‚Р°Р±Р»РёС†Сѓ РјРµС‚РѕРґРѕРІ СЃР¶Р°С‚РёСЏ РѕРїРёСЃР°РЅРЅС‹Р№ РїРѕР»СЊР·РѕРІР°С‚РµР»РµРј РІ arc.ini РІРЅРµС€РЅРёР№ СѓРїР°РєРѕРІС‰РёРє.
+// params СЃРѕРґРµСЂР¶РёС‚ РѕРїРёСЃР°РЅРёРµ СѓРїР°РєРѕРІС‰РёРєР° РёР· arc.ini. Р’РѕР·РІСЂР°С‰Р°РµС‚ 1, РµСЃР»Рё РѕРїРёСЃР°РЅРёРµ РєРѕСЂСЂРµРєС‚РЅРѕ.
+// РџСЂРёРјРµСЂ РѕРїРёСЃР°РЅРёСЏ:
 //   [External compressor: ccm123, ccmx123, ccm125, ccmx125]
 //   mem = 276
 //   packcmd   = {compressor} c $$arcdatafile$$.tmp $$arcpackedfile$$.tmp
@@ -464,28 +464,28 @@ COMPRESSION_METHOD* parse_EXTERNAL (char** parameters, void *method_template)
 //
 int AddExternalCompressor (char *params)
 {
-    // Разобьём описание метода сжатия на отдельные строки, хранящие его заголовок и параметры
+    // Р Р°Р·РѕР±СЊС‘Рј РѕРїРёСЃР°РЅРёРµ РјРµС‚РѕРґР° СЃР¶Р°С‚РёСЏ РЅР° РѕС‚РґРµР»СЊРЅС‹Рµ СЃС‚СЂРѕРєРё, С…СЂР°РЅСЏС‰РёРµ РµРіРѕ Р·Р°РіРѕР»РѕРІРѕРє Рё РїР°СЂР°РјРµС‚СЂС‹
     char  local_method [MAX_EXTERNAL_COMPRESSOR_SECTION_LENGTH];
     strncopy (local_method, params, MAX_METHOD_STRLEN);
     char* parameters [MAX_PARAMETERS];
     split (local_method, '\n', parameters, MAX_PARAMETERS);
 
-    // Проверим, что первая строка - заголовок секции [External compressor]
+    // РџСЂРѕРІРµСЂРёРј, С‡С‚Рѕ РїРµСЂРІР°СЏ СЃС‚СЂРѕРєР° - Р·Р°РіРѕР»РѕРІРѕРє СЃРµРєС†РёРё [External compressor]
     if (last_char(parameters[0])=='\r')  last_char(parameters[0]) = '\0';
     if (! (start_with (parameters[0], "[External compressor:")
            && end_with (parameters[0], "]")))
       return 0;
 
-    // Извлечём из заголовка секции имена версий программы
+    // РР·РІР»РµС‡С‘Рј РёР· Р·Р°РіРѕР»РѕРІРєР° СЃРµРєС†РёРё РёРјРµРЅР° РІРµСЂСЃРёР№ РїСЂРѕРіСЂР°РјРјС‹
     char *versions_list = strdup_msg (strchr(parameters[0],':')+1);
     last_char(versions_list) = '\0';
     char* version_name [MAX_COMPRESSION_METHODS];
     int versions_count = split (versions_list, ',', version_name, MAX_COMPRESSION_METHODS);
 
-    // Для каждой версии создаём отдельный объект EXTERNAL_METHOD
+    // Р”Р»СЏ РєР°Р¶РґРѕР№ РІРµСЂСЃРёРё СЃРѕР·РґР°С‘Рј РѕС‚РґРµР»СЊРЅС‹Р№ РѕР±СЉРµРєС‚ EXTERNAL_METHOD
     EXTERNAL_METHOD *version  =  new EXTERNAL_METHOD[versions_count];
     for (int i=0; i<versions_count; i++) {
-        // Инициализируем шаблон EXTERNAL_METHOD именем очередной версии и параметрами по умолчанию
+        // РРЅРёС†РёР°Р»РёР·РёСЂСѓРµРј С€Р°Р±Р»РѕРЅ EXTERNAL_METHOD РёРјРµРЅРµРј РѕС‡РµСЂРµРґРЅРѕР№ РІРµСЂСЃРёРё Рё РїР°СЂР°РјРµС‚СЂР°РјРё РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ
         version[i].name           = trim_spaces(version_name[i]);
         version[i].MinCompression = 100;
         version[i].can_set_mem    = false;
@@ -501,33 +501,33 @@ int AddExternalCompressor (char *params)
     }
 
 
-    // Теперь заполним эти шаблоны по описанию упаковщика, предоставленному пользователем
-    // (команды упаковки/распаковки, требования к памяти и так далее).
+    // РўРµРїРµСЂСЊ Р·Р°РїРѕР»РЅРёРј СЌС‚Рё С€Р°Р±Р»РѕРЅС‹ РїРѕ РѕРїРёСЃР°РЅРёСЋ СѓРїР°РєРѕРІС‰РёРєР°, РїСЂРµРґРѕСЃС‚Р°РІР»РµРЅРЅРѕРјСѓ РїРѕР»СЊР·РѕРІР°С‚РµР»РµРј
+    // (РєРѕРјР°РЅРґС‹ СѓРїР°РєРѕРІРєРё/СЂР°СЃРїР°РєРѕРІРєРё, С‚СЂРµР±РѕРІР°РЅРёСЏ Рє РїР°РјСЏС‚Рё Рё С‚Р°Рє РґР°Р»РµРµ).
     for (char **param=parameters;  *++param; ) {
-        // Обработаем строку описания, разбив её на левую часть до '='
-        // c названием параметра и правую часть с его значением
+        // РћР±СЂР°Р±РѕС‚Р°РµРј СЃС‚СЂРѕРєСѓ РѕРїРёСЃР°РЅРёСЏ, СЂР°Р·Р±РёРІ РµС‘ РЅР° Р»РµРІСѓСЋ С‡Р°СЃС‚СЊ РґРѕ '='
+        // c РЅР°Р·РІР°РЅРёРµРј РїР°СЂР°РјРµС‚СЂР° Рё РїСЂР°РІСѓСЋ С‡Р°СЃС‚СЊ СЃ РµРіРѕ Р·РЅР°С‡РµРЅРёРµРј
         char *s = *param;
-        if (last_char(s)=='\r')  last_char(s) = '\0';  // На случай обработки файла с '\r\n' разделителями
-        if (*s=='\0' || *s==';')  continue;  // Пропустим целиком пустую строку / строку комментариев
-        while (*s && isspace(*s))  s++;   // Пропустим начальные пробелы в строке
-        char *left = s;                   // Заякорим начало левой части (имени) параметра
-        while (*s && !isspace(*s) && *s!='=')  s++;   // Найдём конец имени
+        if (last_char(s)=='\r')  last_char(s) = '\0';  // РќР° СЃР»СѓС‡Р°Р№ РѕР±СЂР°Р±РѕС‚РєРё С„Р°Р№Р»Р° СЃ '\r\n' СЂР°Р·РґРµР»РёС‚РµР»СЏРјРё
+        if (*s=='\0' || *s==';')  continue;  // РџСЂРѕРїСѓСЃС‚РёРј С†РµР»РёРєРѕРј РїСѓСЃС‚СѓСЋ СЃС‚СЂРѕРєСѓ / СЃС‚СЂРѕРєСѓ РєРѕРјРјРµРЅС‚Р°СЂРёРµРІ
+        while (*s && isspace(*s))  s++;   // РџСЂРѕРїСѓСЃС‚РёРј РЅР°С‡Р°Р»СЊРЅС‹Рµ РїСЂРѕР±РµР»С‹ РІ СЃС‚СЂРѕРєРµ
+        char *left = s;                   // Р—Р°СЏРєРѕСЂРёРј РЅР°С‡Р°Р»Рѕ Р»РµРІРѕР№ С‡Р°СЃС‚Рё (РёРјРµРЅРё) РїР°СЂР°РјРµС‚СЂР°
+        while (*s && !isspace(*s) && *s!='=')  s++;   // РќР°Р№РґС‘Рј РєРѕРЅРµС† РёРјРµРЅРё
         if (*s=='\0')  return 0;
-        if (*s!='=') {                         // Пропустим пробелы после имени, если нужно
+        if (*s!='=') {                         // РџСЂРѕРїСѓСЃС‚РёРј РїСЂРѕР±РµР»С‹ РїРѕСЃР»Рµ РёРјРµРЅРё, РµСЃР»Рё РЅСѓР¶РЅРѕ
             *s++ = '\0';
             while (*s && isspace(*s))  s++;
             if (*s!='=')  return 0;
         }
-        *s++ = '\0';                           // Поставим '\0' после имени
-        while (*s && isspace(*s))  s++;        // Пропустим пробелы в начале правой части (значении)
+        *s++ = '\0';                           // РџРѕСЃС‚Р°РІРёРј '\0' РїРѕСЃР»Рµ РёРјРµРЅРё
+        while (*s && isspace(*s))  s++;        // РџСЂРѕРїСѓСЃС‚РёРј РїСЂРѕР±РµР»С‹ РІ РЅР°С‡Р°Р»Рµ РїСЂР°РІРѕР№ С‡Р°СЃС‚Рё (Р·РЅР°С‡РµРЅРёРё)
         if (*s=='\0')  return 0;
-        char *right = s;                       // Заякорим начало значения
+        char *right = s;                       // Р—Р°СЏРєРѕСЂРёРј РЅР°С‡Р°Р»Рѕ Р·РЅР°С‡РµРЅРёСЏ
 
-        // Теперь left содержит левую часть строки (до '=') без пробелов,
-        // а right - правую часть без начальных пробелов.
-        // Переберём все версии компрессора и обновим в них соответствующее поле
+        // РўРµРїРµСЂСЊ left СЃРѕРґРµСЂР¶РёС‚ Р»РµРІСѓСЋ С‡Р°СЃС‚СЊ СЃС‚СЂРѕРєРё (РґРѕ '=') Р±РµР· РїСЂРѕР±РµР»РѕРІ,
+        // Р° right - РїСЂР°РІСѓСЋ С‡Р°СЃС‚СЊ Р±РµР· РЅР°С‡Р°Р»СЊРЅС‹С… РїСЂРѕР±РµР»РѕРІ.
+        // РџРµСЂРµР±РµСЂС‘Рј РІСЃРµ РІРµСЂСЃРёРё РєРѕРјРїСЂРµСЃСЃРѕСЂР° Рё РѕР±РЅРѕРІРёРј РІ РЅРёС… СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓСЋС‰РµРµ РїРѕР»Рµ
         for (int i=0; i<versions_count; i++) {
-            int error = 0;  // Признак того, что при разборе параметров произошла ошибка
+            int error = 0;  // РџСЂРёР·РЅР°Рє С‚РѕРіРѕ, С‡С‚Рѕ РїСЂРё СЂР°Р·Р±РѕСЂРµ РїР°СЂР°РјРµС‚СЂРѕРІ РїСЂРѕРёР·РѕС€Р»Р° РѕС€РёР±РєР°
                  if (strequ (left, "mem"))         version[i].cmem = version[i].dmem = parseInt (right,&error)*mb;
             else if (strequ (left, "cmem"))        version[i].cmem        = parseInt (right,&error)*mb;
             else if (strequ (left, "dmem"))        version[i].dmem        = parseInt (right,&error)*mb;
@@ -545,16 +545,16 @@ int AddExternalCompressor (char *params)
     }
 
 
-    // Наконец, зарегистрируем парсер EXTERNAL метода сжатия, использующий эти шаблоны
-    // для распознавания новых методов сжатия и получения всех необходимых сведений
-    // о том, какие команды нужно вызывать для его реализации, через какие файлы
-    // передавать данные и т.д.
+    // РќР°РєРѕРЅРµС†, Р·Р°СЂРµРіРёСЃС‚СЂРёСЂСѓРµРј РїР°СЂСЃРµСЂ EXTERNAL РјРµС‚РѕРґР° СЃР¶Р°С‚РёСЏ, РёСЃРїРѕР»СЊР·СѓСЋС‰РёР№ СЌС‚Рё С€Р°Р±Р»РѕРЅС‹
+    // РґР»СЏ СЂР°СЃРїРѕР·РЅР°РІР°РЅРёСЏ РЅРѕРІС‹С… РјРµС‚РѕРґРѕРІ СЃР¶Р°С‚РёСЏ Рё РїРѕР»СѓС‡РµРЅРёСЏ РІСЃРµС… РЅРµРѕР±С…РѕРґРёРјС‹С… СЃРІРµРґРµРЅРёР№
+    // Рѕ С‚РѕРј, РєР°РєРёРµ РєРѕРјР°РЅРґС‹ РЅСѓР¶РЅРѕ РІС‹Р·С‹РІР°С‚СЊ РґР»СЏ РµРіРѕ СЂРµР°Р»РёР·Р°С†РёРё, С‡РµСЂРµР· РєР°РєРёРµ С„Р°Р№Р»С‹
+    // РїРµСЂРµРґР°РІР°С‚СЊ РґР°РЅРЅС‹Рµ Рё С‚.Рґ.
     for (int i=0; i<versions_count; i++) {
         AddExternalCompressionMethod (parse_EXTERNAL, &version[i]);
     }
     return 1;
 }
 
-// Псевдо-метод сжатия, записывающий все получаемые им данные в файл, и затем считывающий его.
-// Автоматически вставляется между жрущими много памяти алгоритмами, например REP и LZMA
-static int TEMPFILE_x = AddExternalCompressor ("[External compressor:tempfile]\n header=0");   // Зарегистрируем парсер метода TEMPFILE
+// РџСЃРµРІРґРѕ-РјРµС‚РѕРґ СЃР¶Р°С‚РёСЏ, Р·Р°РїРёСЃС‹РІР°СЋС‰РёР№ РІСЃРµ РїРѕР»СѓС‡Р°РµРјС‹Рµ РёРј РґР°РЅРЅС‹Рµ РІ С„Р°Р№Р», Рё Р·Р°С‚РµРј СЃС‡РёС‚С‹РІР°СЋС‰РёР№ РµРіРѕ.
+// РђРІС‚РѕРјР°С‚РёС‡РµСЃРєРё РІСЃС‚Р°РІР»СЏРµС‚СЃСЏ РјРµР¶РґСѓ Р¶СЂСѓС‰РёРјРё РјРЅРѕРіРѕ РїР°РјСЏС‚Рё Р°Р»РіРѕСЂРёС‚РјР°РјРё, РЅР°РїСЂРёРјРµСЂ REP Рё LZMA
+static int TEMPFILE_x = AddExternalCompressor ("[External compressor:tempfile]\n header=0");   // Р—Р°СЂРµРіРёСЃС‚СЂРёСЂСѓРµРј РїР°СЂСЃРµСЂ РјРµС‚РѕРґР° TEMPFILE

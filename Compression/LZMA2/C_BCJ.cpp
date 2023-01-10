@@ -6,31 +6,31 @@ extern "C" {
 
 int bcj_x86_de_compress (int encoding, CALLBACK_FUNC *callback, void *auxdata)
 {
-  UInt32 state;  x86_Convert_Init(state);         // состояние энкодера/декодера для BCJ-X86 препроцессора
-  UInt32 ip = 0;                                  // эмулируемый "счётчик команд"
-  BYTE* Buf = (BYTE*) malloc(LARGE_BUFFER_SIZE);  // место для данных
+  UInt32 state;  x86_Convert_Init(state);         // СЃРѕСЃС‚РѕСЏРЅРёРµ СЌРЅРєРѕРґРµСЂР°/РґРµРєРѕРґРµСЂР° РґР»СЏ BCJ-X86 РїСЂРµРїСЂРѕС†РµСЃСЃРѕСЂР°
+  UInt32 ip = 0;                                  // СЌРјСѓР»РёСЂСѓРµРјС‹Р№ "СЃС‡С‘С‚С‡РёРє РєРѕРјР°РЅРґ"
+  BYTE* Buf = (BYTE*) malloc(LARGE_BUFFER_SIZE);  // РјРµСЃС‚Рѕ РґР»СЏ РґР°РЅРЅС‹С…
   if (Buf==NULL)   return FREEARC_ERRCODE_NOT_ENOUGH_MEMORY;
-  int RemainderSize=0;                           // остаток данных с предыдущего раза
-  int x, InSize;                                 // количество прочитанных байт
+  int RemainderSize=0;                           // РѕСЃС‚Р°С‚РѕРє РґР°РЅРЅС‹С… СЃ РїСЂРµРґС‹РґСѓС‰РµРіРѕ СЂР°Р·Р°
+  int x, InSize;                                 // РєРѕР»РёС‡РµСЃС‚РІРѕ РїСЂРѕС‡РёС‚Р°РЅРЅС‹С… Р±Р°Р№С‚
   while ( (InSize = x = callback ("read", Buf+RemainderSize, LARGE_BUFFER_SIZE-RemainderSize, auxdata)) >= 0 )
   {
-    if ((InSize+=RemainderSize)==0)    goto Ok;  // Данных больше нет
-    int OutSize = InSize<=5? InSize : x86_Convert(Buf, InSize, ip, &state, encoding);  // Меньше 5 байт этот фильтр не воспринимает :)
+    if ((InSize+=RemainderSize)==0)    goto Ok;  // Р”Р°РЅРЅС‹С… Р±РѕР»СЊС€Рµ РЅРµС‚
+    int OutSize = InSize<=5? InSize : x86_Convert(Buf, InSize, ip, &state, encoding);  // РњРµРЅСЊС€Рµ 5 Р±Р°Р№С‚ СЌС‚РѕС‚ С„РёР»СЊС‚СЂ РЅРµ РІРѕСЃРїСЂРёРЅРёРјР°РµС‚ :)
     ip += OutSize;
     if( (x=callback("write",Buf,OutSize,auxdata)) != OutSize )      goto Error;
     RemainderSize = InSize-OutSize;
-    // Перенесём необработанный остаток данных в начало буфера
+    // РџРµСЂРµРЅРµСЃС‘Рј РЅРµРѕР±СЂР°Р±РѕС‚Р°РЅРЅС‹Р№ РѕСЃС‚Р°С‚РѕРє РґР°РЅРЅС‹С… РІ РЅР°С‡Р°Р»Рѕ Р±СѓС„РµСЂР°
     if (RemainderSize>0)                memmove(Buf,Buf+OutSize,RemainderSize);
   }
-Error: free(Buf); return x;            // произошла ошибка при чтении/записи
-Ok:    free(Buf); return FREEARC_OK;   // всё в порядке
+Error: free(Buf); return x;            // РїСЂРѕРёР·РѕС€Р»Р° РѕС€РёР±РєР° РїСЂРё С‡С‚РµРЅРёРё/Р·Р°РїРёСЃРё
+Ok:    free(Buf); return FREEARC_OK;   // РІСЃС‘ РІ РїРѕСЂСЏРґРєРµ
 }
 
 
 /*-------------------------------------------------*/
-/* Реализация класса BCJ_X86_METHOD                */
+/* Р РµР°Р»РёР·Р°С†РёСЏ РєР»Р°СЃСЃР° BCJ_X86_METHOD                */
 /*-------------------------------------------------*/
-// Функция распаковки
+// Р¤СѓРЅРєС†РёСЏ СЂР°СЃРїР°РєРѕРІРєРё
 int BCJ_X86_METHOD::decompress (CALLBACK_FUNC *callback, void *auxdata)
 {
   return bcj_x86_de_compress (0, callback, auxdata);
@@ -38,7 +38,7 @@ int BCJ_X86_METHOD::decompress (CALLBACK_FUNC *callback, void *auxdata)
 
 #ifndef FREEARC_DECOMPRESS_ONLY
 
-// Функция упаковки
+// Р¤СѓРЅРєС†РёСЏ СѓРїР°РєРѕРІРєРё
 int BCJ_X86_METHOD::compress (CALLBACK_FUNC *callback, void *auxdata)
 {
   return bcj_x86_de_compress (1, callback, auxdata);
@@ -46,21 +46,21 @@ int BCJ_X86_METHOD::compress (CALLBACK_FUNC *callback, void *auxdata)
 
 #endif  // !defined (FREEARC_DECOMPRESS_ONLY)
 
-// Записать в buf[MAX_METHOD_STRLEN] строку, описывающую метод сжатия (функция, обратная к parse_BCJ_X86)
+// Р—Р°РїРёСЃР°С‚СЊ РІ buf[MAX_METHOD_STRLEN] СЃС‚СЂРѕРєСѓ, РѕРїРёСЃС‹РІР°СЋС‰СѓСЋ РјРµС‚РѕРґ СЃР¶Р°С‚РёСЏ (С„СѓРЅРєС†РёСЏ, РѕР±СЂР°С‚РЅР°СЏ Рє parse_BCJ_X86)
 void BCJ_X86_METHOD::ShowCompressionMethod (char *buf, bool purify)
 {
   sprintf (buf, "exe");
 }
 
-// Конструирует объект типа BCJ_X86_METHOD или возвращает NULL, если это другой метод сжатия
+// РљРѕРЅСЃС‚СЂСѓРёСЂСѓРµС‚ РѕР±СЉРµРєС‚ С‚РёРїР° BCJ_X86_METHOD РёР»Рё РІРѕР·РІСЂР°С‰Р°РµС‚ NULL, РµСЃР»Рё СЌС‚Рѕ РґСЂСѓРіРѕР№ РјРµС‚РѕРґ СЃР¶Р°С‚РёСЏ
 COMPRESSION_METHOD* parse_BCJ_X86 (char** parameters)
 {
   if (strcmp (parameters[0], "exe") == 0
       &&  parameters[1]==NULL )
-    // Если название метода - "exe" и параметров у него нет, то это наш метод
+    // Р•СЃР»Рё РЅР°Р·РІР°РЅРёРµ РјРµС‚РѕРґР° - "exe" Рё РїР°СЂР°РјРµС‚СЂРѕРІ Сѓ РЅРµРіРѕ РЅРµС‚, С‚Рѕ СЌС‚Рѕ РЅР°С€ РјРµС‚РѕРґ
     return new BCJ_X86_METHOD;
   else
-    return NULL;   // Это не метод bcj_x86
+    return NULL;   // Р­С‚Рѕ РЅРµ РјРµС‚РѕРґ bcj_x86
 }
 
-static int BCJ_X86_x = AddCompressionMethod (parse_BCJ_X86);   // Зарегистрируем парсер метода BCJ_X86
+static int BCJ_X86_x = AddCompressionMethod (parse_BCJ_X86);   // Р—Р°СЂРµРіРёСЃС‚СЂРёСЂСѓРµРј РїР°СЂСЃРµСЂ РјРµС‚РѕРґР° BCJ_X86

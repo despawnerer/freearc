@@ -86,7 +86,7 @@ void *my_memset (void *a, int v, size_t n){
 
 
 // //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Win32 СryptoAPI: SHA-1 & MD5 *************************************************************************************************************************
+// Win32 РЎryptoAPI: SHA-1 & MD5 *************************************************************************************************************************
 // //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #define MD5_SIZE    16
@@ -210,9 +210,9 @@ void cryptographic_prng (void *result, size_t size)
 // Hash functions ***********************************************************************************************************************************
 // //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// hash содержит значение хеш-функции от последних L обработанных байт, для удобства обновления используется скользящая хеш-функция.
-// constructor(buf,L,seed) создаёт хеш, параметризованный seed, и инициализирует его первыми L байтами буфера
-// update(sub,add) выносит из хеша байт sub и добавляет байт add.
+// hash СЃРѕРґРµСЂР¶РёС‚ Р·РЅР°С‡РµРЅРёРµ С…РµС€-С„СѓРЅРєС†РёРё РѕС‚ РїРѕСЃР»РµРґРЅРёС… L РѕР±СЂР°Р±РѕС‚Р°РЅРЅС‹С… Р±Р°Р№С‚, РґР»СЏ СѓРґРѕР±СЃС‚РІР° РѕР±РЅРѕРІР»РµРЅРёСЏ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ СЃРєРѕР»СЊР·СЏС‰Р°СЏ С…РµС€-С„СѓРЅРєС†РёСЏ.
+// constructor(buf,L,seed) СЃРѕР·РґР°С‘С‚ С…РµС€, РїР°СЂР°РјРµС‚СЂРёР·РѕРІР°РЅРЅС‹Р№ seed, Рё РёРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚ РµРіРѕ РїРµСЂРІС‹РјРё L Р±Р°Р№С‚Р°РјРё Р±СѓС„РµСЂР°
+// update(sub,add) РІС‹РЅРѕСЃРёС‚ РёР· С…РµС€Р° Р±Р°Р№С‚ sub Рё РґРѕР±Р°РІР»СЏРµС‚ Р±Р°Р№С‚ add.
 
 template <class ValueT>
 struct FakeRollingHash
@@ -223,7 +223,7 @@ struct FakeRollingHash
 };
 
 
-// Возведение в степень
+// Р’РѕР·РІРµРґРµРЅРёРµ РІ СЃС‚РµРїРµРЅСЊ
 template <class T>
 T power (T base, unsigned n)
 {
@@ -587,7 +587,7 @@ struct SliceHash
   {
     h = NULL;  errcode = ERROR_MEMORY;  L = _L;
     slices_in_block = sizeof(entry)*CHAR_BIT/BITS;
-    slice_size      = L/slices_in_block;                               // to do: 8/16-byte entry (считывать в check по одному байту из h)
+    slice_size      = L/slices_in_block;                               // to do: 8/16-byte entry (СЃС‡РёС‚С‹РІР°С‚СЊ РІ check РїРѕ РѕРґРЅРѕРјСѓ Р±Р°Р№С‚Сѓ РёР· h)
     check_slices    = int((MIN_MATCH-L)/slice_size) - io_accelerator;  // if less that this amount of slices around match has the same hashes, then we are sure that match can't be extended to MIN_MATCH size
     if (io_accelerator<0 || check_slices<=0)
          memreq = 0;                                                   // no need in SliceHash since each potential match is almost guaranteed to have MIN_MATCH matched bytes
@@ -919,7 +919,7 @@ struct HashTable
   // Chunk size in -m1/-m2 mode
   Offset chunksize_CDC (Chunk chunk)  {return startarr[chunk+1] - startarr[chunk];}
 
-  // Индексировать новый блок и вернуть смещение до эквивалентного ему старого (или 0)
+  // РРЅРґРµРєСЃРёСЂРѕРІР°С‚СЊ РЅРѕРІС‹Р№ Р±Р»РѕРє Рё РІРµСЂРЅСѓС‚СЊ СЃРјРµС‰РµРЅРёРµ РґРѕ СЌРєРІРёРІР°Р»РµРЅС‚РЅРѕРіРѕ РµРјСѓ СЃС‚Р°СЂРѕРіРѕ (РёР»Рё 0)
   Offset find_match_CDC (Offset offset, void *p, int size, BYTE *vhashes);
 };
 
@@ -935,10 +935,10 @@ Offset HashTable::find_match_CDC (Offset offset, void *p, int size, BYTE *vhashe
   memcpy (digestarr+curchunk, vhashes, sizeof(*digestarr));
   BigHash index  =  *(BigHash*) (vhashes + sizeof(*digestarr));
 
-  // найти в хеш-таблице старый блок, эквивалентный новому, и заменить его новым блоком
+  // РЅР°Р№С‚Рё РІ С…РµС€-С‚Р°Р±Р»РёС†Рµ СЃС‚Р°СЂС‹Р№ Р±Р»РѕРє, СЌРєРІРёРІР°Р»РµРЅС‚РЅС‹Р№ РЅРѕРІРѕРјСѓ, Рё Р·Р°РјРµРЅРёС‚СЊ РµРіРѕ РЅРѕРІС‹Рј Р±Р»РѕРєРѕРј
   Chunk chunk = add_hash0<true> (p, 0, 0, curchunk, index, 0, offset);
 
-  // если найден старый эквивалентный блок, то возвратить расстояние до него
+  // РµСЃР»Рё РЅР°Р№РґРµРЅ СЃС‚Р°СЂС‹Р№ СЌРєРІРёРІР°Р»РµРЅС‚РЅС‹Р№ Р±Р»РѕРє, С‚Рѕ РІРѕР·РІСЂР°С‚РёС‚СЊ СЂР°СЃСЃС‚РѕСЏРЅРёРµ РґРѕ РЅРµРіРѕ
   if (chunk!=NOT_FOUND && chunksize_CDC(chunk)==size) {
     if (offset < pc.max_offset)
       pc.check_len++,
@@ -1008,9 +1008,9 @@ bool order_by_LZ_match_src (const LZ_MATCH &left, const LZ_MATCH &right)
   }
 
 
-// Копирует данные из буфера в буфер, идя в порядке возрастания адресов
-// (это важно, поскольку буфера могут пересекаться и в этом случае нужно
-// размножить существующие данные)
+// РљРѕРїРёСЂСѓРµС‚ РґР°РЅРЅС‹Рµ РёР· Р±СѓС„РµСЂР° РІ Р±СѓС„РµСЂ, РёРґСЏ РІ РїРѕСЂСЏРґРєРµ РІРѕР·СЂР°СЃС‚Р°РЅРёСЏ Р°РґСЂРµСЃРѕРІ
+// (СЌС‚Рѕ РІР°Р¶РЅРѕ, РїРѕСЃРєРѕР»СЊРєСѓ Р±СѓС„РµСЂР° РјРѕРіСѓС‚ РїРµСЂРµСЃРµРєР°С‚СЊСЃСЏ Рё РІ СЌС‚РѕРј СЃР»СѓС‡Р°Рµ РЅСѓР¶РЅРѕ
+// СЂР°Р·РјРЅРѕР¶РёС‚СЊ СЃСѓС‰РµСЃС‚РІСѓСЋС‰РёРµ РґР°РЅРЅС‹Рµ)
 void memcpy_lz_match (void* _dest, void* _src, unsigned len)
 {
   if (len) {
@@ -2056,7 +2056,7 @@ int main (int argc, char **argv)
           last_block = &block->next;
 
           if (ROUND_MATCHES)
-            compsize += stat_size / STATS_PER_MATCH(ROUND_MATCHES);   // Добавить размер одного слова STAT из-за того, что данные собираются с ROUND_MATCHES (по 12 байт), а кодироваться будут без него (по 16 байт)
+            compsize += stat_size / STATS_PER_MATCH(ROUND_MATCHES);   // Р”РѕР±Р°РІРёС‚СЊ СЂР°Р·РјРµСЂ РѕРґРЅРѕРіРѕ СЃР»РѕРІР° STAT РёР·-Р·Р° С‚РѕРіРѕ, С‡С‚Рѕ РґР°РЅРЅС‹Рµ СЃРѕР±РёСЂР°СЋС‚СЃСЏ СЃ ROUND_MATCHES (РїРѕ 12 Р±Р°Р№С‚), Р° РєРѕРґРёСЂРѕРІР°С‚СЊСЃСЏ Р±СѓРґСѓС‚ Р±РµР· РЅРµРіРѕ (РїРѕ 16 Р±Р°Р№С‚)
 
           if (INDEX_LZ)
             compsize += sizeof(STAT);   // accounting for the future write of statsize_buf[]

@@ -75,7 +75,7 @@ sint32 GRZip_LZP_Encode(uint8 * Input,uint32 Size,uint8 * Output,uint32 LZP_MinM
      {
        uint32  CommonLength=0;
        uint8 * Ptr=Input;
-       if (*(uint32 *)(Ptr+LZP_MinMatchLen-4) == *(uint32 *)(Pointer+LZP_MinMatchLen-4))  // ࠭��� �஢�ઠ
+       if (*(uint32 *)(Ptr+LZP_MinMatchLen-4) == *(uint32 *)(Pointer+LZP_MinMatchLen-4))  // а ­­пп Їа®ўҐаЄ 
          while (Ptr<InputEnd)
          {
            if (*Ptr++!=*Pointer++) break;

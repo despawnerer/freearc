@@ -146,9 +146,9 @@ int mm_compress (int mode, int skip_header, int is_float, int num_chan, int word
     BYTE* buf = (BYTE*) malloc(BUFSIZE+1);  // buffer for data processed, 1 more byte for diff24 safeness
     void* base = NULL;                      // previous values for all channels what will be substracted from next ones
 
-    int errcode,                            // код, возвращённый последней операцией чтения/записи
+    int errcode,                            // РєРѕРґ, РІРѕР·РІСЂР°С‰С‘РЅРЅС‹Р№ РїРѕСЃР»РµРґРЅРµР№ РѕРїРµСЂР°С†РёРµР№ С‡С‚РµРЅРёСЏ/Р·Р°РїРёСЃРё
         bytes;                              // how many bytes was read to buf
-    // Прочитаем первый мегабайт для детектирования типа мультимедии
+    // РџСЂРѕС‡РёС‚Р°РµРј РїРµСЂРІС‹Р№ РјРµРіР°Р±Р°Р№С‚ РґР»СЏ РґРµС‚РµРєС‚РёСЂРѕРІР°РЅРёСЏ С‚РёРїР° РјСѓР»СЊС‚РёРјРµРґРёРё
     if ((errcode = bytes = callback ("read", buf, BUFSIZE, auxdata)) <= 0)  goto finished;   // temporary! BUFFER_SIZE will be enough
 
    {// Select parameters of check depending on speed mode setting
@@ -177,7 +177,7 @@ int mm_compress (int mode, int skip_header, int is_float, int num_chan, int word
     int chunk =  roundDown(BUFSIZE,N);   // How many bytes should be processed each time
     int rest = bytes;
     bytes -= offset;                // First 'offset' bytes will be copied intact w/o any processing
-    bytes = roundDown(bytes,N);     // Не обрабатывать первый блок данных целиком, если он содержит нецелое число отсчётов. Вместо этого оставшиеся байты будут включены во второй блок
+    bytes = roundDown(bytes,N);     // РќРµ РѕР±СЂР°Р±Р°С‚С‹РІР°С‚СЊ РїРµСЂРІС‹Р№ Р±Р»РѕРє РґР°РЅРЅС‹С… С†РµР»РёРєРѕРј, РµСЃР»Рё РѕРЅ СЃРѕРґРµСЂР¶РёС‚ РЅРµС†РµР»РѕРµ С‡РёСЃР»Рѕ РѕС‚СЃС‡С‘С‚РѕРІ. Р’РјРµСЃС‚Рѕ СЌС‚РѕРіРѕ РѕСЃС‚Р°РІС€РёРµСЃСЏ Р±Р°Р№С‚С‹ Р±СѓРґСѓС‚ РІРєР»СЋС‡РµРЅС‹ РІРѕ РІС‚РѕСЂРѕР№ Р±Р»РѕРє
     rest -= offset+bytes;           // how many bytes will remain unprocessed at end of buf
     base = calloc (num_chan, byte_size==3? 4:byte_size);   // previous values for all channels what will be substracted from next ones
     BYTE *ptr = buf + offset;       // In first block we should skip already copied data, in the following blocks ptr==buf
@@ -202,7 +202,7 @@ int mm_compress (int mode, int skip_header, int is_float, int num_chan, int word
         WRITE  (base, roundUp(3+4+offset,N) - (3+4+offset));
     }
 
-    // Цикл чтения/препроцессинга/записи блоков данных
+    // Р¦РёРєР» С‡С‚РµРЅРёСЏ/РїСЂРµРїСЂРѕС†РµСЃСЃРёРЅРіР°/Р·Р°РїРёСЃРё Р±Р»РѕРєРѕРІ РґР°РЅРЅС‹С…
     for(;;) {
         switch (byte_size) {
         case 1 : diff1 (ptr, bytes, num_chan, base);  break;
@@ -233,7 +233,7 @@ int mm_compress (int mode, int skip_header, int is_float, int num_chan, int word
 finished:
     FreeAndNil(base);
     FreeAndNil(buf);
-    return errcode;         // 0, если всё в порядке, и код ошибки иначе
+    return errcode;         // 0, РµСЃР»Рё РІСЃС‘ РІ РїРѕСЂСЏРґРєРµ, Рё РєРѕРґ РѕС€РёР±РєРё РёРЅР°С‡Рµ
 }
 #endif  // !defined (FREEARC_DECOMPRESS_ONLY)
 
@@ -244,7 +244,7 @@ int mm_decompress (CALLBACK_FUNC *callback, void *auxdata)
     BYTE* buf  = (BYTE*) malloc (BUFFER_SIZE+1);  // buffer for data processed
     void* buf1 = NULL;
     void* base = NULL;                            // room for previous values for all channels what will be substracted from next ones
-    int errcode,                                  // код, возвращённый последней операцией чтения/записи
+    int errcode,                                  // РєРѕРґ, РІРѕР·РІСЂР°С‰С‘РЅРЅС‹Р№ РїРѕСЃР»РµРґРЅРµР№ РѕРїРµСЂР°С†РёРµР№ С‡С‚РµРЅРёСЏ/Р·Р°РїРёСЃРё
         bytes;                                    // how many bytes was read to buf
 
     READ (header,1);
@@ -299,7 +299,7 @@ finished:
     FreeAndNil (base);
     FreeAndNil (buf1);
     FreeAndNil (buf);
-    return errcode;         // 0, если всё в порядке, и код ошибки иначе
+    return errcode;         // 0, РµСЃР»Рё РІСЃС‘ РІ РїРѕСЂСЏРґРєРµ, Рё РєРѕРґ РѕС€РёР±РєРё РёРЅР°С‡Рµ
 }
 
 
@@ -363,7 +363,7 @@ int writeFILE (/*void* param,*/ void* buf, int size)
     return size;
 }
 
-// Разбор командной строки, чтение входных данных, вызов encode/decode, и запись выходных данных
+// Р Р°Р·Р±РѕСЂ РєРѕРјР°РЅРґРЅРѕР№ СЃС‚СЂРѕРєРё, С‡С‚РµРЅРёРµ РІС…РѕРґРЅС‹С… РґР°РЅРЅС‹С…, РІС‹Р·РѕРІ encode/decode, Рё Р·Р°РїРёСЃСЊ РІС‹С…РѕРґРЅС‹С… РґР°РЅРЅС‹С…
 int main (int argc, char **argv)
 {
     int mode        = 9;  // Detection speed mode (1 - fastest, 9 - most accurate)
@@ -421,7 +421,7 @@ int main (int argc, char **argv)
         exit(2);
     }
 
-    // Записать выходные данные, если был указан выходной файл
+    // Р—Р°РїРёСЃР°С‚СЊ РІС‹С…РѕРґРЅС‹Рµ РґР°РЅРЅС‹Рµ, РµСЃР»Рё Р±С‹Р» СѓРєР°Р·Р°РЅ РІС‹С…РѕРґРЅРѕР№ С„Р°Р№Р»
     fout = fopen (argc==3? argv[2] : "NUL", "wb");
     if (fout == NULL) {
         printf ("\n Can't open %s for write\n", argv[2]);
@@ -433,7 +433,7 @@ int main (int argc, char **argv)
     stime = time(NULL);
     data_size = filelength(fileno(fin));
 
-    // Произвести упаковку или распаковку
+    // РџСЂРѕРёР·РІРµСЃС‚Рё СѓРїР°РєРѕРІРєСѓ РёР»Рё СЂР°СЃРїР°РєРѕРІРєСѓ
     !unpack
       ? mm_compress   (mode, skip_header, is_float, num_chan, word_size, offset, reorder, readFILE, writeFILE)
       : mm_decompress (readFILE, writeFILE);

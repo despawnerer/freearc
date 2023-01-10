@@ -666,7 +666,7 @@ public:
 #define NUM        2048             /* maximum number of symbols + 1 */
 #define INDEXES    2048             /* amount of indexes used for fast searching in cum[] table */
 #define RANGE      (1u<<RANGE_BITS) /* automagically, on each recalculation there are just RANGE symbols counted in livecnt[] */
-#define RANGE_BITS 14               /* the higher this value, тем реже происходят обновления статистики, но она при этом точнее */
+#define RANGE_BITS 14               /* the higher this value, С‚РµРј СЂРµР¶Рµ РїСЂРѕРёСЃС…РѕРґСЏС‚ РѕР±РЅРѕРІР»РµРЅРёСЏ СЃС‚Р°С‚РёСЃС‚РёРєРё, РЅРѕ РѕРЅР° РїСЂРё СЌС‚РѕРј С‚РѕС‡РЅРµРµ */
 
 template <CodecDirection type>
 struct TCounter

@@ -20,7 +20,7 @@ To-do list:
         64-bit MemSize (lzma:h4g)
         steal cmdline processing from bzip2 or tornado
         external: pause arc's progress indicator when running non-stdin-to-stdout external compressor
-        external - не создавать tempdir при stdin+stdout?
+        external - РЅРµ СЃРѕР·РґР°РІР°С‚СЊ tempdir РїСЂРё stdin+stdout?
         linux:external - support waiting for b/g processes (RunCommand "...&")
         WRITE4 in C_DisPack -> FWRITE4/FWRITE/FFLUSH
         PROGRESS/FREAD in rep/delta/C_DisPack/...

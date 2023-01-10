@@ -4,13 +4,13 @@
 
 #ifdef __cplusplus
 
-// Реализация стандартного интерфейса методов сжатия COMPRESSION_METHOD
+// Р РµР°Р»РёР·Р°С†РёСЏ СЃС‚Р°РЅРґР°СЂС‚РЅРѕРіРѕ РёРЅС‚РµСЂС„РµР№СЃР° РјРµС‚РѕРґРѕРІ СЃР¶Р°С‚РёСЏ COMPRESSION_METHOD
 class CLS_METHOD : public COMPRESSION_METHOD
 {
 public:
-  // Параметры этого метода сжатия
-  char     name[MAX_METHOD_STRLEN];            // Имя метода (pmm, ccm...)        ////
-  char     params[MAX_METHOD_STRLEN];          // Доп. параметры метода           ////
+  // РџР°СЂР°РјРµС‚СЂС‹ СЌС‚РѕРіРѕ РјРµС‚РѕРґР° СЃР¶Р°С‚РёСЏ
+  char     name[MAX_METHOD_STRLEN];            // РРјСЏ РјРµС‚РѕРґР° (pmm, ccm...)        ////
+  char     params[MAX_METHOD_STRLEN];          // Р”РѕРї. РїР°СЂР°РјРµС‚СЂС‹ РјРµС‚РѕРґР°           ////
   CLS_MAIN *ClsMain;
   CALLBACK_FUNC *callback;
   void *auxdata;
@@ -18,23 +18,23 @@ public:
   CLS_METHOD(char *_name, CLS_MAIN *_ClsMain)
     { strcpy(name, _name); ClsMain = _ClsMain; strcpy(params, ""); }
 
-  // Функции распаковки и упаковки
+  // Р¤СѓРЅРєС†РёРё СЂР°СЃРїР°РєРѕРІРєРё Рё СѓРїР°РєРѕРІРєРё
   virtual int decompress (CALLBACK_FUNC *callback, void *auxdata);
 #ifndef FREEARC_DECOMPRESS_ONLY
   virtual int compress   (CALLBACK_FUNC *callback, void *auxdata);
 
-  // Получить/установить объём памяти, используемой при упаковке/распаковке, размер словаря или размер блока
+  // РџРѕР»СѓС‡РёС‚СЊ/СѓСЃС‚Р°РЅРѕРІРёС‚СЊ РѕР±СЉС‘Рј РїР°РјСЏС‚Рё, РёСЃРїРѕР»СЊР·СѓРµРјРѕР№ РїСЂРё СѓРїР°РєРѕРІРєРµ/СЂР°СЃРїР°РєРѕРІРєРµ, СЂР°Р·РјРµСЂ СЃР»РѕРІР°СЂСЏ РёР»Рё СЂР°Р·РјРµСЂ Р±Р»РѕРєР°
   virtual MemSize GetCompressionMem        (void)               {return 0;}
   virtual void    SetCompressionMem        (MemSize)            {}
   virtual void    SetMinDecompressionMem   (MemSize)            {}
 #endif
   virtual MemSize GetDecompressionMem      (void)               {return 0;}
 
-  // Записать в buf[MAX_METHOD_STRLEN] строку, описывающую метод сжатия и его параметры (функция, обратная к parse_CLS)
+  // Р—Р°РїРёСЃР°С‚СЊ РІ buf[MAX_METHOD_STRLEN] СЃС‚СЂРѕРєСѓ, РѕРїРёСЃС‹РІР°СЋС‰СѓСЋ РјРµС‚РѕРґ СЃР¶Р°С‚РёСЏ Рё РµРіРѕ РїР°СЂР°РјРµС‚СЂС‹ (С„СѓРЅРєС†РёСЏ, РѕР±СЂР°С‚РЅР°СЏ Рє parse_CLS)
   virtual void ShowCompressionMethod (char *buf, bool purify);
 };
 
-// Разборщик строки препроцессора CLS
+// Р Р°Р·Р±РѕСЂС‰РёРє СЃС‚СЂРѕРєРё РїСЂРµРїСЂРѕС†РµСЃСЃРѕСЂР° CLS
 COMPRESSION_METHOD* parse_CLS (char** parameters);
 
 #endif  // __cplusplus

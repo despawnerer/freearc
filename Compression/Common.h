@@ -24,7 +24,7 @@ extern "C" {
 #endif
 
 /******************************************************************************
-** Базовые определения FREEARC ************************************************
+** Р‘Р°Р·РѕРІС‹Рµ РѕРїСЂРµРґРµР»РµРЅРёСЏ FREEARC ************************************************
 ******************************************************************************/
 
 #if defined(FREEARC_INTEL_BYTE_ORDER)
@@ -51,7 +51,7 @@ extern "C" {
 
 
 /******************************************************************************
-** Синонимы для простых типов, используемых в программе ***********************
+** РЎРёРЅРѕРЅРёРјС‹ РґР»СЏ РїСЂРѕСЃС‚С‹С… С‚РёРїРѕРІ, РёСЃРїРѕР»СЊР·СѓРµРјС‹С… РІ РїСЂРѕРіСЂР°РјРјРµ ***********************
 ******************************************************************************/
 typedef unsigned long        ulong;
 typedef unsigned int         uint,   UINT;
@@ -78,15 +78,15 @@ typedef          __int8      sint8,  int8;
 typedef unsigned __int8      uint8,  byte, BYTE;
 #endif
 
-typedef size_t               MemSize;          // объём памяти
+typedef size_t               MemSize;          // РѕР±СЉС‘Рј РїР°РјСЏС‚Рё
 typedef uint64               LongMemSize;
 #define MEMSIZE_MAX          UINT_MAX
 typedef off_t                FILESIZE;
-typedef char*                FILENAME;         // имя файла
+typedef char*                FILENAME;         // РёРјСЏ С„Р°Р№Р»Р°
 
 
 /******************************************************************************
-** Коды ошибок ****************************************************************
+** РљРѕРґС‹ РѕС€РёР±РѕРє ****************************************************************
 ******************************************************************************/
 #define FREEARC_OK                               0     /* ALL RIGHT */
 #define FREEARC_ERRCODE_GENERAL                  (-1)  /* Some error when (de)compressing */
@@ -107,7 +107,7 @@ typedef char*                FILENAME;         // имя файла
 
 
 /******************************************************************************
-** Стандартные определения ****************************************************
+** РЎС‚Р°РЅРґР°СЂС‚РЅС‹Рµ РѕРїСЂРµРґРµР»РµРЅРёСЏ ****************************************************
 ******************************************************************************/
 #define make4byte(a,b,c,d)       ((a)+256*((b)+256*((c)+256*(((uint32)d)))))
 #define iterate(num, statement)  {for( int i=0; i<(num); i++) {statement;}}
@@ -231,17 +231,17 @@ static inline int dir_exists (const TCHAR *name)
 
 typedef int SIMPLE_CALLBACK(void *param);
 
-void BuildPathTo(CFILENAME name);                          // Создать каталоги на пути к name
-uint64 GetPhysicalMemory (void);                           // Объём физической памяти компьютера
-uint64 GetAvailablePhysicalMemory (void);                  // Объём свободной физической памяти компьютера
-int GetProcessorsCount (void);                             // Общее количество процессоров (точнее, физических ядер, а ещё точнее - потоков выполнения) в системе. Используется для определения того, сколько "тяжёлых" вычислительных потоков целесообразно запустить в программе
-void SetFileDateTime (CFILENAME Filename, time_t t);       // Установить время/дату модификации файла
+void BuildPathTo(CFILENAME name);                          // РЎРѕР·РґР°С‚СЊ РєР°С‚Р°Р»РѕРіРё РЅР° РїСѓС‚Рё Рє name
+uint64 GetPhysicalMemory (void);                           // РћР±СЉС‘Рј С„РёР·РёС‡РµСЃРєРѕР№ РїР°РјСЏС‚Рё РєРѕРјРїСЊСЋС‚РµСЂР°
+uint64 GetAvailablePhysicalMemory (void);                  // РћР±СЉС‘Рј СЃРІРѕР±РѕРґРЅРѕР№ С„РёР·РёС‡РµСЃРєРѕР№ РїР°РјСЏС‚Рё РєРѕРјРїСЊСЋС‚РµСЂР°
+int GetProcessorsCount (void);                             // РћР±С‰РµРµ РєРѕР»РёС‡РµСЃС‚РІРѕ РїСЂРѕС†РµСЃСЃРѕСЂРѕРІ (С‚РѕС‡РЅРµРµ, С„РёР·РёС‡РµСЃРєРёС… СЏРґРµСЂ, Р° РµС‰С‘ С‚РѕС‡РЅРµРµ - РїРѕС‚РѕРєРѕРІ РІС‹РїРѕР»РЅРµРЅРёСЏ) РІ СЃРёСЃС‚РµРјРµ. РСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ РґР»СЏ РѕРїСЂРµРґРµР»РµРЅРёСЏ С‚РѕРіРѕ, СЃРєРѕР»СЊРєРѕ "С‚СЏР¶С‘Р»С‹С…" РІС‹С‡РёСЃР»РёС‚РµР»СЊРЅС‹С… РїРѕС‚РѕРєРѕРІ С†РµР»РµСЃРѕРѕР±СЂР°Р·РЅРѕ Р·Р°РїСѓСЃС‚РёС‚СЊ РІ РїСЂРѕРіСЂР°РјРјРµ
+void SetFileDateTime (CFILENAME Filename, time_t t);       // РЈСЃС‚Р°РЅРѕРІРёС‚СЊ РІСЂРµРјСЏ/РґР°С‚Сѓ РјРѕРґРёС„РёРєР°С†РёРё С„Р°Р№Р»Р°
 void RunProgram (CFILENAME filename, CFILENAME curdir, int wait_finish);  // Execute program `filename` in the directory `curdir` optionally waiting until it finished
 int  RunCommand (CFILENAME command,  CFILENAME curdir, int wait_finish, SIMPLE_CALLBACK *callback, void *auxdata);  // Execute `command` in the directory `curdir` optionally waiting until it finished
 void RunFile    (CFILENAME filename, CFILENAME curdir, int wait_finish);  // Execute file `filename` in the directory `curdir` optionally waiting until it finished
-void SetCompressionThreadPriority (void);                  // Установить приоритет треда какой полагается для тредов сжатия (распаковки, шифрования...).
-int  BeginCompressionThreadPriority (void);                // Временно установить приоритет треда какой полагается для тредов сжатия (распаковки, шифрования...)
-void EndCompressionThreadPriority (int old_priority);      // Восстановить приоритет треда таким, как мы его запомнили
+void SetCompressionThreadPriority (void);                  // РЈСЃС‚Р°РЅРѕРІРёС‚СЊ РїСЂРёРѕСЂРёС‚РµС‚ С‚СЂРµРґР° РєР°РєРѕР№ РїРѕР»Р°РіР°РµС‚СЃСЏ РґР»СЏ С‚СЂРµРґРѕРІ СЃР¶Р°С‚РёСЏ (СЂР°СЃРїР°РєРѕРІРєРё, С€РёС„СЂРѕРІР°РЅРёСЏ...).
+int  BeginCompressionThreadPriority (void);                // Р’СЂРµРјРµРЅРЅРѕ СѓСЃС‚Р°РЅРѕРІРёС‚СЊ РїСЂРёРѕСЂРёС‚РµС‚ С‚СЂРµРґР° РєР°РєРѕР№ РїРѕР»Р°РіР°РµС‚СЃСЏ РґР»СЏ С‚СЂРµРґРѕРІ СЃР¶Р°С‚РёСЏ (СЂР°СЃРїР°РєРѕРІРєРё, С€РёС„СЂРѕРІР°РЅРёСЏ...)
+void EndCompressionThreadPriority (int old_priority);      // Р’РѕСЃСЃС‚Р°РЅРѕРІРёС‚СЊ РїСЂРёРѕСЂРёС‚РµС‚ С‚СЂРµРґР° С‚Р°РєРёРј, РєР°Рє РјС‹ РµРіРѕ Р·Р°РїРѕРјРЅРёР»Рё
 void SetTempDir (CFILENAME dir);                           // Set temporary files directory
 CFILENAME GetTempDir (void);                               // Return last value set or GetTempPath (%TEMP)
 
@@ -477,11 +477,11 @@ static inline void setvalue32b (void *p, uint32 x)
 // Exit code used to indicate serious problems in FreeArc utilities
 #define FREEARC_EXIT_ERROR 2
 
-// Переменные, используемые для сигнализации об ошибках из глубоко вложеных процедур
+// РџРµСЂРµРјРµРЅРЅС‹Рµ, РёСЃРїРѕР»СЊР·СѓРµРјС‹Рµ РґР»СЏ СЃРёРіРЅР°Р»РёР·Р°С†РёРё РѕР± РѕС€РёР±РєР°С… РёР· РіР»СѓР±РѕРєРѕ РІР»РѕР¶РµРЅС‹С… РїСЂРѕС†РµРґСѓСЂ
 extern int jmpready;
 extern jmp_buf jumper;
 
-// Процедура сообщения о неожиданных ошибочных ситуациях
+// РџСЂРѕС†РµРґСѓСЂР° СЃРѕРѕР±С‰РµРЅРёСЏ Рѕ РЅРµРѕР¶РёРґР°РЅРЅС‹С… РѕС€РёР±РѕС‡РЅС‹С… СЃРёС‚СѓР°С†РёСЏС…
 #ifndef CHECK
 #  define CHECK(e,a,b)           {if (!(a))  {if (jmpready) longjmp(jumper,1);  char s[MY_FILENAME_MAX*4];  sprintf b;  printf("\n%s",s);  ON_CHECK_FAIL();  exit(FREEARC_EXIT_ERROR);}}
 #endif
@@ -490,25 +490,25 @@ extern jmp_buf jumper;
 #define ON_CHECK_FAIL()
 #endif
 
-// Устанавливает Jump Point с переходом на метку label
+// РЈСЃС‚Р°РЅР°РІР»РёРІР°РµС‚ Jump Point СЃ РїРµСЂРµС…РѕРґРѕРј РЅР° РјРµС‚РєСѓ label
 #define SET_JMP_POINT_GOTO(label)                                                      \
 {                                                                                      \
   if (!jmpready && setjmp(jumper) != 0)                                                \
-    /* Сюда мы попадём при возникновении ошибки в одной из вызываемых процедур */      \
+    /* РЎСЋРґР° РјС‹ РїРѕРїР°РґС‘Рј РїСЂРё РІРѕР·РЅРёРєРЅРѕРІРµРЅРёРё РѕС€РёР±РєРё РІ РѕРґРЅРѕР№ РёР· РІС‹Р·С‹РІР°РµРјС‹С… РїСЂРѕС†РµРґСѓСЂ */      \
     {jmpready = FALSE; goto label;}                                                    \
   jmpready = TRUE;                                                                     \
 }
 
-// Устанавливает Jump Point с кодом возврата retcode
+// РЈСЃС‚Р°РЅР°РІР»РёРІР°РµС‚ Jump Point СЃ РєРѕРґРѕРј РІРѕР·РІСЂР°С‚Р° retcode
 #define SET_JMP_POINT(retcode)                                                         \
 {                                                                                      \
   if (!jmpready && setjmp(jumper) != 0)                                                \
-    /* Сюда мы попадём при возникновении ошибки в одной из вызываемых процедур */      \
+    /* РЎСЋРґР° РјС‹ РїРѕРїР°РґС‘Рј РїСЂРё РІРѕР·РЅРёРєРЅРѕРІРµРЅРёРё РѕС€РёР±РєРё РІ РѕРґРЅРѕР№ РёР· РІС‹Р·С‹РІР°РµРјС‹С… РїСЂРѕС†РµРґСѓСЂ */      \
     {jmpready = FALSE; return retcode;}                                                \
   jmpready = TRUE;                                                                     \
 }
 
-// Снимает Jump Point
+// РЎРЅРёРјР°РµС‚ Jump Point
 #define RESET_JMP_POINT()                                                              \
 {                                                                                      \
   jmpready = FALSE;                                                                    \
@@ -556,14 +556,14 @@ extern bool AllocTopDown;
 
 
 // ****************************************************************************
-// Функции парсинга и арифметики **********************************************
+// Р¤СѓРЅРєС†РёРё РїР°СЂСЃРёРЅРіР° Рё Р°СЂРёС„РјРµС‚РёРєРё **********************************************
 // ****************************************************************************
-void strncopy (char *to, char *from, int len);      // Копирует строчку from в to, но не более len символов
-int  split (char *str, char splitter, char **result, int result_size); // Разбить строку str на подстроки, разделённые символом splitter
-void join (char **src, char splitter, char *result, int result_size);  // Объединить NULL-terminated массив строк src в строку result, ставя между строками разделитель splitter
-char *search_param(char **param, char *prefix);                        // Найти параметр с заданным именем в массиве параметров алгоритма
-char*subst (char *original, char *from, char *to);                     // Заменяет в строке original все вхождения from на to
-char*trim_spaces (char *s);                                            // Пропускает пробелы в начале строки и убирает их в конце, модифицируя строку
+void strncopy (char *to, char *from, int len);      // РљРѕРїРёСЂСѓРµС‚ СЃС‚СЂРѕС‡РєСѓ from РІ to, РЅРѕ РЅРµ Р±РѕР»РµРµ len СЃРёРјРІРѕР»РѕРІ
+int  split (char *str, char splitter, char **result, int result_size); // Р Р°Р·Р±РёС‚СЊ СЃС‚СЂРѕРєСѓ str РЅР° РїРѕРґСЃС‚СЂРѕРєРё, СЂР°Р·РґРµР»С‘РЅРЅС‹Рµ СЃРёРјРІРѕР»РѕРј splitter
+void join (char **src, char splitter, char *result, int result_size);  // РћР±СЉРµРґРёРЅРёС‚СЊ NULL-terminated РјР°СЃСЃРёРІ СЃС‚СЂРѕРє src РІ СЃС‚СЂРѕРєСѓ result, СЃС‚Р°РІСЏ РјРµР¶РґСѓ СЃС‚СЂРѕРєР°РјРё СЂР°Р·РґРµР»РёС‚РµР»СЊ splitter
+char *search_param(char **param, char *prefix);                        // РќР°Р№С‚Рё РїР°СЂР°РјРµС‚СЂ СЃ Р·Р°РґР°РЅРЅС‹Рј РёРјРµРЅРµРј РІ РјР°СЃСЃРёРІРµ РїР°СЂР°РјРµС‚СЂРѕРІ Р°Р»РіРѕСЂРёС‚РјР°
+char*subst (char *original, char *from, char *to);                     // Р—Р°РјРµРЅСЏРµС‚ РІ СЃС‚СЂРѕРєРµ original РІСЃРµ РІС…РѕР¶РґРµРЅРёСЏ from РЅР° to
+char*trim_spaces (char *s);                                            // РџСЂРѕРїСѓСЃРєР°РµС‚ РїСЂРѕР±РµР»С‹ РІ РЅР°С‡Р°Р»Рµ СЃС‚СЂРѕРєРё Рё СѓР±РёСЂР°РµС‚ РёС… РІ РєРѕРЅС†Рµ, РјРѕРґРёС„РёС†РёСЂСѓСЏ СЃС‚СЂРѕРєСѓ
 char *str_replace_n (char *orig, char *from, int how_many, char *to);  // Replace from:how_many substring and put result in new allocated area
 char *str_replace   (char *orig, char *from, char *to);                // Replace substring and put result in new allocated area
 double  parseDouble(char *param, int *error);                          // If the string param contains a double, return it - otherwise set error=1
@@ -572,10 +572,10 @@ MemSize parseMem   (char *param, int *error, DEFAULT(char spec,'^'));  // Simila
 uint64  parseMem64 (char *param, int *error, DEFAULT(char spec,'^'));  // Similar, but the string param may have a suffix b/k/m/g/^, representing units of memory, or in the case of '^' (default, overridden by spec parameter), the relevant power of 2
 void showMem (MemSize mem, char *result);                              // Returns string with the amount of memory
 void showMem64 (uint64 mem, char *result);                             // Returns string with the amount of memory
-void encode16 (const BYTE *src, int srcSize, char *dst);               // Кодирование строки в шестнадцатеричный вид плюс \0
-void decode16 (const char *src, BYTE *dst);                            // Декодирование строки, записанной в шестнадцатеричном виде, в последовательность байт
-void buggy_decode16 (const char *src, BYTE *dst);                      // ОШИБОЧНОЕ декодирование строки, записанной в шестнадцатеричном виде, в последовательность байт
-MemSize rounddown_mem (MemSize n);                                     // Округляет размер памяти вниз до удобной величины
+void encode16 (const BYTE *src, int srcSize, char *dst);               // РљРѕРґРёСЂРѕРІР°РЅРёРµ СЃС‚СЂРѕРєРё РІ С€РµСЃС‚РЅР°РґС†Р°С‚РµСЂРёС‡РЅС‹Р№ РІРёРґ РїР»СЋСЃ \0
+void decode16 (const char *src, BYTE *dst);                            // Р”РµРєРѕРґРёСЂРѕРІР°РЅРёРµ СЃС‚СЂРѕРєРё, Р·Р°РїРёСЃР°РЅРЅРѕР№ РІ С€РµСЃС‚РЅР°РґС†Р°С‚РµСЂРёС‡РЅРѕРј РІРёРґРµ, РІ РїРѕСЃР»РµРґРѕРІР°С‚РµР»СЊРЅРѕСЃС‚СЊ Р±Р°Р№С‚
+void buggy_decode16 (const char *src, BYTE *dst);                      // РћРЁРР‘РћР§РќРћР• РґРµРєРѕРґРёСЂРѕРІР°РЅРёРµ СЃС‚СЂРѕРєРё, Р·Р°РїРёСЃР°РЅРЅРѕР№ РІ С€РµСЃС‚РЅР°РґС†Р°С‚РµСЂРёС‡РЅРѕРј РІРёРґРµ, РІ РїРѕСЃР»РµРґРѕРІР°С‚РµР»СЊРЅРѕСЃС‚СЊ Р±Р°Р№С‚
+MemSize rounddown_mem (MemSize n);                                     // РћРєСЂСѓРіР»СЏРµС‚ СЂР°Р·РјРµСЂ РїР°РјСЏС‚Рё РІРЅРёР· РґРѕ СѓРґРѕР±РЅРѕР№ РІРµР»РёС‡РёРЅС‹
 char* sanitize_filename (char* filename);                              // Replace alternative path delimiters with OS-specific one and remove "." and ".." from the path
 
 
@@ -627,8 +627,8 @@ static inline double log2  (double x)  {return log(x)/log(2.);}
 static inline double round (double x)  {return (x > 0.0) ? floor(x + 0.5) : ceil(x - 0.5);}
 #endif
 
-// Эта процедура округляет число к ближайшей сверху степени
-// базы, например f(13,2)=16
+// Р­С‚Р° РїСЂРѕС†РµРґСѓСЂР° РѕРєСЂСѓРіР»СЏРµС‚ С‡РёСЃР»Рѕ Рє Р±Р»РёР¶Р°Р№С€РµР№ СЃРІРµСЂС…Сѓ СЃС‚РµРїРµРЅРё
+// Р±Р°Р·С‹, РЅР°РїСЂРёРјРµСЂ f(13,2)=16
 static inline MemSize roundup_to_power_of (MemSize n, MemSize base)
 {
     MemSize result = base;
@@ -644,8 +644,8 @@ static inline MemSize roundup_to_power_of (MemSize n, MemSize base)
     return result;
 }
 
-// Эта процедура округляет число к ближайшей снизу степени
-// базы, например f(13,2)=8
+// Р­С‚Р° РїСЂРѕС†РµРґСѓСЂР° РѕРєСЂСѓРіР»СЏРµС‚ С‡РёСЃР»Рѕ Рє Р±Р»РёР¶Р°Р№С€РµР№ СЃРЅРёР·Сѓ СЃС‚РµРїРµРЅРё
+// Р±Р°Р·С‹, РЅР°РїСЂРёРјРµСЂ f(13,2)=8
 static inline MemSize rounddown_to_power_of (MemSize n, MemSize base)
 {
     MemSize result = 1;
@@ -659,8 +659,8 @@ static inline MemSize rounddown_to_power_of (MemSize n, MemSize base)
     return result;
 }
 
-// Эта процедура округляет число к логарифмически ближайшей степени
-// базы, например f(9,2)=8  f(15,2)=16
+// Р­С‚Р° РїСЂРѕС†РµРґСѓСЂР° РѕРєСЂСѓРіР»СЏРµС‚ С‡РёСЃР»Рѕ Рє Р»РѕРіР°СЂРёС„РјРёС‡РµСЃРєРё Р±Р»РёР¶Р°Р№С€РµР№ СЃС‚РµРїРµРЅРё
+// Р±Р°Р·С‹, РЅР°РїСЂРёРјРµСЂ f(9,2)=8  f(15,2)=16
 static inline MemSize round_to_nearest_power_of (MemSize n, MemSize base)
 {
     MemSize result;
@@ -670,7 +670,7 @@ static inline MemSize round_to_nearest_power_of (MemSize n, MemSize base)
     return result;
 }
 
-// Превращает число в строку, разделённую запятыми: "1,234,567"
+// РџСЂРµРІСЂР°С‰Р°РµС‚ С‡РёСЃР»Рѕ РІ СЃС‚СЂРѕРєСѓ, СЂР°Р·РґРµР»С‘РЅРЅСѓСЋ Р·Р°РїСЏС‚С‹РјРё: "1,234,567"
 static inline char* show3 (uint64 n, char *buf, const char *prepend="")
 {
     char *p = buf + 27+strlen(prepend);
@@ -686,7 +686,7 @@ static inline char* show3 (uint64 n, char *buf, const char *prepend="")
     return p-strlen(prepend);
 }
 
-// Заменить символы из множества from на символ to
+// Р—Р°РјРµРЅРёС‚СЊ СЃРёРјРІРѕР»С‹ РёР· РјРЅРѕР¶РµСЃС‚РІР° from РЅР° СЃРёРјРІРѕР» to
 static inline char *replace (char *str, char* from, char to)
 {
   char *p;
@@ -696,16 +696,16 @@ static inline char *replace (char *str, char* from, char to)
   return str;
 }
 
-// Возращает числовое значение символа, рассматриваемого как шестнадцатеричная цифра, и наоборот (плюс старый ошибочный вариант)
+// Р’РѕР·СЂР°С‰Р°РµС‚ С‡РёСЃР»РѕРІРѕРµ Р·РЅР°С‡РµРЅРёРµ СЃРёРјРІРѕР»Р°, СЂР°СЃСЃРјР°С‚СЂРёРІР°РµРјРѕРіРѕ РєР°Рє С€РµСЃС‚РЅР°РґС†Р°С‚РµСЂРёС‡РЅР°СЏ С†РёС„СЂР°, Рё РЅР°РѕР±РѕСЂРѕС‚ (РїР»СЋСЃ СЃС‚Р°СЂС‹Р№ РѕС€РёР±РѕС‡РЅС‹Р№ РІР°СЂРёР°РЅС‚)
 static inline char int2char(int i) {return i>9? 'a'+(i-10) : '0'+i;}
 static inline int char2int(char c) {return isdigit(c)? c-'0' : tolower(c)-'a'+10;}
 static inline int buggy_char2int(char c) {return isdigit(c)? c-'0' : tolower(c)-'a';}
 
 #ifndef FREEARC_NO_TIMING
-// Вывод заголовка окна
-void EnvSetConsoleTitle (CFILENAME title);  // Установить заголовок консольного окна
+// Р’С‹РІРѕРґ Р·Р°РіРѕР»РѕРІРєР° РѕРєРЅР°
+void EnvSetConsoleTitle (CFILENAME title);  // РЈСЃС‚Р°РЅРѕРІРёС‚СЊ Р·Р°РіРѕР»РѕРІРѕРє РєРѕРЅСЃРѕР»СЊРЅРѕРіРѕ РѕРєРЅР°
 void EnvSetConsoleTitleA (char *title);
-void EnvResetConsoleTitle (void);  // Восстановить заголовок, который был в начале работы программы
+void EnvResetConsoleTitle (void);  // Р’РѕСЃСЃС‚Р°РЅРѕРІРёС‚СЊ Р·Р°РіРѕР»РѕРІРѕРє, РєРѕС‚РѕСЂС‹Р№ Р±С‹Р» РІ РЅР°С‡Р°Р»Рµ СЂР°Р±РѕС‚С‹ РїСЂРѕРіСЂР°РјРјС‹
 
 // Timing execution
 double GetGlobalTime     (void);   // Returns number of wall-clock seconds since some moment
@@ -745,10 +745,10 @@ static inline char *strdup_msg (char *old)
 
 
 /******************************************************************************
-** Класс, абстрагирующий работу с файлами *************************************
+** РљР»Р°СЃСЃ, Р°Р±СЃС‚СЂР°РіРёСЂСѓСЋС‰РёР№ СЂР°Р±РѕС‚Сѓ СЃ С„Р°Р№Р»Р°РјРё *************************************
 ******************************************************************************/
 
-enum MODE {READ_MODE, WRITE_MODE}; // режим открытия файла
+enum MODE {READ_MODE, WRITE_MODE}; // СЂРµР¶РёРј РѕС‚РєСЂС‹С‚РёСЏ С„Р°Р№Р»Р°
 struct MYFILE
 {
   // Mark file as temporary, removed automatically by destructor
@@ -800,28 +800,28 @@ struct MYFILE
   virtual int  remove ()                  {return remove_file(filename);}
   virtual int  remove_readonly_attrib ()  {/*struct stat buf; if (0==stat(filename, &buf))  chmod(filename, buf.st_mode & ~S_IWUSR & ~S_IWGRP & ~S_IWOTH);*/  return 0;}
 
-  bool tryOpen (MODE mode)    // Пытается открыть файл для чтения или записи
+  bool tryOpen (MODE mode)    // РџС‹С‚Р°РµС‚СЃСЏ РѕС‚РєСЂС‹С‚СЊ С„Р°Р№Р» РґР»СЏ С‡С‚РµРЅРёСЏ РёР»Рё Р·Р°РїРёСЃРё
   {
     if (mode==WRITE_MODE)  BuildPathTo (filename);
     handle =   ::open (filename, mode==READ_MODE? O_RDONLY : O_WRONLY|O_CREAT|O_TRUNC, S_IREAD|S_IWRITE);
     return handle>=0;
   }
 
-  MYFILE& open (MODE mode)    // Открывает файл для чтения или записи
+  MYFILE& open (MODE mode)    // РћС‚РєСЂС‹РІР°РµС‚ С„Р°Р№Р» РґР»СЏ С‡С‚РµРЅРёСЏ РёР»Рё Р·Р°РїРёСЃРё
   {
     bool success = tryOpen(mode);
     CHECK (mode==READ_MODE? FREEARC_ERRCODE_READ : FREEARC_ERRCODE_WRITE,  success,  (s,"ERROR: can't open file %s", utf8name));
     return *this;
   }
 
-  MYFILE& open (FILENAME _filename, MODE mode)    // Открывает файл для чтения или записи
+  MYFILE& open (FILENAME _filename, MODE mode)    // РћС‚РєСЂС‹РІР°РµС‚ С„Р°Р№Р» РґР»СЏ С‡С‚РµРЅРёСЏ РёР»Рё Р·Р°РїРёСЃРё
   {
     setname (_filename);
     return open (mode);
   }
 
-  void SetFileDateTime (time_t mtime)   {::SetFileDateTime (filename, mtime);}   // Устанавливает mtime файла
-  void close()    // Закрывает файл
+  void SetFileDateTime (time_t mtime)   {::SetFileDateTime (filename, mtime);}   // РЈСЃС‚Р°РЅР°РІР»РёРІР°РµС‚ mtime С„Р°Р№Р»Р°
+  void close()    // Р—Р°РєСЂС‹РІР°РµС‚ С„Р°Р№Р»
   {
     CHECK(FREEARC_ERRCODE_READ,  ::close(handle)==0,  (s,"ERROR: can't close file %s", utf8name));
     handle = -1;
@@ -833,8 +833,8 @@ struct MYFILE
   FILESIZE curpos  ()                {return lseek (handle, 0,   SEEK_CUR);}
   void     seek    (FILESIZE pos)    {CHECK (FREEARC_ERRCODE_READ,  lseek (handle, pos, SEEK_SET) == pos,  (s,"ERROR: file seek operation failed"));}
 
-  FILESIZE tryRead (void *buf, FILESIZE size)   {int result = ::read (handle, buf, size);  CHECK (FREEARC_ERRCODE_READ,  result>=0,  (s,"ERROR: file read operation failed"));  return result;}    // Возвращает кол-во прочитанных байт, которое может быть меньше запрошенного
-  void     read    (void *buf, FILESIZE size)   {CHECK (FREEARC_ERRCODE_READ,   tryRead (buf, size) == size,  (s,"ERROR: can't read %lu bytes", (unsigned long)size));}                            // Возбуждает исключение, если не удалось прочесть указанное число байт
+  FILESIZE tryRead (void *buf, FILESIZE size)   {int result = ::read (handle, buf, size);  CHECK (FREEARC_ERRCODE_READ,  result>=0,  (s,"ERROR: file read operation failed"));  return result;}    // Р’РѕР·РІСЂР°С‰Р°РµС‚ РєРѕР»-РІРѕ РїСЂРѕС‡РёС‚Р°РЅРЅС‹С… Р±Р°Р№С‚, РєРѕС‚РѕСЂРѕРµ РјРѕР¶РµС‚ Р±С‹С‚СЊ РјРµРЅСЊС€Рµ Р·Р°РїСЂРѕС€РµРЅРЅРѕРіРѕ
+  void     read    (void *buf, FILESIZE size)   {CHECK (FREEARC_ERRCODE_READ,   tryRead (buf, size) == size,  (s,"ERROR: can't read %lu bytes", (unsigned long)size));}                            // Р’РѕР·Р±СѓР¶РґР°РµС‚ РёСЃРєР»СЋС‡РµРЅРёРµ, РµСЃР»Рё РЅРµ СѓРґР°Р»РѕСЃСЊ РїСЂРѕС‡РµСЃС‚СЊ СѓРєР°Р·Р°РЅРЅРѕРµ С‡РёСЃР»Рѕ Р±Р°Р№С‚
   void     write   (void *buf, FILESIZE size)   {CHECK (FREEARC_ERRCODE_WRITE,  ::write (handle, buf, size) == size,  (s,"ERROR: file write operation failed"));}
 };
 
