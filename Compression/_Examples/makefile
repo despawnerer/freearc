@@ -1,6 +1,6 @@
 include ../../common.mak
 
-ALL: Example-C.exe fazip.exe mse.exe
+ALL: Example-C.exe mse.exe
 
 CODE_FLAGS  = -fno-exceptions -fno-rtti -Wall \
               -Wno-unknown-pragmas -Wno-sign-compare -Wno-conversion \
@@ -20,9 +20,6 @@ COMPRESSION_OBJS = $(TEMPDIR)/C_LZMA.o $(TEMPDIR)/C_BCJ.o $(TEMPDIR)/C_Dict.o $(
 
 Example-C.exe: Example-C.cpp makefile $(COMPRESSION_OBJS)
 	$(GCC) $(CFLAGS) Example-C.cpp -o Example-C.exe $(COMPRESSION_OBJS) $(BUILD_FLAGS)
-
-fazip.exe: fazip.cpp makefile $(COMPRESSION_OBJS)
-	$(GCC) $(CFLAGS) fazip.cpp -o fazip.exe $(COMPRESSION_OBJS) $(BUILD_FLAGS)
 
 mse.exe: mse.cpp makefile $(COMPRESSION_OBJS)
 	$(GCC) $(CFLAGS) mse.cpp -o mse.exe $(COMPRESSION_OBJS) $(BUILD_FLAGS)
