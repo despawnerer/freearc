@@ -26,6 +26,15 @@ int g_allocCountBig = 0;
 #define alloc_debug_printf(x)
 #endif
 
+#ifndef RUSAGE_THREAD
+
+#include <mach/mach_init.h>
+#include <mach/thread_act.h>
+#include <mach/mach_port.h>
+
+#endif
+
+
 void *MyAlloc(size_t size) throw() {
   if (size == 0)
     return 0;
@@ -508,11 +517,28 @@ double GetCPUTime(void) {
 
 // Returns number of seconds spent in this thread
 double GetThreadCPUTime(void) {
+#ifdef RUSAGE_THREAD  // RUSAGE_THREAD is Linux-specific.
   struct rusage usage;
   int res = getrusage(RUSAGE_THREAD, &usage);
   return res ? -1
              : (usage.ru_utime.tv_sec +
                 ((double)usage.ru_utime.tv_usec) / 1000000);
+#else // https://stackoverflow.com/questions/13893134/get-current-pthread-cpu-usage-mac-os-x
+  mach_port_t thread = mach_thread_self();
+  thread_basic_info_data_t info;
+  mach_msg_type_number_t count = THREAD_BASIC_INFO_COUNT;
+  kern_return_t kr = thread_info(thread, THREAD_BASIC_INFO, (thread_info_t) &info, &count);
+
+  int res;
+  if (kr == KERN_SUCCESS && (info.flags & TH_FLAGS_IDLE) == 0) {
+    res = ((double) info.user_time.microseconds) / 1000000;
+  }
+  else {
+    res = -1;
+  }
+  mach_port_deallocate(mach_task_self(), thread);
+  return res;
+#endif
 }
 #endif // FREEARC_UNIX
 
