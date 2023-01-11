@@ -1,6 +1,10 @@
 #include "DisPack.hpp"
 #include <assert.h>
+#if defined(__MACH__)
+#include <stdlib.h>
+#else
 #include <malloc.h>
+#endif
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
