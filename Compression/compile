@@ -38,9 +38,6 @@ cd ..
 cd 4x4
 make
 cd ..
-cd CLS
-make
-cd ..
 cd _Encryption
 make
 cd ..

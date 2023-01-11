@@ -14,7 +14,7 @@ CFLAGS = $(CODE_FLAGS) $(OPT_FLAGS) $(DEBUG_FLAGS) $(DEFINES)
 BUILD_FLAGS =  -lstdc++ -lole32 -s -Xlinker --large-address-aware
 
 COMPRESSION_OBJS = $(TEMPDIR)/C_LZMA.o $(TEMPDIR)/C_BCJ.o $(TEMPDIR)/C_Dict.o $(TEMPDIR)/C_Delta.o $(TEMPDIR)/C_LZ4.o \
-                   $(TEMPDIR)/C_REP.o $(TEMPDIR)/C_LZP.o $(TEMPDIR)/C_PPMD.o $(TEMPDIR)/C_External.o $(TEMPDIR)/C_CLS.o \
+                   $(TEMPDIR)/C_REP.o $(TEMPDIR)/C_LZP.o $(TEMPDIR)/C_PPMD.o $(TEMPDIR)/C_External.o \
                    $(TEMPDIR)/C_MM.o $(TEMPDIR)/C_TTA.o $(TEMPDIR)/C_Tornado.o $(TEMPDIR)/C_GRZip.o $(TEMPDIR)/C_4x4.o $(TEMPDIR)/C_DisPack.o \
                    $(TEMPDIR)/Common.o $(TEMPDIR)/CompressionLibrary.o
 
