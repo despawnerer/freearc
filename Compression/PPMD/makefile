@@ -6,7 +6,7 @@ CODE_FLAGS  = -fno-exceptions -fno-rtti -Wall \
               -Wno-unknown-pragmas -Wno-sign-compare -Wno-conversion
 OPT_FLAGS   = -O1 \
               -fomit-frame-pointer -fstrict-aliasing \
-              -fforce-addr -funroll-all-loops -floop-optimize
+              -fforce-addr -funroll-all-loops
 DEBUG_FLAGS = -g0
 CFLAGS = $(CODE_FLAGS) $(OPT_FLAGS) $(DEBUG_FLAGS) $(DEFINES)
 
