@@ -242,27 +242,3 @@ test_dirs filter_f cmd fi  =  if fiIsDir fi
                                 then opt_x_include_dirs cmd
                                 else filter_f cmd fi
 
-
-----------------------------------------------------------------------------------------------------
----- Экспорт
-----------------------------------------------------------------------------------------------------
-
-#ifdef FREEARC_DLL
-foreign export ccall haskell_FreeArcExecute     :: TABI.C_FUNCTION
-foreign export ccall haskell_FreeArcOpenArchive :: TABI.C_FUNCTION
-
-haskell_FreeArcExecute p = do
-  c_args       <- TABI.required p "command"      -- command to execute
-  gui_callback <- TABI.required p "callback"     -- UI callback
-  var_gui_callback =: gui_callback
-  peekArray0 nullPtr c_args  >>= mapM peekCWString >>= doMain
-  return 0
-
-haskell_FreeArcOpenArchive p = do
-  W arcname    <- TABI.required p "arcname"      -- filename of archive to open
-  callback     <- TABI.required p "callback"     -- callback returning info about archive items
-  szListArchive arcname callback
-  return 0
-#endif
-
-

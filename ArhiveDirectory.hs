@@ -134,7 +134,7 @@ archiveWriteDir dirdata     -- список пар (block :: ArchiveBlock, direc
                 ,sendBuf)   -- "sendBuf buf size len" посылает сформированные в буфере данные на выход
                 nodates     -- не записывать в архив даты модификации файлов?
                 = do
-#ifndef FREEARC_DLL
+
   debugLog "\n  Writing directory"
   let blocks      = map fst dirdata            :: [ArchiveBlock]  -- список солид-блоков, попавших в данный каталог
       crcfilelist = concatMap snd dirdata      :: [FileWithCRC]   -- объединённый список файлов - в том порядке, в каком они расположены в блоках!
@@ -184,7 +184,7 @@ archiveWriteDir dirdata     -- список пар (block :: ArchiveBlock, direc
   -- Это приводит к вылету Arc.exe!!! - всё ещё?
   when (length filelist >= 10000) performGC  -- Соберём мусор, если блок содержит достаточно много файлов
   debugLog "  Directory written"
-#endif
+
   return ()
 
 

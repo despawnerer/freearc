@@ -309,24 +309,7 @@ archiveList command @ Command{ cmd_name=cmd, cmd_arcname=arcname}
             arc @ ArchiveInfo{ arcDirectory=directory, arcArchiveType=arctype} = do
   let files = length directory
       bytes = sum$ map (fiSize.cfFileInfo) directory
-#ifdef FREEARC_DLL
-  gui_callback "archive" [ Pair "arcname"   (W arcname)
-                         , Pair "arctype"   arctype
-                         , Pair "files"     files
-                         ]
 
-  (`myMapM` directory) $ \direntry compsize -> do
-    let fi = cfFileInfo direntry
-    gui_callback "item" [ Pair "filename"       (W$ storedName fi)
-                        , Pair "original"       (fiSize fi)
-                        , Pair "compressed"     (compsize)
-                        , Pair "time"           (fromEnum$ fiTime fi)
-                        , Pair "attr"           (fiAttr fi)
-                        , Pair "is_folder?"     (fiIsDir fi)
-                        , Pair "crc"            (cfCRC direntry)
-                        , Pair "is_encrypted?"  (cfIsEncrypted direntry)
-                        ]
-#else
   when (files>0 || show_empty) $ do
     doFinally uiDoneArchive2 $ do
     let list line1 line2 list_func linelast = do
@@ -355,7 +338,6 @@ archiveList command @ Command{ cmd_name=cmd, cmd_arcname=arcname}
                   (do mapM_ data_block_list (arcDataBlocks arc)
                       return (sum$ map blCompSize (arcDataBlocks arc)))
                   "-----------------------------------------------------------------------------"
-#endif
   return (1, files, bytes, -1)
 
 
