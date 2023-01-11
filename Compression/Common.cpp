@@ -352,10 +352,6 @@ uint64 GetPhysicalMemory(void) {
   return uint64(sysconf(_SC_PHYS_PAGES)) * sysconf(_SC_PAGE_SIZE);
 }
 
-uint64 GetAvailablePhysicalMemory(void) {
-  return uint64(sysconf(_SC_AVPHYS_PAGES)) * sysconf(_SC_PAGE_SIZE);
-}
-
 int GetProcessorsCount(void) { return sysconf(_SC_NPROCESSORS_ONLN); }
 
 void SetFileDateTime(CFILENAME Filename, time_t t) {

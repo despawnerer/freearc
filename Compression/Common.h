@@ -248,8 +248,6 @@ typedef int SIMPLE_CALLBACK(void *param);
 
 void BuildPathTo(CFILENAME name); // Создать каталоги на пути к name
 uint64 GetPhysicalMemory(void); // Объём физической памяти компьютера
-uint64 GetAvailablePhysicalMemory(
-    void); // Объём свободной физической памяти компьютера
 int GetProcessorsCount(
     void); // Общее количество процессоров (точнее, физических ядер, а ещё
            // точнее - потоков выполнения) в системе. Используется для

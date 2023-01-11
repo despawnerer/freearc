@@ -605,10 +605,6 @@ foreign import ccall unsafe "Environment.h GetPhysicalMemory"
 foreign import ccall unsafe "Environment.h GetMaxBlockToAlloc"
   getMaxBlockToAlloc :: IO CUInt
 
--- |Size of physical computer memory that is currently unused
-foreign import ccall unsafe "Environment.h GetAvailablePhysicalMemory"
-  getAvailablePhysicalMemory :: IO Word64
-
 -- |Prints detailed stats about memory available
 foreign import ccall safe "Environment.h TestMalloc"
   testMalloc :: IO ()
