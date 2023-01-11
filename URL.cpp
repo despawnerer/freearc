@@ -125,6 +125,8 @@ void url_close (URL *url)
     free (url);
 }
 
+#endif
+
 
 int64 url_size (URL *url)                      {return url? url->size   : 0;}
 int64 url_pos  (URL *url)                      {return url? url->curpos : 0;}
