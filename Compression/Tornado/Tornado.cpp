@@ -468,10 +468,10 @@ int tor_compress2o(PackMethod m, CALLBACK_FUNC *callback, void *auxdata,
     return tor_compress3o<MatchFinder, LZ77_BitCoder>(m, callback, auxdata, buf,
                                                       bytes_to_compress);
   case HUFCODER: // Huffman encoding
-    return tor_compress3o<MatchFinder, LZ77_Coder<HuffmanEncoder<EOB_CODE>>>(
+    return tor_compress3o<MatchFinder, LZ77_Coder<HuffmanEncoder<EOB_CODE> > >(
         m, callback, auxdata, buf, bytes_to_compress);
   case ARICODER: // Arithmetic encoding
-    return tor_compress3o<MatchFinder, LZ77_Coder<ArithCoder<EOB_CODE>>>(
+    return tor_compress3o<MatchFinder, LZ77_Coder<ArithCoder<EOB_CODE> > >(
         m, callback, auxdata, buf, bytes_to_compress);
   default:
     return FREEARC_ERRCODE_INVALID_COMPRESSOR;
@@ -490,10 +490,10 @@ int tor_compress2(PackMethod m, CALLBACK_FUNC *callback, void *auxdata,
     return tor_compress3<MatchFinder, LZ77_BitCoder>(m, callback, auxdata, buf,
                                                      bytes_to_compress);
   case HUFCODER: // Huffman encoding
-    return tor_compress3<MatchFinder, LZ77_Coder<HuffmanEncoder<EOB_CODE>>>(
+    return tor_compress3<MatchFinder, LZ77_Coder<HuffmanEncoder<EOB_CODE> > >(
         m, callback, auxdata, buf, bytes_to_compress);
   case ARICODER: // Arithmetic encoding
-    return tor_compress3<MatchFinder, LZ77_Coder<ArithCoder<EOB_CODE>>>(
+    return tor_compress3<MatchFinder, LZ77_Coder<ArithCoder<EOB_CODE> > >(
         m, callback, auxdata, buf, bytes_to_compress);
   default:
     return FREEARC_ERRCODE_INVALID_COMPRESSOR;
@@ -525,90 +525,90 @@ int tor_compress(PackMethod m, CALLBACK_FUNC *callback, void *auxdata,
         return tor_compress2<MatchFinder2>(m, callback, auxdata, buf,
                                            bytes_to_compress);
       default:
-        return tor_compress2<MatchFinderN<4>>(m, callback, auxdata, buf,
+        return tor_compress2<MatchFinderN<4> >(m, callback, auxdata, buf,
                                               bytes_to_compress);
       }
 
     case CACHING_MF4:
-      return tor_compress2<CachingMatchFinder<4>>(m, callback, auxdata, buf,
+      return tor_compress2<CachingMatchFinder<4> >(m, callback, auxdata, buf,
                                                   bytes_to_compress);
     case CACHING_MF5:
       return tor_compress2d<
-          CombineMF<CachingMatchFinder<5>, ExactMatchFinder<4>>>(
+          CombineMF<CachingMatchFinder<5>, ExactMatchFinder<4> > >(
           m, callback, auxdata, buf, bytes_to_compress);
     case CACHING_MF6:
-      return tor_compress2d<CombineMF<CachingMatchFinder<6>, MatchFinderN<4>>>(
+      return tor_compress2d<CombineMF<CachingMatchFinder<6>, MatchFinderN<4> > >(
           m, callback, auxdata, buf, bytes_to_compress);
     case CACHING_MF7:
       return tor_compress2d<
-          CombineMF<CachingMatchFinder<7>, CachingMatchFinder<4>>>(
+          CombineMF<CachingMatchFinder<7>, CachingMatchFinder<4> > >(
           m, callback, auxdata, buf, bytes_to_compress);
 
     case BT_MF4:
-      return tor_compress2d<BinaryTreeMatchFinder<4>>(m, callback, auxdata, buf,
+      return tor_compress2d<BinaryTreeMatchFinder<4> >(m, callback, auxdata, buf,
                                                       bytes_to_compress);
     case BT_MF5:
       return tor_compress2d<
-          CombineMF<BinaryTreeMatchFinder<5>, ExactMatchFinder<4>>>(
+          CombineMF<BinaryTreeMatchFinder<5>, ExactMatchFinder<4> > >(
           m, callback, auxdata, buf, bytes_to_compress);
 
     case CYCLED_MF4:
       if (m.hash_row_width > 256)
         return FREEARC_ERRCODE_INVALID_COMPRESSOR;
-      return tor_compress2<CycledCachingMatchFinder<4>>(m, callback, auxdata,
+      return tor_compress2<CycledCachingMatchFinder<4> >(m, callback, auxdata,
                                                         buf, bytes_to_compress);
     case CYCLED_MF5:
       if (m.hash_row_width > 256)
         return FREEARC_ERRCODE_INVALID_COMPRESSOR;
       return tor_compress2d<
-          CombineMF<CycledCachingMatchFinder<5>, ExactMatchFinder<4>>>(
+          CombineMF<CycledCachingMatchFinder<5>, ExactMatchFinder<4> > >(
           m, callback, auxdata, buf, bytes_to_compress);
     case CYCLED_MF6:
       if (m.hash_row_width > 256)
         return FREEARC_ERRCODE_INVALID_COMPRESSOR;
       return tor_compress2d<
-          CombineMF<CycledCachingMatchFinder<6>, CycledCachingMatchFinder<4>>>(
+          CombineMF<CycledCachingMatchFinder<6>, CycledCachingMatchFinder<4> > >(
           m, callback, auxdata, buf, bytes_to_compress);
     case CYCLED_MF7:
       if (m.hash_row_width > 256)
         return FREEARC_ERRCODE_INVALID_COMPRESSOR;
       return tor_compress2d<
-          CombineMF<CycledCachingMatchFinder<7>, CycledCachingMatchFinder<4>>>(
+          CombineMF<CycledCachingMatchFinder<7>, CycledCachingMatchFinder<4> > >(
           m, callback, auxdata, buf, bytes_to_compress);
     }
   } else if (m.match_parser == OPTIMAL) {
     switch (m.match_finder) {
     case NON_CACHING_MF:
-      return tor_compress2o<MatchFinderN<4>>(m, callback, auxdata, buf,
+      return tor_compress2o<MatchFinderN<4> >(m, callback, auxdata, buf,
                                              bytes_to_compress);
     case CACHING_MF4:
-      return tor_compress2o<CachingMatchFinder<4>>(m, callback, auxdata, buf,
+      return tor_compress2o<CachingMatchFinder<4> >(m, callback, auxdata, buf,
                                                    bytes_to_compress);
     case CACHING_MF5:
       return tor_compress2o<
-          CombineMF<CachingMatchFinder<5>, ExactMatchFinder<4>>>(
+          CombineMF<CachingMatchFinder<5>, ExactMatchFinder<4> > >(
           m, callback, auxdata, buf, bytes_to_compress);
     case CACHING_MF6:
-      return tor_compress2o<CombineMF<CachingMatchFinder<6>, MatchFinderN<4>>>(
+      return tor_compress2o<CombineMF<CachingMatchFinder<6>, MatchFinderN<4> > >(
           m, callback, auxdata, buf, bytes_to_compress);
     case CACHING_MF7:
       return tor_compress2o<
-          CombineMF<CachingMatchFinder<7>, CachingMatchFinder<4>>>(
+          CombineMF<CachingMatchFinder<7>, CachingMatchFinder<4> > >(
           m, callback, auxdata, buf, bytes_to_compress);
     case BT_MF4:
-      return tor_compress2o<BinaryTreeMatchFinder<4>>(m, callback, auxdata, buf,
+      return tor_compress2o<BinaryTreeMatchFinder<4> >(m, callback, auxdata, buf,
                                                       bytes_to_compress);
     case BT_MF5:
       return tor_compress2o<
-          CombineMF<BinaryTreeMatchFinder<5>, ExactMatchFinder<4>>>(
+          CombineMF<BinaryTreeMatchFinder<5>, ExactMatchFinder<4> > >(
           m, callback, auxdata, buf, bytes_to_compress);
     case BT_MF6:
       return tor_compress2o<
-          CombineMF<BinaryTreeMatchFinder<6>, MatchFinderN<4>>>(
+          CombineMF<BinaryTreeMatchFinder<6>, MatchFinderN<4> > >(
           m, callback, auxdata, buf, bytes_to_compress);
     case BT_MF7:
       return tor_compress2o<
-          CombineMF<BinaryTreeMatchFinder<7>, CachingMatchFinder<4>>>(
+          CombineMF<BinaryTreeMatchFinder<7>, CachingMatchFinder<4> > >(
           m, callback, auxdata, buf, bytes_to_compress);
     }
   }
@@ -627,25 +627,25 @@ int tor_compress(PackMethod m, CALLBACK_FUNC *callback, void *auxdata,
   } else if (m.encoding_method == HUFCODER && m.hash_row_width == 2 &&
              m.hash3 == 0 && m.match_finder == NON_CACHING_MF &&
              m.match_parser == GREEDY) {
-    return tor_compress0<MatchFinder2, LZ77_Coder<HuffmanEncoder<EOB_CODE>>>(
+    return tor_compress0<MatchFinder2, LZ77_Coder<HuffmanEncoder<EOB_CODE> > >(
         m, callback, auxdata, buf, bytes_to_compress);
   } else if (m.encoding_method == HUFCODER && m.hash3 == 0 &&
              m.match_finder == CACHING_MF4 && m.match_parser == GREEDY) {
     return tor_compress0<CachingMatchFinder<4>,
-                         LZ77_Coder<HuffmanEncoder<EOB_CODE>>>(
+                         LZ77_Coder<HuffmanEncoder<EOB_CODE> > >(
         m, callback, auxdata, buf, bytes_to_compress);
   } else if (m.encoding_method == ARICODER && m.hash3 == 1 &&
              m.match_finder == CACHING_MF4 && m.match_parser == LAZY) {
     return tor_compress0<
-        LazyMatching<Hash3<CachingMatchFinder<4>, 14, 10, FALSE>>,
-        LZ77_Coder<ArithCoder<EOB_CODE>>>(m, callback, auxdata, buf,
+        LazyMatching<Hash3<CachingMatchFinder<4>, 14, 10, FALSE> >,
+        LZ77_Coder<ArithCoder<EOB_CODE> > >(m, callback, auxdata, buf,
                                           bytes_to_compress);
     // -5 -c3 - used for FreeArc -m4$compressed
   } else if (m.encoding_method == HUFCODER && m.hash3 == 1 &&
              m.match_finder == CACHING_MF4 && m.match_parser == LAZY) {
     return tor_compress0<
-        LazyMatching<Hash3<CachingMatchFinder<4>, 14, 10, FALSE>>,
-        LZ77_Coder<HuffmanEncoder<EOB_CODE>>>(m, callback, auxdata, buf,
+        LazyMatching<Hash3<CachingMatchFinder<4>, 14, 10, FALSE> >,
+        LZ77_Coder<HuffmanEncoder<EOB_CODE> > >(m, callback, auxdata, buf,
                                               bytes_to_compress);
 
     // -7..-9
@@ -653,16 +653,16 @@ int tor_compress(PackMethod m, CALLBACK_FUNC *callback, void *auxdata,
              m.match_parser == LAZY) {
     return tor_compress0<
         LazyMatching<
-            Hash3<CombineMF<CycledCachingMatchFinder<5>, ExactMatchFinder<4>>,
-                  16, 12, TRUE>>,
+            Hash3<CombineMF<CycledCachingMatchFinder<5>, ExactMatchFinder<4> >,
+                  16, 12, TRUE> >,
         LZ77_DynamicCoder>(m, callback, auxdata, buf, bytes_to_compress);
     // -10
   } else if (m.hash3 == 2 && m.match_finder == CYCLED_MF7 &&
              m.match_parser == LAZY) {
     return tor_compress0<
         LazyMatching<Hash3<
-            CombineMF<CycledCachingMatchFinder<7>, CycledCachingMatchFinder<4>>,
-            16, 12, TRUE>>,
+            CombineMF<CycledCachingMatchFinder<7>, CycledCachingMatchFinder<4> >,
+            16, 12, TRUE> >,
         LZ77_DynamicCoder>(m, callback, auxdata, buf, bytes_to_compress);
 
     // -11..-13 -c4
@@ -670,28 +670,28 @@ int tor_compress(PackMethod m, CALLBACK_FUNC *callback, void *auxdata,
              m.match_parser == OPTIMAL && m.encoding_method == ARICODER) {
     return tor_compress0_optimal<
         CombineMF<CachingMatchFinder<5>,
-                  Hash3<ExactMatchFinder<4>, 14, 10, FALSE>>,
-        LZ77_Coder<ArithCoder<EOB_CODE>>>(m, callback, auxdata, buf,
+                  Hash3<ExactMatchFinder<4>, 14, 10, FALSE> >,
+        LZ77_Coder<ArithCoder<EOB_CODE> > >(m, callback, auxdata, buf,
                                           bytes_to_compress);
     // -14..-15 -c4
   } else if (m.hash3 == 2 && m.match_finder == CACHING_MF6 &&
              m.match_parser == OPTIMAL && m.encoding_method == ARICODER) {
     return tor_compress0_optimal<
-        CombineMF<CachingMatchFinder<6>, Hash3<MatchFinderN<4>, 16, 12, TRUE>>,
-        LZ77_Coder<ArithCoder<EOB_CODE>>>(m, callback, auxdata, buf,
+        CombineMF<CachingMatchFinder<6>, Hash3<MatchFinderN<4>, 16, 12, TRUE> >,
+        LZ77_Coder<ArithCoder<EOB_CODE> > >(m, callback, auxdata, buf,
                                           bytes_to_compress);
     // -14..-15
   } else if (m.hash3 == 2 && m.match_finder == CACHING_MF6 &&
              m.match_parser == OPTIMAL) {
     return tor_compress0_optimal<
-        CombineMF<CachingMatchFinder<6>, Hash3<MatchFinderN<4>, 16, 12, TRUE>>,
+        CombineMF<CachingMatchFinder<6>, Hash3<MatchFinderN<4>, 16, 12, TRUE> >,
         LZ77_DynamicCoder>(m, callback, auxdata, buf, bytes_to_compress);
     // -16
   } else if (m.hash3 == 2 && m.match_finder == BT_MF5 &&
              m.match_parser == OPTIMAL) {
     return tor_compress0_optimal<
         CombineMF<BinaryTreeMatchFinder<5>,
-                  Hash3<ExactMatchFinder<4>, 16, 12, TRUE>>,
+                  Hash3<ExactMatchFinder<4>, 16, 12, TRUE> >,
         LZ77_DynamicCoder>(m, callback, auxdata, buf, bytes_to_compress);
   }
 #endif
@@ -877,11 +877,11 @@ int tor_decompress(CALLBACK_FUNC *callback, void *auxdata, void *buf,
                                               minlen);
 
     case HUFCODER:
-      return tor_decompress0<LZ77_Decoder<HuffmanDecoder<EOB_CODE>>>(
+      return tor_decompress0<LZ77_Decoder<HuffmanDecoder<EOB_CODE> > >(
           callback, auxdata, bufsize, minlen);
 
     case ARICODER:
-      return tor_decompress0<LZ77_Decoder<ArithDecoder<EOB_CODE>>>(
+      return tor_decompress0<LZ77_Decoder<ArithDecoder<EOB_CODE> > >(
           callback, auxdata, bufsize, minlen);
 
     default:

@@ -661,8 +661,8 @@ struct LZ77_DynamicCoder {
   int coder;
   LZ77_ByteCoder coder1;
   LZ77_BitCoder coder2;
-  LZ77_Coder<HuffmanEncoder<EOB_CODE>> coder3;
-  LZ77_Coder<ArithCoder<EOB_CODE>> coder4;
+  LZ77_Coder<HuffmanEncoder<EOB_CODE> > coder3;
+  LZ77_Coder<ArithCoder<EOB_CODE> > coder4;
 
   // Init and finish encoder
   LZ77_DynamicCoder(int _coder, CALLBACK_FUNC *callback, void *auxdata,
