@@ -26,9 +26,9 @@ pbkdf2Hmac :: String -> String -> Int -> Int -> String
 pbkdf2Hmac password salt iterations keySize = unsafePerformIO $
   withCStringLen   password $ \(c_password, c_password_len) -> do
     withCStringLen salt     $ \(c_salt,     c_salt_len) -> do
-    allocaBytes    keySize  $ \c_key -> do
-      c_Pbkdf2Hmac c_password (ii c_password_len) c_salt (ii c_salt_len) (ii iterations) c_key (ii keySize)
-      peekCStringLen (c_key, keySize)
+       allocaBytes    keySize  $ \c_key -> do
+         c_Pbkdf2Hmac c_password (ii c_password_len) c_salt (ii c_salt_len) (ii iterations) c_key (ii keySize)
+         peekCStringLen (c_key, keySize)
 
 
 ----------------------------------------------------------------------------------------------------

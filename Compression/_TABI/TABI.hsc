@@ -174,9 +174,9 @@ pokeELEMENT array i (Pair n v) = do
   let ptr = array `plusPtr` (i * #{size TABI_ELEMENT})    -- address of array[i]
   action1 <- pokeValue (nameField  ptr) n
   (flip myOnException) action1 $ do                         -- on exception free memory immediately
-  ;          poke      (typeField  ptr) (typeOf v)
-  action2 <- pokeValue (valueField ptr) v
-  return (action1 >> action2)
+    ;          poke      (typeField  ptr) (typeOf v)
+    action2 <- pokeValue (valueField ptr) v
+    return (action1 >> action2)
 
 
 
@@ -196,10 +196,10 @@ call :: C_FUNCTION -> [ELEMENT] -> IO Int
 call server params = do
   let size x = (x+length params) * #{size TABI_ELEMENT}        -- memory required for serialization of all params plus x more values
   allocaBytes (size 1) $ \c_params -> do                       -- alloc C-style array to store all params
-  actions <- zipWithM (pokeELEMENT c_params) [0..] params      -- write params to the array
-  (flip finally) (sequence_ actions) $ do                      -- free at the end all memory used for marshalling params
-  poke (nameField (c_params `plusPtr` size 0)) nullPtr         -- put NULL marker at the N+1 array position
-  server c_params >>= return . fromIntegral                    -- call server
+    actions <- zipWithM (pokeELEMENT c_params) [0..] params      -- write params to the array
+    (flip finally) (sequence_ actions) $ do                      -- free at the end all memory used for marshalling params
+      poke (nameField (c_params `plusPtr` size 0)) nullPtr         -- put NULL marker at the N+1 array position
+      server c_params >>= return . fromIntegral                    -- call server
 
 
 
@@ -215,11 +215,11 @@ optional params name deflt  =  parameter params name (return deflt)
 parameter params name default_action = do
   ptr <- find params name
   if ptr==nullPtr then default_action else do
-  t <- peek        (typeField ptr)
-  v <- peekValue t (valueField ptr)
-  case v of
-    Just value -> return value
-    Nothing    -> raise ("parameter <<"++name++">>: type mismatch (expected "++show (typeOf (fromJust v))++", actual "++show t++")")
+    t <- peek        (typeField ptr)
+    v <- peekValue t (valueField ptr)
+    case v of
+      Just value -> return value
+      Nothing    -> raise ("parameter <<"++name++">>: type mismatch (expected "++show (typeOf (fromJust v))++", actual "++show t++")")
 
 -- |Search C array of TABI_ELEMENTs for element having given name
 find c_params name = go c_params
