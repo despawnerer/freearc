@@ -19,4 +19,4 @@ $(TEMPDIR)/CELS.o: CELS.cpp CELS.h _TABI/tabi.h Common.h makefile
 	$(GCC) -c $(CFLAGS) -fexceptions -o $*.o $<
 
 _TABI/TABI.hs: _TABI/TABI.hsc
-	hsc2hs --cc=ghc $<
+	hsc2hs $<
