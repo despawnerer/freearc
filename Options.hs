@@ -7,7 +7,7 @@
 module Options where
 
 import Prelude hiding (catch)
-import Control.OldException
+import Control.Exception
 import Control.Monad
 import Control.Concurrent
 import Data.Array

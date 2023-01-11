@@ -49,7 +49,7 @@
 module ByteStream where
 
 import Prelude hiding (read,readList)
-import Control.OldException
+import Control.Exception
 import Control.Monad
 import Control.Monad.Fix
 import Data.Bits

@@ -19,7 +19,7 @@ module Files (module Files, module FilePath) where
 import Prelude hiding (catch)
 import Control.Concurrent
 import Control.Concurrent.MVar
-import Control.OldException
+import Control.Exception
 import Control.Monad
 import Data.Array
 import Data.Char

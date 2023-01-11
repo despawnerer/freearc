@@ -8,7 +8,7 @@ module Utils (module Utils, module CompressionLib) where
 
 import Prelude hiding (catch)
 import Control.Concurrent
-import Control.OldException
+import Control.Exception
 import Control.Monad
 import Data.Array
 import Data.Bits

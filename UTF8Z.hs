@@ -21,7 +21,7 @@ import Data.Bits
 import Data.Char
 import Data.Word
 import GHC.Exts
-import GHC.IOBase
+import GHC.IO
 import GHC.Word
 import Foreign.C.Types
 

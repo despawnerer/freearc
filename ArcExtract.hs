@@ -11,7 +11,7 @@ module ArcExtract ( runArchiveExtract
 import Prelude hiding (catch)
 import Control.Concurrent
 import Control.Concurrent.QSemN
-import Control.OldException
+import Control.Exception
 import Control.Monad
 import Data.List
 import Data.Maybe

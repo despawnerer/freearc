@@ -7,7 +7,7 @@ module UIBase where
 import Prelude hiding (catch)
 import Control.Monad
 import Control.Concurrent
-import Control.OldException
+import Control.Exception
 import Data.Char
 import Data.IORef
 import Foreign

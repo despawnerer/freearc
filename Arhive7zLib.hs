@@ -10,7 +10,7 @@ module Arhive7zLib where
 import Prelude hiding (catch)
 import Control.Concurrent
 import Control.Monad
-import Control.OldException
+import Control.Exception
 import Data.HashTable as Hash
 import Data.Char
 import Data.Int

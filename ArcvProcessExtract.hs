@@ -6,7 +6,7 @@
 module ArcvProcessExtract where
 
 import Prelude hiding (catch)
-import Control.OldException
+import Control.Exception
 import Control.Monad
 import Data.Int
 import Data.IORef

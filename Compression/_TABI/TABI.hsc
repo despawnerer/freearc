@@ -15,7 +15,7 @@ module TABI (
 ) where
 
 import Prelude hiding (catch)
-import Control.OldException
+import Control.Exception
 import Control.Monad
 import Data.IORef
 import Data.Int
@@ -173,7 +173,7 @@ valueField = #{ptr TABI_ELEMENT, value}
 pokeELEMENT array i (Pair n v) = do
   let ptr = array `plusPtr` (i * #{size TABI_ELEMENT})    -- address of array[i]
   action1 <- pokeValue (nameField  ptr) n
-  (flip onException) action1 $ do                         -- on exception free memory immediately
+  (flip myOnException) action1 $ do                         -- on exception free memory immediately
   ;          poke      (typeField  ptr) (typeOf v)
   action2 <- pokeValue (valueField ptr) v
   return (action1 >> action2)
@@ -246,8 +246,8 @@ doNothing = return ()
 
 -- | Like 'finally', but only performs the final action if there was an
 -- exception raised by the computation.
-onException :: IO a -> IO b -> IO a
-onException io what = io `catch` \e -> do what; throw e
+myOnException :: IO a -> IO b -> IO a
+myOnException io what = io `catch` \e -> do what; throw e
 
 -- |Transform exception raised by computation
 mapExceptionM f io = io `catch` \e -> throw (f e)
