@@ -41,7 +41,7 @@ typedef int INT;
 typedef Int32 INT32;
 typedef unsigned int UINT;
 typedef UInt32 UINT32;
-typedef INT32 LONG;   // LONG, ULONG and DWORD must be 32-bit
+typedef INT32 LONG; // LONG, ULONG and DWORD must be 32-bit
 typedef UINT32 ULONG;
 
 #undef DWORD
@@ -50,8 +50,12 @@ typedef UINT32 DWORD;
 typedef Int64 LONGLONG;
 typedef UInt64 ULONGLONG;
 
-typedef struct LARGE_INTEGER { LONGLONG QuadPart; }LARGE_INTEGER;
-typedef struct _ULARGE_INTEGER { ULONGLONG QuadPart;} ULARGE_INTEGER;
+typedef struct LARGE_INTEGER {
+  LONGLONG QuadPart;
+} LARGE_INTEGER;
+typedef struct _ULARGE_INTEGER {
+  ULONGLONG QuadPart;
+} ULARGE_INTEGER;
 
 typedef const CHAR *LPCSTR;
 typedef wchar_t WCHAR;
@@ -75,18 +79,17 @@ typedef OLECHAR *BSTR;
 typedef const OLECHAR *LPCOLESTR;
 typedef OLECHAR *LPOLESTR;
 
-typedef struct _FILETIME
-{
+typedef struct _FILETIME {
   DWORD dwLowDateTime;
   DWORD dwHighDateTime;
-}FILETIME;
+} FILETIME;
 
 #define HRESULT LONG
-#define FAILED(Status) ((HRESULT)(Status)<0)
+#define FAILED(Status) ((HRESULT)(Status) < 0)
 typedef ULONG PROPID;
 typedef LONG SCODE;
 
-#define S_OK    ((HRESULT)0x00000000L)
+#define S_OK ((HRESULT)0x00000000L)
 #define S_FALSE ((HRESULT)0x00000001L)
 #define E_NOTIMPL ((HRESULT)0x80004001L)
 #define E_NOINTERFACE ((HRESULT)0x80004002L)
@@ -113,16 +116,15 @@ typedef LONG SCODE;
 
 #ifdef __cplusplus
 
-DEFINE_GUID(IID_IUnknown,
-0x00000000, 0x0000, 0x0000, 0xC0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x46);
-struct IUnknown
-{
-  STDMETHOD(QueryInterface) (REFIID iid, void **outObject) PURE;
+DEFINE_GUID(IID_IUnknown, 0x00000000, 0x0000, 0x0000, 0xC0, 0x00, 0x00, 0x00,
+            0x00, 0x00, 0x00, 0x46);
+struct IUnknown {
+  STDMETHOD(QueryInterface)(REFIID iid, void **outObject) PURE;
   STDMETHOD_(ULONG, AddRef)() PURE;
   STDMETHOD_(ULONG, Release)() PURE;
-  #ifndef _WIN32
+#ifndef _WIN32
   virtual ~IUnknown() {}
-  #endif
+#endif
 };
 
 typedef IUnknown *LPUNKNOWN;
@@ -132,8 +134,7 @@ typedef IUnknown *LPUNKNOWN;
 #define VARIANT_TRUE ((VARIANT_BOOL)-1)
 #define VARIANT_FALSE ((VARIANT_BOOL)0)
 
-enum VARENUM
-{
+enum VARENUM {
   VT_EMPTY = 0,
   VT_NULL = 1,
   VT_I2 = 2,
@@ -169,14 +170,12 @@ typedef WORD PROPVAR_PAD3;
 
 #ifdef __cplusplus
 
-typedef struct tagPROPVARIANT
-{
+typedef struct tagPROPVARIANT {
   VARTYPE vt;
   PROPVAR_PAD1 wReserved1;
   PROPVAR_PAD2 wReserved2;
   PROPVAR_PAD3 wReserved3;
-  union
-  {
+  union {
     CHAR cVal;
     UCHAR bVal;
     SHORT iVal;
@@ -210,13 +209,12 @@ MY_EXTERN_C UINT SysStringByteLen(BSTR bstr);
 MY_EXTERN_C UINT SysStringLen(BSTR bstr);
 
 /* MY_EXTERN_C DWORD GetLastError(); */
-MY_EXTERN_C LONG CompareFileTime(const FILETIME* ft1, const FILETIME* ft2);
+MY_EXTERN_C LONG CompareFileTime(const FILETIME *ft1, const FILETIME *ft2);
 
-#define CP_ACP    0
-#define CP_OEMCP  1
+#define CP_ACP 0
+#define CP_OEMCP 1
 
-typedef enum tagSTREAM_SEEK
-{
+typedef enum tagSTREAM_SEEK {
   STREAM_SEEK_SET = 0,
   STREAM_SEEK_CUR = 1,
   STREAM_SEEK_END = 2

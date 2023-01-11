@@ -19,8 +19,7 @@ extern "C" {
 #define kMtBtNumBlocks (1 << 6)
 #define kMtBtNumBlocksMask (kMtBtNumBlocks - 1)
 
-typedef struct _CMtSync
-{
+typedef struct _CMtSync {
   Bool wasCreated;
   Bool needStart;
   Bool exit;
@@ -38,16 +37,17 @@ typedef struct _CMtSync
   UInt32 numProcessedBlocks;
 } CMtSync;
 
-typedef UInt32 * (*Mf_Mix_Matches)(void *p, UInt32 matchMinPos, UInt32 *distances);
+typedef UInt32 *(*Mf_Mix_Matches)(void *p, UInt32 matchMinPos,
+                                  UInt32 *distances);
 
 /* kMtCacheLineDummy must be >= size_of_CPU_cache_line */
 #define kMtCacheLineDummy 128
 
-typedef void (*Mf_GetHeads)(const Byte *buffer, UInt32 pos,
-  UInt32 *hash, UInt32 hashMask, UInt32 *heads, UInt32 numHeads, const UInt32 *crc, UInt32 cutValue);
+typedef void (*Mf_GetHeads)(const Byte *buffer, UInt32 pos, UInt32 *hash,
+                            UInt32 hashMask, UInt32 *heads, UInt32 numHeads,
+                            const UInt32 *crc, UInt32 cutValue);
 
-typedef struct _CMatchFinderMt
-{
+typedef struct _CMatchFinderMt {
   /* LZ */
   const Byte *pointerToCurPos;
   UInt32 *btBuf;
@@ -93,8 +93,10 @@ typedef struct _CMatchFinderMt
 
 void MatchFinderMt_Construct(CMatchFinderMt *p);
 void MatchFinderMt_Destruct(CMatchFinderMt *p, ISzAlloc *alloc);
-SRes MatchFinderMt_Create(CMatchFinderMt *p, UInt32 historySize, UInt32 hashSize, UInt32 keepAddBufferBefore,
-    UInt32 matchMaxLen, UInt32 keepAddBufferAfter, ISzAlloc *alloc);
+SRes MatchFinderMt_Create(CMatchFinderMt *p, UInt32 historySize,
+                          UInt32 hashSize, UInt32 keepAddBufferBefore,
+                          UInt32 matchMaxLen, UInt32 keepAddBufferAfter,
+                          ISzAlloc *alloc);
 void MatchFinderMt_CreateVTable(CMatchFinderMt *p, IMatchFinder *vTable);
 void MatchFinderMt_ReleaseStream(CMatchFinderMt *p);
 

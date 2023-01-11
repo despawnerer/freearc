@@ -31,20 +31,20 @@
 #ifndef ENTROPY_H
 #define ENTROPY_H
 
-#define BASE_SIZE (1024*1024)
-#define STEP_SIZE (1024*1024)
+#define BASE_SIZE (1024 * 1024)
+#define STEP_SIZE (1024 * 1024)
 
-#define ENC(x)  (((x)>0)?((x)<<1)-1:(-(x)<<1))
-#define DEC(x)  (((x)&1)?(++(x)>>1):(-(x)>>1))
+#define ENC(x) (((x) > 0) ? ((x) << 1) - 1 : (-(x) << 1))
+#define DEC(x) (((x)&1) ? (++(x) >> 1) : (-(x) >> 1))
 
 extern unsigned char *bit_array_read;
 extern unsigned char *bit_array_write;
 
-void init_bit_array_write (unsigned long size);
-void init_bit_array_read  (unsigned long size);
-long get_len (void);
+void init_bit_array_write(unsigned long size);
+void init_bit_array_read(unsigned long size);
+long get_len(void);
 
-void encode_frame (long *data, unsigned long len);
-void decode_frame (long *data, unsigned long len);
+void encode_frame(long *data, unsigned long len);
+void decode_frame(long *data, unsigned long len);
 
-#endif  /* ENTROPY_H */
+#endif /* ENTROPY_H */

@@ -12,8 +12,7 @@ extern "C" {
 
 typedef UInt32 CLzRef;
 
-typedef struct _CMatchFinder
-{
+typedef struct _CMatchFinder {
   Byte *buffer;
   UInt32 pos;
   UInt32 posLimit;
@@ -69,31 +68,33 @@ void MatchFinder_Construct(CMatchFinder *p);
      keepAddBufferBefore + matchMaxLen + keepAddBufferAfter < 511MB
 */
 int MatchFinder_Create(CMatchFinder *p, UInt32 historySize, UInt32 hashSize,
-    UInt32 keepAddBufferBefore, UInt32 matchMaxLen, UInt32 keepAddBufferAfter,
-    ISzAlloc *alloc);
+                       UInt32 keepAddBufferBefore, UInt32 matchMaxLen,
+                       UInt32 keepAddBufferAfter, ISzAlloc *alloc);
 void MatchFinder_Free(CMatchFinder *p, ISzAlloc *alloc);
-void MatchFinder_Normalize3(CMatchFinder *p, UInt32 subValue, CLzRef *items, size_t numItems, int btMode);
+void MatchFinder_Normalize3(CMatchFinder *p, UInt32 subValue, CLzRef *items,
+                            size_t numItems, int btMode);
 void MatchFinder_ReduceOffsets(CMatchFinder *p, UInt32 subValue);
 
-UInt32 * GetMatchesSpec1(UInt32 lenLimit, UInt32 curMatch, UInt32 pos, const Byte *buffer, CLzRef *son,
-    UInt32 _cyclicBufferPos, UInt32 _cyclicBufferSize, UInt32 _cutValue,
-    UInt32 *distances, UInt32 maxLen);
+UInt32 *GetMatchesSpec1(UInt32 lenLimit, UInt32 curMatch, UInt32 pos,
+                        const Byte *buffer, CLzRef *son,
+                        UInt32 _cyclicBufferPos, UInt32 _cyclicBufferSize,
+                        UInt32 _cutValue, UInt32 *distances, UInt32 maxLen);
 
 /*
 Conditions:
   Mf_GetNumAvailableBytes_Func must be called before each Mf_GetMatchLen_Func.
-  Mf_GetPointerToCurrentPos_Func's result must be used only before any other function
+  Mf_GetPointerToCurrentPos_Func's result must be used only before any other
+function
 */
 
 typedef void (*Mf_Init_Func)(void *object);
 typedef Byte (*Mf_GetIndexByte_Func)(void *object, Int32 index);
 typedef UInt32 (*Mf_GetNumAvailableBytes_Func)(void *object);
-typedef const Byte * (*Mf_GetPointerToCurrentPos_Func)(void *object);
+typedef const Byte *(*Mf_GetPointerToCurrentPos_Func)(void *object);
 typedef UInt32 (*Mf_GetMatches_Func)(void *object, UInt32 *distances);
 typedef void (*Mf_Skip_Func)(void *object, UInt32);
 
-typedef struct _IMatchFinder
-{
+typedef struct _IMatchFinder {
   Mf_Init_Func Init;
   Mf_GetIndexByte_Func GetIndexByte;
   Mf_GetNumAvailableBytes_Func GetNumAvailableBytes;

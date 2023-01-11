@@ -31,16 +31,18 @@
 #ifndef FILTERS_H
 #define FILTERS_H
 
-#define MAX_ORDER   32
-#define BUF_SIZE    256
+#define MAX_ORDER 32
+#define BUF_SIZE 256
 
 #ifndef M_LN2
-#define M_LN2       0.69314718055994530942
+#define M_LN2 0.69314718055994530942
 #endif
 
-#define PREDICTOR1(x, k)    ((long)((((uint64)x << k) - x) >> k))
+#define PREDICTOR1(x, k) ((long)((((uint64)x << k) - x) >> k))
 
-void filters_compress   (long *data, unsigned long len, long level, long byte_size);
-void filters_decompress (long *data, unsigned long len, long level, long byte_size);
+void filters_compress(long *data, unsigned long len, long level,
+                      long byte_size);
+void filters_decompress(long *data, unsigned long len, long level,
+                        long byte_size);
 
-#endif  /* FILTERS_H */
+#endif /* FILTERS_H */

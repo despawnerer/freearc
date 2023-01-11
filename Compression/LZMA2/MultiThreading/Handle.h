@@ -3,17 +3,16 @@
 #ifndef __WINDOWS_HANDLE_H
 #define __WINDOWS_HANDLE_H
 
-class CHandle
-{
+class CHandle {
 protected:
   HANDLE _handle;
+
 public:
   operator HANDLE() { return _handle; }
-  CHandle(): _handle(NULL) {}
+  CHandle() : _handle(NULL) {}
   ~CHandle() { Close(); }
   bool IsCreated() const { return (_handle != NULL); }
-  bool Close()
-  {
+  bool Close() {
     if (_handle == NULL)
       return true;
     if (!::CloseHandle(_handle))
@@ -22,8 +21,7 @@ public:
     return true;
   }
   void Attach(HANDLE handle) { _handle = handle; }
-  HANDLE Detach()
-  {
+  HANDLE Detach() {
     HANDLE handle = _handle;
     _handle = NULL;
     return handle;

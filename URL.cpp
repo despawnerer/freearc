@@ -9,12 +9,11 @@
 
 #ifdef FREEARC_NOURL
 
-void  url_setup_proxy (char *_proxy)                           {}
-void  url_setup_bypass_list (char *_bypass_list)               {}
-URL*  url_open  (char *_url)                                   {return NULL;}
-int   url_readp (URL *url, int64 offset, char *buf, int size)  {return -1;}
-void  url_close (URL *url)                                     {}
-
+void url_setup_proxy(char *_proxy) {}
+void url_setup_bypass_list(char *_bypass_list) {}
+URL *url_open(char *_url) { return NULL; }
+int url_readp(URL *url, int64 offset, char *buf, int size) { return -1; }
+void url_close(URL *url) {}
 
 #else
 

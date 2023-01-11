@@ -5,7 +5,7 @@
 
 #ifdef _WIN32
 inline bool BOOLToBool(BOOL v) { return (v != FALSE); }
-inline BOOL BoolToBOOL(bool v) { return (v ? TRUE: FALSE); }
+inline BOOL BoolToBOOL(bool v) { return (v ? TRUE : FALSE); }
 #endif
 
 #endif

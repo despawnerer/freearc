@@ -10,8 +10,7 @@
 extern "C" {
 #endif
 
-typedef struct
-{
+typedef struct {
   CThread thread;
   CAutoResetEvent startEvent;
   CAutoResetEvent finishedEvent;
@@ -35,8 +34,7 @@ WRes LoopThread_WaitSubThread(CLoopThread *p);
 #define NUM_MT_CODER_THREADS_MAX 1
 #endif
 
-typedef struct
-{
+typedef struct {
   UInt64 totalInSize;
   UInt64 totalOutSize;
   ICompressProgress *progress;
@@ -46,12 +44,12 @@ typedef struct
   UInt64 outSizes[NUM_MT_CODER_THREADS_MAX];
 } CMtProgress;
 
-SRes MtProgress_Set(CMtProgress *p, unsigned index, UInt64 inSize, UInt64 outSize);
+SRes MtProgress_Set(CMtProgress *p, unsigned index, UInt64 inSize,
+                    UInt64 outSize);
 
 struct _CMtCoder;
 
-typedef struct
-{
+typedef struct {
   struct _CMtCoder *mtCoder;
   Byte *outBuf;
   size_t outBufSize;
@@ -66,14 +64,12 @@ typedef struct
   CAutoResetEvent canWrite;
 } CMtThread;
 
-typedef struct
-{
+typedef struct {
   SRes (*Code)(void *p, unsigned index, Byte *dest, size_t *destSize,
-      const Byte *src, size_t srcSize, int finished);
+               const Byte *src, size_t srcSize, int finished);
 } IMtCoderCallback;
 
-typedef struct _CMtCoder
-{
+typedef struct _CMtCoder {
   size_t blockSize;
   size_t destBlockSize;
   unsigned numThreads;
@@ -91,8 +87,8 @@ typedef struct _CMtCoder
   CMtThread threads[NUM_MT_CODER_THREADS_MAX];
 } CMtCoder;
 
-void MtCoder_Construct(CMtCoder* p);
-void MtCoder_Destruct(CMtCoder* p);
+void MtCoder_Construct(CMtCoder *p);
+void MtCoder_Destruct(CMtCoder *p);
 SRes MtCoder_Code(CMtCoder *p);
 
 #ifdef __cplusplus
