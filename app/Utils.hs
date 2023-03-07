@@ -1,4 +1,3 @@
-{-# OPTIONS_GHC -cpp #-}
 ---------------------------------------------------------------------------------------------------
 ---- Вспомогательные функции: работа со строками, списками, регулярными выражениями,           ----
 ----   аллокатор памяти. упрощение манипуляций с IORef-переменными,                            ----
@@ -14,7 +13,7 @@ import Data.Array
 import Data.Bits
 import Data.Char
 import Data.Either
-import qualified Data.HashTable
+import qualified Data.Hashable
 import Data.IORef
 import Data.List
 import Data.Maybe
@@ -29,10 +28,6 @@ import CompressionLib (MemSize,b,kb,mb,gb,tb)
 ---------------------------------------------------------------------------------------------------
 ---- Проверим define's ----------------------------------------------------------------------------
 ---------------------------------------------------------------------------------------------------
-
-#if !defined(FREEARC_INTEL_BYTE_ORDER) && !defined(FREEARC_MOTOROLA_BYTE_ORDER)
-#error "You must define byte order!"
-#endif
 
 aFreeArc = "FreeArc"
 aFreeArcExt = aFreeArcInternalExt
@@ -49,11 +44,7 @@ a7zExt              = "7z"
 ---------------------------------------------------------------------------------------------------
 
 -- |Собрать 4-байтовое число из отдельных байтов
-#if defined(FREEARC_INTEL_BYTE_ORDER)
 make4byte b0 b1 b2 b3 = b0+256*(b1+256*(b2+256*b3)) :: Word32
-#else
-make4byte b0 b1 b2 b3 = b3+256*(b2+256*(b1+256*b0)) :: Word32
-#endif
 
 -- |Разборщик чисел, указываемых во всяких опциях. Толкование числа определяется символами,
 -- написанными после него (b/k/f/...), если их нет - используется `default_specifier`.
@@ -232,7 +223,7 @@ doFinally = flip finally
 handleErrors onError acquire action = do
   x <- try acquire
   case x of
-    Left  err -> onError
+    Left  (err :: SomeException) -> onError
     Right res -> action res
 
 -- |Записать в начале то, что нужно выполнить в конце
@@ -249,7 +240,10 @@ doNothing2 a b   = return ()
 doNothing3 a b c = return ()
 
 -- |Игнорировать исключени
-ignoreErrors  =  handle doNothing
+-- ignoreErrors = handle doNothing
+ignoreErrors :: IO a -> (SomeException -> IO a) -> IO a
+ignoreErrors = Control.Exception.catch
+-- NOTE: Aleksei: Not sure if this is correct
 
 -- |Создать новый Channel и записать в него начальный список значений
 newChanWith xs = do c <- newChan
@@ -667,8 +661,8 @@ sortOn' f  =  sortBy (map2cmp f)
 groupOn f  =  groupBy (map2eq f)
 
 -- |Sort and Group list by function result
-sort_and_groupOn  f  =  groupOn f . sortOn  f
-sort_and_groupOn' f  =  groupOn f . sortOn' f
+sort_and_groupOn  f  =  groupOn f . Utils.sortOn  f
+sort_and_groupOn' f  =  groupOn f . Utils.sortOn' f
 
 -- |Сгруппировать все элементы (a.b) с одинаковым значением 'a'
 groupFst :: (Ord a) =>  [(a,b)] -> [(a,[b])]
@@ -858,7 +852,7 @@ class Hashable a where
   stdHashFunc :: a -> Int
 
 instance Hashable String where
-  stdHashFunc = fromEnum . Data.HashTable.hashString
+  stdHashFunc = fromEnum . Data.Hashable.hash
 
 
 data HT a b = HT (a->Int) (Array Int [(a,b)])

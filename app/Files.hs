@@ -1,4 +1,3 @@
-{-# OPTIONS_GHC -cpp -XRecordWildCards #-}
 ----------------------------------------------------------------------------------------------------
 ---- Операции с именами файлов, манипуляции с файлами на диске, ввод/вывод.                     ----
 ----------------------------------------------------------------------------------------------------
@@ -28,7 +27,7 @@ import Data.List
 import Foreign
 import Foreign.C
 import Foreign.Marshal.Alloc
-import System.Posix.Internals (o_BINARY, o_TRUNC)
+import System.Posix.Internals (o_BINARY, o_TRUNC, CStat, c_stat, sizeof_stat, st_mtime, st_size, st_mode)
 import System.Posix.Types
 import System.IO
 import System.IO.Error hiding (try, catch)
