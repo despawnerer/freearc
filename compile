@@ -3,8 +3,7 @@ ctempdir=/tmp/out/FreeArc
 tempdir=$ctempdir$1$2$3
 mkdir -p $tempdir
 mkdir -p $ctempdir
-defines="-DFREEARC_PACKED_STRINGS -DFREEARC_INTEL_BYTE_ORDER -optc-DFREEARC_INTEL_BYTE_ORDER"
-# ******** -DFREEARC_MOTOROLA_BYTE_ORDER -DFREEARC_ONLY_ALIGNED_ACCESS *******
+defines="-DFREEARC_PACKED_STRINGS"
 cd Compression
 ./compile
 cd ..

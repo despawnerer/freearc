@@ -29,7 +29,7 @@ fi
 
 cc_option -m32 && PARM_ADDR=' -m32' || PARM_ADDR=''
 PARM_DEBUG='-s'
-PARM_ENDIANNES='-DFREEARC_INTEL_BYTE_ORDER'
+PARM_ENDIANNES=''
 PARM_FULL=''
 PARM_STAT=''
 PARM_SYSTEM=''
@@ -43,9 +43,6 @@ for P; do
 		case $P in
 		'-64')
 			PARM_ADDR=' -m64'
-			;;
-		'-be')
-			PARM_ENDIANNES='-DFREEARC_MOTOROLA_BYTE_ORDER'
 			;;
 		'-debug')
 			CFLAGS=''
@@ -72,7 +69,6 @@ for P; do
 			echo 'possible options:'
 			echo '  -full      -  generate code for all possible coder/matchfinder combinations'
 			echo '  -64        -  compile 64-bit version'
-			echo '  -be        -  compile for big-endian CPUs (PowerPC, SPARC, 68k, ...)'
 			echo '  -notiming  -  leave out progress/speed calculation code'
 			echo '  -stats     -  print program'\''s internal compression statistics'
 			echo '  -debug     -  add debugging info and printfs'

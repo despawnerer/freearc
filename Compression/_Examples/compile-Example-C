@@ -1,8 +1,7 @@
 #Run Freearc "compile" first to establish compilation environment
 exe=Example-C
 ctempdir=/tmp/out/FreeArc
-defines="-DFREEARC_INTEL_BYTE_ORDER -optc-DFREEARC_INTEL_BYTE_ORDER"
-# ****** -DFREEARC_MOTOROLA_BYTE_ORDER -DFREEARC_ONLY_ALIGNED_ACCESS *******
+defines=""
 mkdir $ctempdir
 cd ..
 chmod +x compile

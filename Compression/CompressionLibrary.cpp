@@ -1250,7 +1250,6 @@ uint32 UpdateCRC(const void *data, size_t size, UInt32 v) {
         v, data, size, g_CrcTable);
 
   const Byte *p = (const Byte *)data;
-#if defined(FREEARC_INTEL_BYTE_ORDER)
   for (; size > 0 && ((unsigned)(ptrdiff_t)p & 3) != 0; size--, p++)
     v = CRC_UPDATE_BYTE_2(v, *p);
   for (; size >= 4; size -= 4, p += 4) {
@@ -1259,7 +1258,6 @@ uint32 UpdateCRC(const void *data, size_t size, UInt32 v) {
         g_CrcTable[0x100 + ((v >> 16) & 0xFF)] ^
         g_CrcTable[0x000 + ((v >> 24))];
   }
-#endif
   for (; size > 0; size--, p++)
     v = CRC_UPDATE_BYTE_2(v, *p);
   return v;
