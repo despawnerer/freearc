@@ -141,7 +141,7 @@ saveWindowsConfigFile file = unParseFile '8' file . (chr 0xFEFF:) . joinWith "\r
 
 -- Прочитать конфиг-файл, повторяя попытки если он пуст/недоступен
 readConfigFileManyTries file = go 1 where
-  go attempt = do xs <- readConfigFile file `catch` (\e->return [])
+  go attempt = do xs <- readConfigFile file `catch` (\(e :: SomeException) ->return [])
                   if xs==[] && attempt<100
                    then do sleepSeconds 0.01
                            go (attempt+1)
@@ -323,7 +323,7 @@ i18fmt (x:xs)  =  i18n x >>== (`formatn` xs)
 parseLocaleFiles localeFiles = do
   xs <- foreach localeFiles $ \localeFile -> do
           -- Прочитаем файл локализации или возвратим пустую болванку
-          localeInfo <- readConfigFile localeFile `catch` \e -> return ["0000=English"]
+          localeInfo <- readConfigFile localeFile `catch` \(e :: SomeException) -> return ["0000=English"]
           -- Отбираем строки, начинающиеся на "dddd", и создаём из них массив: dddd -> текст после знака '='
           -- Если текст после '=' заключён в двойные кавычки - избавимся от них
           -- Символы '&' заменяются на '_' (различие в акселераторах 7-zip и Gtk)

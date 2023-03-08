@@ -293,8 +293,8 @@ class BufferData a where
   readList :: InStream -> Int -> IO [a]
   readList buffer length  =  replicateM length (read buffer)
 
-  {-# NOINLINE read #-}
-  {-# NOINLINE write #-}
+  -- {-# NOINLINE read #-}
+  -- {-# NOINLINE write #-}
   {-# NOINLINE readList #-}
   {-# NOINLINE writeList #-}
 

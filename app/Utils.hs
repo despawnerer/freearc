@@ -240,10 +240,7 @@ doNothing2 a b   = return ()
 doNothing3 a b c = return ()
 
 -- |Игнорировать исключени
--- ignoreErrors = handle doNothing
-ignoreErrors :: IO a -> (SomeException -> IO a) -> IO a
-ignoreErrors = Control.Exception.catch
--- NOTE: Aleksei: Not sure if this is correct
+ignoreErrors = handle (\(e :: SomeException) -> doNothing0)
 
 -- |Создать новый Channel и записать в него начальный список значений
 newChanWith xs = do c <- newChan
