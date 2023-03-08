@@ -156,7 +156,7 @@ onEmptyQueue  =  powerOffComputer `onM` val perform_shutdown
 handleCtrlBreak name onException action = do
   failOnTerminated
   id <- newId
-  handle (\e -> do onException; throwIO e) $ do
+  handle (\(e :: SomeException) -> do onException; throwIO e) $ do
     bracket_ (addFinalizer name id onException)
              (removeFinalizer id)
              (action)
@@ -410,7 +410,8 @@ openLogFile logfilename = do
                  ""  -> return Nothing
                  log -> (do buildPathTo log
                             fileAppendText log >>== Just)
-                        `catch` (\e -> do registerWarning (CANT_OPEN_FILE log)
+                        `catch` (\(e :: SomeException) -> do
+                                          registerWarning (CANT_OPEN_FILE log)
                                           return Nothing)
   logfile' =: logfile
 
@@ -506,9 +507,9 @@ warningHandlers = unsafePerformIO$ newIORef [] :: IORef [String -> IO ()]
 ----------------------------------------------------------------------------------------------------
 
 -- |Возвратить Nothing и напечатать сообщение об ошибке, если файл не удалось открыть
-tryOpen filename = catchJust ioErrors
+tryOpen filename = catch
                      (fileOpen filename >>== Just)
-                     (\e -> do registerWarning$ CANT_OPEN_FILE filename; return Nothing)
+                     (\(e :: IOException) -> do registerWarning$ CANT_OPEN_FILE filename; return Nothing)
 
 -- |Скопировать файл
 fileCopy srcname dstname = do
