@@ -163,7 +163,7 @@ limit_de_compression option limit_f command method = do
 
 
 -- |Список опций, поддерживаемых программой
-optionsList = sortOn (\(OPTION a b _) -> (a|||"zzz",b))
+optionsList = Utils.sortOn (\(OPTION a b _) -> (a|||"zzz",b))
    [OPTION "--"    ""                   "stop processing options"
    ,OPTION "cfg"   "config"            ("use configuration FILES (default: " ++ aCONFIG_FILES ++ ")")
    ,OPTION "env"   ""                  ("read default options from environment VAR (default: " ++ aCONFIG_ENV_VAR ++ ")")

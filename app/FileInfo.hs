@@ -8,7 +8,7 @@ import Control.Exception
 import Control.Monad
 import Data.Bits
 import Data.Char
-import Data.HashTable as Hash
+import Data.HashTable.IO as Hash
 import Data.Int
 import Data.IORef
 import Data.List
@@ -220,7 +220,8 @@ getFileInfo fiFilteredName fiDiskName fiStoredName  =
                               else stat_size p_stat
       return$ Just$ FileInfo fiFilteredName fiDiskName fiStoredName fiSize fiTime 0 fiIsDir fiUndefinedGroup
   `catch`
-    \e -> do registerWarning$ CANT_GET_FILEINFO filename
+    \(e :: SomeException) -> do
+             registerWarning$ CANT_GET_FILEINFO filename
              return Nothing  -- В случае ошибки при выполнении stat возвращаем Nothing
 
 
@@ -274,10 +275,9 @@ getDirectoryContents_FileInfo ff parent{-родительская структу
     >>== filter exclude_special_names                           -- Исключим из списка "." и ".."
     >>= (mapMaybeM $! make_names getFileInfo)                   -- Превратим имена файлов в структуры FileInfo и уберём из списка файлы, на которых споткнулся `stat`
 
-
 -- |Добавить exception handler, вызываемый при ошибках получения списка файлов в каталоге
 handleFindErrors dir =
-  handleJust ioErrors $ \e -> do
+  handle $ \(e :: IOError) -> do
     -- Сообщение об ошибке не печатается для каталогов "/System Volume Information"
     d <- myCanonicalizePath dir
     unless (stripRoot d `strLowerEq` "System Volume Information") $ do
@@ -377,7 +377,7 @@ find_filter_and_process_files filespecs ff@FileFind{ ff_ep=ep, ff_scan_subdirs=s
            find_files_in_one_dir curdir True [dropTrailingPathSeparator filespec]
          return$ (isDir &&& addTrailingPathSeparator) filespec
        --
-       mapM_ (find_files_in_one_dir curdir False) $ sort_and_groupOn (filenameLower.takeDirectory) modified_filespecs
+       Control.Monad.mapM_ (find_files_in_one_dir curdir False) $ sort_and_groupOn (filenameLower.takeDirectory) modified_filespecs
 
   where
     -- Обработать группу масок, относящихся к одному каталогу
