@@ -76,6 +76,7 @@ executable freearc
         Compression
         CompressionLib
         Encryption
+        EncryptionLib
         Errors
         FileInfo
         FilePath
