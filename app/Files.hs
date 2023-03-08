@@ -236,7 +236,7 @@ mySetEnv :: String -> String -> Bool {-overwrite-} -> IO ()
 mySetEnv key value True  = withCString (key++"="++value) $ \s -> do
                            throwErrnoIfMinus1_ "mySetEnv" (c_putenv s)
 
-mySetEnv key value False = (getEnv key >> return ()) `catch`  (\e -> mySetEnv key value True)
+mySetEnv key value False = (getEnv key >> return ()) `catch`  (\(e :: SomeException) -> mySetEnv key value True)
 
 
 foreign import ccall unsafe "putenv"
@@ -262,7 +262,7 @@ createDirectoryHierarchy dir0 = do
       createDirectoryHierarchy (takeDirectory dir)
       exc <- try (dirCreate dir)
       case exc of
-        Left e  -> unlessM (dirExist dir) $ throw e
+        Left (e :: SomeException)  -> unlessM (dirExist dir) $ throw e
         Right _ -> return ()
 
 
@@ -284,7 +284,8 @@ dirRemoveRecursive removeAction startLoc = do
     rm :: FilePath -> IO ()
     rm f = do temp <- try (removeAction f)     -- todo: check that exception is really generated
               case temp of
-                Left e  -> do isDir <- dirExist f
+                Left (e :: SomeException)  -> do
+                              isDir <- dirExist f
                               -- If f is not a directory, re-throw the error
                               unless isDir $ throw e
                               dirRemoveRecursive removeAction f
@@ -294,7 +295,7 @@ dirRemoveRecursive removeAction startLoc = do
 -- Функция удаления, при необходимости снимающая атрибуты у файла
 forcedFileRemove :: FilePath -> IO ()
 forcedFileRemove filename = do
-  fileRemove filename `catch` \e -> do
+  fileRemove filename `catch` \(e :: SomeException) -> do
     -- Remove readonly/hidden/system attributes and try to remove file/directory again
     clearFileAttributes filename
     fileRemove filename
