@@ -234,12 +234,12 @@ archiveWriteFooterBlock control_blocks arcLocked arcComment (arcRecovery::String
   ByteStream.closeOut     stream
 
 -- |Прочитать информацию из FOOTER_BLOCK
-archiveReadFooterBlock footer @ ArchiveBlock {
-                                   blArchive  = archive
-                                 , blType     = block_type
-                                 , blPos      = pos
-                                 , blOrigSize = origsize
-                               }
+archiveReadFooterBlock footer@ArchiveBlock {
+                                 blArchive  = archive
+                               , blType     = block_type
+                               , blPos      = pos
+                               , blOrigSize = origsize
+                             }
                        decryption_info = do
   when (block_type/=FOOTER_BLOCK) $
     registerError$ BROKEN_ARCHIVE (archiveName archive) ["0358 last block of archive is not footer block"]
@@ -356,13 +356,13 @@ archiveBlockReadBuf block buf size  =  archiveReadBuf (blArchive block) buf size
 -- |Выделить буфер, прочитать в него содержимое блока и проверить CRC
 archiveBlockReadAll pool
                     decryption_info
-                    block @ ArchiveBlock {
-                              blArchive     = archive
-                            , blType        = block_type
-                            , blCompressor  = compressor
-                            , blPos         = pos
-                            , blCRC         = right_crc
-                          } = do
+                    block@ArchiveBlock {
+                            blArchive     = archive
+                          , blType        = block_type
+                          , blCompressor  = compressor
+                          , blPos         = pos
+                          , blCRC         = right_crc
+                        } = do
   let origsize = i$ blOrigSize block
       compsize = i$ blCompSize block
   (origbuf, decompressed_size)  <-  decompressInMemory pool compressor decryption_info archive pos compsize origsize

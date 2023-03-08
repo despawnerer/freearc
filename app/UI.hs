@@ -263,17 +263,17 @@ foreign import ccall unsafe  "Common.h  GetCPUTime"
 -- |Обработка очередного архива завершена -> напечатать статистику и вернуть её вызывающей процедуре
 uiDoneArchive = do
   command <- val ref_command
-  ui_state @ UI_State { total_files   = total_files
-                      , total_bytes   = total_bytes
-                      , files         = files
-                      , bytes         = bytes
-                      , cbytes        = cbytes
-                      , dirs          = dirs
-                      , dir_bytes     = dir_bytes
-                      , dir_cbytes    = dir_cbytes
-                      , fake_files    = fake_files
-                      , fake_bytes    = fake_bytes
-                      , fake_cbytes   = fake_cbytes }  <-  val ref_ui_state
+  ui_state@UI_State { total_files   = total_files
+                    , total_bytes   = total_bytes
+                    , files         = files
+                    , bytes         = bytes
+                    , cbytes        = cbytes
+                    , dirs          = dirs
+                    , dir_bytes     = dir_bytes
+                    , dir_cbytes    = dir_cbytes
+                    , fake_files    = fake_files
+                    , fake_bytes    = fake_bytes
+                    , fake_cbytes   = fake_cbytes }  <-  val ref_ui_state
   let cmd = cmd_name command
   uiMessage =: ("", "")
   updateAllIndicators
@@ -380,7 +380,7 @@ uiWriteData num bytes = do
   -- Сохранить в список операций в/в операцию записи
   when (num>=1 && num<count) $ do
     syncUI $ do
-    ui_state @ UI_State {rw_ops=rw_ops0}  <-  val ref_ui_state
+    ui_state@UI_State {rw_ops=rw_ops0}  <-  val ref_ui_state
     let rw_ops = updateAt num (add_Write bytes) rw_ops0
     return $! length (take 4 (rw_ops!!num))   -- strictify operations list!
     ref_ui_state =: ui_state {rw_ops=rw_ops}
@@ -394,14 +394,14 @@ uiReadData num bytes = do
   -- Сохранить в список операций в/в операцию чтения
   when (num>=1 && num<count) $ do
     syncUI $ do
-    modifyIORef ref_ui_state $ \ui_state @ UI_State {rw_ops=rw_ops} ->
+    modifyIORef ref_ui_state $ \ui_state@UI_State {rw_ops=rw_ops} ->
       ui_state {rw_ops = updateAt num (add_Read bytes) rw_ops}
 
   -- Обновить индикатор прогресса, если это последний алгоритм сжатия в цепочке
   when (num>=1 && num==count) $ do
     unpBytes <- syncUI $ do
       -- Состояние до обработки этих байт
-      ui_state @ UI_State {r_bytes=r_bytes0, rnum_bytes=rnum_bytes0, rw_ops=rw_ops0}  <-  val ref_ui_state
+      ui_state@UI_State {r_bytes=r_bytes0, rnum_bytes=rnum_bytes0, rw_ops=rw_ops0}  <-  val ref_ui_state
       -- К байтам на входе алгоритма num добавляется bytes байт,
       -- высчитываем количество байт на входе первого алгоритма если этот блок не похож на просто заголовок (bytes>16)
       let rnum_bytes = rnum_bytes0+bytes

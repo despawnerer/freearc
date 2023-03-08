@@ -23,6 +23,7 @@ import Errors
 import Files
 import FileInfo
 import Options
+import GHC.IO.Unsafe (unsafePerformIO)
 
 
 -- |Здесь хранится вся информация о команде и процессе её выполнения, требуемая для отображения
