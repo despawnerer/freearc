@@ -10,7 +10,7 @@ import Prelude hiding (catch)
 import Control.Concurrent
 import Control.Monad
 import Control.Exception
-import Data.HashTable as Hash
+import Data.HashTable.IO as Hash
 import Data.Char
 import Data.Int
 import Data.List
@@ -118,15 +118,15 @@ arcGetTechinfo archive dirs_and_files = do
         dictionaries = compressors
                        .$ map (map (ifArc algomem algomem_7z))                                      -- каждый метод сжатия превращаем в алгоритм+квазисловарь
                        .$ (filter (not.null) . (map (filter ((>0).cmAlgoMem))))                     -- оставляем только методы с ненулевым словарём и состоящие из них непустые группы
-                       .$ ifArc id (map (lastElems 1 . sortOn cmAlgoMem))                           -- для .7z оставляем только один алгоритм с макс. словарём (из нескольких выходов BCJ2)
+                       .$ ifArc id (map (lastElems 1 . Utils.sortOn cmAlgoMem))                           -- для .7z оставляем только один алгоритм с макс. словарём (из нескольких выходов BCJ2)
                        .$ sort_and_groupOn (map cmAlgorithm)                                        -- группируем по сочетанию алгоритмов
                        .$ map (maxOn (maximum.map cmAlgoMem))                                       -- выбираем в каждой группе по максимуму любого из словарей
-                       .$ sortOn (negate.maximum.map cmAlgoMem)                                     -- выносим вперёд цепочки с наибольшими словарями
+                       .$ Utils.sortOn (negate.maximum.map cmAlgoMem)                                     -- выносим вперёд цепочки с наибольшими словарями
                        .$ (joinWith " " . map (join_compressor . map showAlgoMem))                  -- репрезентация
         formatMem s =  x++" "++y  where (x,y) = span isDigit$ showMem s
 
     return$ filter(not.null) . map (concatMap (\x -> fst x &&& [x]))                                -- удаление пустых строк для не-.arc архивов
-          $[[(    "0465 Archive type:",          arcArchiveType archive)]
+          $ [[(    "0465 Archive type:",          arcArchiveType archive)]
             ++ dirs_and_files ++
             [(    "0089 Total bytes:",           show3$ origsize)
             ,(    "0090 Compressed bytes:",      show3$ compsize)
@@ -261,7 +261,7 @@ szReadInfo archive footer filter_f processFooterInfo arcname = do
   numFiles    <- szArcItems archive
   files       <- foreach [0..numFiles-1] (szArcGetItem filter_f archive arcname)  >>==  catMaybes
   -- Получение списка солид-блоков в архиве
-  list        <- handle (\e -> return []) $ do   -- на случай исключения из-за отсутствия какого-либо из запрашиваемых атрибутов
+  list        <- handle (\(e :: SomeException) -> return []) $ do   -- на случай исключения из-за отсутствия какого-либо из запрашиваемых атрибутов
                      foreach [0..numFiles-1] $ \item -> do
                          blck      <- szArcGetIntProperty  archive item kpidBlock
                          method    <- szArcGetStrProperty  archive item kpidMethod
@@ -309,7 +309,7 @@ szArcGetItem filter_f archive arcname item = do
 szArcGetItemFileInfo archive arcname item = do
   fullname  <- szArcGetStrProperty  archive item kpidPath  >>== changeTo [("", takeBaseName arcname)]
   fiSize    <- szArcGetIntProperty  archive item kpidSize
-  fiTime    <- szArcGetTimeProperty archive item kpidMTime  `catch`  const (getFileDateTime arcname)   -- Since bz2/gz archive items may have no own datetime, we should use archive time instead
+  fiTime    <- catch (szArcGetTimeProperty archive item kpidMTime) (\(e :: SomeException) -> getFileDateTime arcname)   -- Since bz2/gz archive items may have no own datetime, we should use archive time instead
   fiAttr    <- szArcGetIntProperty  archive item kpidAttrib
   fiIsDir   <- szArcGetBoolProperty archive item kpidIsDir
   let root = packParentDirPath ""
@@ -575,8 +575,8 @@ withTempCWString action = allocaBytes (long_path_size*4) $ \ptr -> do
 
 -- |Выполнить action с сериализованным в память массивом строк
 withCWStringArray strings action =
-  bracket (mapM newCWString strings)
-          (mapM_ free)
+  bracket (Control.Monad.mapM newCWString strings)
+          (Control.Monad.mapM_ free)
           (\array -> withArray0 nullPtr array action)
 
 

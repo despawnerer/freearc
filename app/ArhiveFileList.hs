@@ -8,7 +8,7 @@
 ----------------------------------------------------------------------------------------------------
 module ArhiveFileList where
 
-import Data.HashTable as Hash
+import Data.HashTable.IO as Hash
 import Data.Ix
 import Data.List
 import Data.Maybe
@@ -44,19 +44,19 @@ sort_files Command{ opt_sort_order    = sort_order     -- порядок сор�
     sortBy sortOrder =
         case sortOrder of
           ""     -> id
-          "n"    -> sortOn' (fpPackedBasename.fiStoredName)
-          "s"    -> sortOn' s_key
-          "es"   -> sortOn' es_key
-          "en"   -> sortOn' en_key
-          "ep"   -> sortOn' ep_key
-          "epn"  -> sortOn' epn_key
+          "n"    -> Utils.sortOn' (fpPackedBasename.fiStoredName)
+          "s"    -> Utils.sortOn' s_key
+          "es"   -> Utils.sortOn' es_key
+          "en"   -> Utils.sortOn' en_key
+          "ep"   -> Utils.sortOn' ep_key
+          "epn"  -> Utils.sortOn' epn_key
           'e':xs -> concatMap (sortBy xs) . sort_and_groupOn' e_key
           'g':xs -> concatMap (sortBy xs) . partitionList groups_count find_group   -- разбить файлы по группам и отсортировать каждую группу по оставшимся критериям
           'r':xs -> (unsafePerformIO.reorder) . sortBy xs
           'c':xs -> (\(small,large) -> sortBy xs small ++ sortBy "s" large)
                           . partition (\fi -> fiSize fi < i(128*kb))
           _ | sortOrder `contains` 'i'  ->  intellectual_sort sortOrder
-          _      -> sortOn' (key_func sortOrder find_group)
+          _      -> Utils.sortOn' (key_func sortOrder find_group)
 
     s_key   fi =  fiSize fi                                                   where filename = fiStoredName fi
     e_key   fi =  fpLCExtension filename                                      where filename = fiStoredName fi
@@ -78,10 +78,10 @@ sort_files Command{ opt_sort_order    = sort_order     -- порядок сор�
       concatMap isort . sort_and_groupOn' (key_func o1 find_group)
       where (o1,'i':o2) =  break (=='i') sortOrder
             isort group = -- Отсортировать список файлов, имеющих одинаковое расширение
-              let groups = groupOn three (sortOn (key_func o2 find_group) group)  -- сгруппировать по первым 3-м буквам имени
+              let groups = groupOn three (Utils.sortOn (key_func o2 find_group) group)  -- сгруппировать по первым 3-м буквам имени
                              where three = take 3 . filenameLower.fpBasename.fiStoredName
                   (singles, full_groups)  =  partition (null.tail) groups  -- разбить на группы, состоящие из одного-единственного файла, и "настоящие группы" :)
-                  list1  =  sortOn' s_key (concat singles)  -- список одиночных файлов в правильном порядке
+                  list1  =  Utils.sortOn' s_key (concat singles)  -- список одиночных файлов в правильном порядке
               in list1 ++ concat full_groups
 
 
@@ -146,7 +146,7 @@ reorder files = do
     numbered_files <- mapM renumber (zip [0..] files)
     -- Отсортировать файлы по номеру группы/размеру/имени/пути
     let ordering (num,file) = (num, fiSize file, fpPackedBasename filename, fpPackedDirectory filename)   where filename = fiStoredName file
-    return $ map snd $ sortOn ordering numbered_files
+    return $ map snd $ Utils.sortOn ordering numbered_files
 
 
 ----------------------------------------------------------------------------------------------------
@@ -403,7 +403,7 @@ special size | size>8*mb = size
 ----------------------------------------------------------------------------------------------------
 
 -- |Проверить, что переданный список файлов - полный список файлов в solid-блоке
-isWholeSolidBlock files @ (CompressedFile {cfArcBlock=solidBlock, cfPos=pos}:_) =
+isWholeSolidBlock files@(CompressedFile {cfArcBlock=solidBlock, cfPos=pos}:_) =
   pos == 0                            &&    -- Если первый файл в списке является началом солид-блока (pos = номеру первого принадлежащего этому файлу байта в солид-блоке)
   blFiles solidBlock == length files  &&    --   список имеет ту же длину, что и солид-блок, к которому принадлежит первый файл в списке,
   all        isCompressedFile  files  &&    --   состоит только из сжатых файлов,

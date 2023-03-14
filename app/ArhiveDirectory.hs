@@ -10,7 +10,7 @@ import Prelude hiding (catch)
 import Control.Concurrent
 import Control.Monad
 import Control.Exception
-import Data.HashTable as Hash
+import Data.HashTable.IO as Hash
 import Data.Int
 import Data.List
 import Data.Maybe
@@ -21,7 +21,7 @@ import Foreign.Ptr
 import Foreign.Storable
 import System.Mem
 
-import GHC.PArr
+-- import GHC.PArr
 
 import TABI
 import Utils
@@ -146,13 +146,13 @@ archiveWriteDir dirdata     -- список пар (block :: ArchiveBlock, direc
       writeLength    =  ByteStream.writeInteger   stream . length
       writeList     :: (ByteStream.BufferData a) =>  [a] -> IO ()
       writeList      =  ByteStream.writeList      stream
-      writeIntegers  =  mapM_ (ByteStream.writeInteger stream)
+      writeIntegers  =  Control.Monad.mapM_ (ByteStream.writeInteger stream)
       writeTagged     tag x   =  write tag >> write x     -- запись с тегами - для опциональных полей
       writeTaggedList tag xs  =  write tag >> writeList xs
 
   -- 1. Закодируем описания блоков архива и кол-во файлов в каждом из них
   writeLength dirdata               -- кол-во блоков.                  Для каждого блока записывается:
-  mapM_ (writeLength.snd) dirdata                                      -- кол-во файлов
+  Control.Monad.mapM_ (writeLength.snd) dirdata                                      -- кол-во файлов
   writeList$ map (map purifyCompressionMethod . blCompressor) blocks   -- метод сжатия
   writeList$ map (blEncodePosRelativeTo arcpos)               blocks   -- относительная позиция блока в файле архива
   writeList$ map (blCompSize                  )               blocks   -- размер блока в упакованном виде

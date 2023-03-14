@@ -42,7 +42,7 @@ import ArcvProcessCompress
 -- |Обобщённая команда создания/изменения архива
 runArchiveCreate pretestArchive
                  writeRecoveryBlocks
-                 command @ Command {             -- данные о выполняемой команде:
+                 command@Command {             -- данные о выполняемой команде:
       cmd_name            = cmd                  --   название команды
     , cmd_arcname         = arcname              --   основной архив, который подвергается обновлению
     , cmd_archive_filter  = archive_filter       --   предикат выбора обрабатываемых файлов из архивов

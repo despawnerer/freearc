@@ -53,7 +53,7 @@ parseCmdline cmdline  =  (`mapMaybeM` split ";" cmdline) $ \args -> do
   let no_configs = findReqList o0 "config" `contains` "-"
   env_options <- case (findReqArg o0 "env" "--") of
                     "--" | no_configs -> return ""  -- Опция -cfg- в командной строке отключает использование И arc.ini, И %FREEARC
-                         | otherwise  -> getEnv aCONFIG_ENV_VAR  `catch`  (\e -> return "")
+                         | otherwise  -> getEnv aCONFIG_ENV_VAR  `catch`  (\(e :: SomeException) -> return "")
                     "-"               -> return ""
                     env               -> getEnv env
 

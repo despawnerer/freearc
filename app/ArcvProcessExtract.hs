@@ -15,9 +15,6 @@ import Foreign.Ptr
 import Foreign.Marshal.Utils
 import Foreign.Storable
 
-#ifdef FREEARC_CELS
-import TABI
-#endif
 import Utils
 import Errors
 import Process
@@ -165,48 +162,6 @@ de_compress_PROCESS1 de_compress reader times command limit_memory comprMethod n
   let -- Напечатать карту памяти
       showMemoryMap = do printLine$ "\nBefore "++show num++": "++comprMethod++"\n"
                          testMalloc
-#ifdef FREEARC_CELS
-  let callback p = do
-        TABI.dump p
-        service <- TABI.required p "request"
-        case service of
-          -- Процедура чтения входных данных процесса упаковки/распаковки
-          "read" -> do buf  <- TABI.required p "buf"
-                       size <- TABI.required p "size"
-                       reader buf size
-          -- Процедура записи выходных данных
-          "write" -> do buf  <- TABI.required p "buf"
-                        size <- TABI.required p "size"
-                        total' += i size
-                        no_progress &&& uiWriteData num (i size)
-                        resend_data pipe (DataBuf buf size)
-          -- "Квазизапись" просто сигнализирует сколько данных будет записано в результате сжатия
-          "quasiwrite" -> do bytes <- TABI.required p "bytes"
-                             uiQuasiWriteData num bytes
-                             return aFREEARC_OK
-          -- Информируем пользователя о ходе распаковки
-          "progress" -> do insize  <- peekElemOff (castPtr ptr::Ptr Int64) 0 >>==i
-                           outsize <- peekElemOff (castPtr ptr::Ptr Int64) 1 >>==i
-                           uiReadData  num insize
-                           uiWriteData num outsize
-                           return aFREEARC_OK
-          -- Информация о чистом времени выполнения упаковки/распаковки
-          "time" -> do time <- TABI.required p "time"
-                       time' =: time
-                       return aFREEARC_OK
-          -- Прочие (неподдерживаемые) callbacks
-          _ -> return aFREEARC_ERRCODE_NOT_IMPLEMENTED
-
-  let -- Поскольку Haskell'овский код, вызываемый из Си, не может получать исключений, добавим к процедурам чтения/записи явные проверки
-      checked_callback p = do
-        operationTerminated' <- val operationTerminated
-        if operationTerminated'
-          then return CompressionLib.aFREEARC_ERRCODE_OPERATION_TERMINATED   -- foreverM doNothing0
-          else callback p
-      -- Non-debugging wrapper
-      debug f = f
-      debug_checked_callback what buf size = TABI.call (\a->fromIntegral `fmap` checked_callback a) [Pair "request" what, Pair "buf" buf, Pair "size" size]
-#else
   let -- Процедура чтения входных данных процесса упаковки/распаковки
       callback "read" buf size = do res <- reader buf size
                                     return res
@@ -247,7 +202,6 @@ de_compress_PROCESS1 de_compress reader times command limit_memory comprMethod n
       -- Non-debugging wrapper
       debug f what buf size = f what buf size
       debug_checked_callback = debug checked_callback
-#endif
 
   -- СОБСТВЕННО УПАКОВКА ИЛИ РАСПАКОВКА
   res <- debug_checked_callback "read" nullPtr (0::Int)  -- этот вызов позволяет отложить запуск следующего в цепочке алгоритма упаковки/распаковки до момента, когда предыдущий возвратит хоть какие-нибудь данные (а если это поблочный алгоритм - до момента, когда он обработает весь блок)

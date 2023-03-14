@@ -2,11 +2,6 @@
 ---- Упаковка и распаковка данных.                                                              ----
 ---- Интерфейс с написанными на Си процедурами, выполняющими всю реальную работу.               ----
 ----------------------------------------------------------------------------------------------------
-#ifdef FREEARC_CELS
-module CompressionLib (module HsCELS) where
-import HsCELS
-#else
-
 module CompressionLib where
 
 import Control.Concurrent
@@ -369,5 +364,3 @@ type VoidPtr = Ptr ()
 
 -- |Universal integral types conversion routine
 ii x = fromIntegral x
-
-#endif

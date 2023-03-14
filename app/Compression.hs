@@ -20,9 +20,6 @@ import Foreign.Marshal.Pool
 import Foreign.Ptr
 import System.IO.Unsafe
 
-#ifdef FREEARC_CELS
-import qualified TABI
-#endif
 import qualified CompressionLib
 import Utils
 import Errors
@@ -237,11 +234,7 @@ freearcDecompress num  =  CompressionLib.decompress
 eat_data callback = do
   allocaBytes aBUFFER_SIZE $ \buf -> do  -- используем `alloca`, чтобы автоматически освободить выделенный буфер при выходе
     let go = do
-#ifdef FREEARC_CELS
-          len <- TABI.call (\a->fromIntegral `fmap` callback a) [TABI.Pair "request" "read", TABI.Pair "buf" buf, TABI.Pair "size" (aBUFFER_SIZE::MemSize)]
-#else
           len <- callback "read" buf aBUFFER_SIZE
-#endif
           if (len>0)
             then go
             else return len   -- Возвратим 0, если данные кончились, и отрицательное число, если произошла ошибка/больше данных не нужно
