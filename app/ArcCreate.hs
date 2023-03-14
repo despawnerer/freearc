@@ -218,8 +218,10 @@ tempfile_wrapper filename command deleteFiles pretestArchive action   =   find 1
                                             registerError$ GENERAL_ERROR ["0312 output archive already exists, keeping temporary file %1", head tempnames]
                                for (zip tempnames filenames) $ \(tempname,filename) -> do
                                    fileRename tempname filename
-                                       `catch` (\_-> do condPrintLineLn "n"$ "Copying temporary archive "++tempname++" to "++filename
-                                                        fileCopy tempname filename; fileRemove tempname)
+                                       `catch` (\(_ :: SomeException) -> do
+                                                        condPrintLineLn "n"$ "Copying temporary archive "++tempname++" to "++filename
+                                                        fileCopy tempname filename
+                                                        fileRemove tempname)
                            -- Если указана опция "-t" и архивы были скопированы в другой каталог, то ещё раз протестируем окончательный архив
                            when (opt_test command && takeDirectory tempname/=takeDirectory filename) $ do
                                test_archive filenames (opt_keep_broken command || opt_delete_files command /= NO_DELETE)
@@ -326,7 +328,7 @@ writeSFX sfxname archive old_archive = do
     "--"     -> unless (isArcPhantom old_archive) $ do   --   скопировать sfx из исходного архива (по умолчанию)
                   archiveCopyData oldArchive 0 oldSFXSize archive
     filename -> bracket (archiveOpen sfxname              --   прочитать модуль sfx из указанного файла
-                          `catch` (\e -> registerError$ GENERAL_ERROR ["0315 can't open SFX module %1", sfxname]))
+                          `catch` (\(e :: SomeException) -> registerError$ GENERAL_ERROR ["0315 can't open SFX module %1", sfxname]))
                         (archiveClose)
                         (\sfxfile -> do size <- archiveGetSize sfxfile
                                         archiveCopyData sfxfile 0 size archive)

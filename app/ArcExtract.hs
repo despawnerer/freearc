@@ -303,9 +303,9 @@ runArchiveList pretestArchive
       archiveList command (null$ tail arclist)
 
 -- |Листинг архива
-archiveList command @ Command{ cmd_name=cmd, cmd_arcname=arcname}
+archiveList command@Command{ cmd_name=cmd, cmd_arcname=arcname}
             show_empty
-            arc @ ArchiveInfo{ arcDirectory=directory, arcArchiveType=arctype} = do
+            arc@ArchiveInfo{ arcDirectory=directory, arcArchiveType=arctype} = do
   let files = length directory
       bytes = sum$ map (fiSize.cfFileInfo) directory
 

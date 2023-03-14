@@ -381,7 +381,7 @@ runArchiveRecovery command@Command{ cmd_filespecs       = filespecs
         errors <- val errors'
         when (originalName>"" && n `elem` errors) $ do
           -- Прежде всего проверим, что original-файл удалось открыть
-          eitherM_ (try$ valJIT original')
+          eitherM_ (try @SomeException $ valJIT original')
             ( \exception -> once originalErr$ registerWarning$ GENERAL_ERROR ["0349 can't open original at %1", originalName])
             $ \original  -> do
           -- Теперь проверим, что его размер совпадает с восстанавливаемым архивом

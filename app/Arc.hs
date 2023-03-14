@@ -35,6 +35,7 @@ import Foreign.C
 import Data.List
 import System.Mem
 import System.IO
+import GHC.Conc.Sync
 
 import TABI
 import Utils
@@ -81,7 +82,7 @@ doMain args  = do
 
 
 -- |Диспетчеризует команду и организует её повторение для каждого подходящего архива
-run command @ Command
+run command@Command
                 { cmd_name            = cmd
                 , cmd_setup_command   = setup_command
                 , opt_scan_subdirs    = scan_subdirs
@@ -122,7 +123,7 @@ run command @ Command
 -- |Ищет архивы, подходящие под маску arcspec, и выполняет заданную команду на каждом из них
 find_archives scan_subdirs   -- искать архивы и в подкаталогах?
               run_command    -- процедура, которую нужно запустить на каждом найденном архиве
-              command @ Command {cmd_arcspec = arcspec} = do
+              command@Command {cmd_arcspec = arcspec} = do
   uiStartCommand command   -- Отметим начало выполнения команды
   arclist <- if scan_subdirs || is_wildcard arcspec
                then find_files scan_subdirs arcspec >>== map diskName
@@ -157,7 +158,7 @@ run_add cmd = do
 
 
 -- |Команда слияния архивов: j
-run_join cmd @ Command { cmd_filespecs         = filespecs
+run_join cmd@Command { cmd_filespecs         = filespecs
                        , opt_noarcext          = noarcext
                        , opt_archive_extension = archive_extension
                        } = do

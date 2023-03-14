@@ -7,6 +7,7 @@
 module ArhiveDirectory where
 
 import Prelude hiding (catch)
+
 import Control.Concurrent
 import Control.Monad
 import Control.Exception
@@ -15,13 +16,12 @@ import Data.Int
 import Data.List
 import Data.Maybe
 import Data.Word
+import Data.Vector (fromList, (!))
 import Foreign.C
 import Foreign.Marshal
 import Foreign.Ptr
 import Foreign.Storable
 import System.Mem
-
--- import GHC.PArr
 
 import TABI
 import Utils
@@ -58,8 +58,8 @@ arcOpen command arcname = do
   savedErr <- ref Nothing
   savedErrcodeHandler <- val errcodeHandler
   errcodeHandler =: (\err -> do savedErr =: Just err; fail "")
-  szArc <- try$ szOpenArchive (Left command) arcname   -- попробуем открыть архив через 7z.dll
-  myArc <- try$ myOpenArchive command arcname          -- ... а теперь как архив FreeArc
+  szArc <- try @SomeException $ szOpenArchive (Left command) arcname   -- попробуем открыть архив через 7z.dll
+  myArc <- try @SomeException $ myOpenArchive command arcname          -- ... а теперь как архив FreeArc
   errcodeHandler =: savedErrcodeHandler
   err <- val savedErr
   case (szArc,myArc,err) of                                -- а теперь выберем из них тот, что начинается раньше (поскольку внутри одного архива может быть другой и притом без сжатия)
@@ -251,7 +251,7 @@ archiveReadDir arc_basedir   -- базовый каталог в архиве
 
   -- 2. Прочитаем имена каталогов
   total_dirs    <-  readLength                    -- Сколько всего имён каталогов сохранено в этом оглавлении архива
-  storedName    <-  readList total_dirs >>== map (remove_unsafe_dirs>>>make_OS_native_path) >>== toP -- Массив имён каталогов
+  storedName    <-  readList total_dirs >>== map (remove_unsafe_dirs>>>make_OS_native_path) >>== Data.Vector.fromList -- Массив имён каталогов
 
   -- 3. Прочитаем списки данных для каждого поля в CompressedFile/FileInfo
   let total_files = sum num_of_files              -- суммарное кол-во файлов в каталоге
@@ -292,7 +292,7 @@ archiveReadDir arc_basedir   -- базовый каталог в архиве
       diskInfo          = fmap packParentDirPath diskName
       -- Для каждого каталога - булевский флаг: начинается ли его имя с базового каталога ("-ap")
       dirIncludedArray  = fmap (arc_basedir `isParentDirOf`) storedName
-      dirIncluded       = if arc_basedir==""  then const True  else (dirIncludedArray!:)
+      dirIncluded       = if arc_basedir==""  then const True  else (dirIncludedArray!)
 
   -- Список структур Maybe FileInfo (Nothing для тех файлов, которые не принадлежат
   -- базовому каталогу ("-ap") или не проходят через предикат фильтрации файлов)
@@ -311,9 +311,9 @@ archiveReadDir arc_basedir   -- базовый каталог в архиве
               fiStoredName    =                                   packFilePathPacked2 stored   (fpPackedFullname stored)   name
               fiFilteredName  =  if arc_basedir>""           then packFilePathPacked2 filtered (fpPackedFullname filtered) name  else fiStoredName
               fiDiskName      =  if disk_basedir>"" || ep/=3 then packFilePathPacked2 disk     (fpPackedFullname disk)     name  else fiFilteredName
-              stored   = storedInfo  !:dir
-              filtered = filteredInfo!:dir
-              disk     = diskInfo    !:dir
+              stored   = storedInfo  ! dir
+              filtered = filteredInfo! dir
+              disk     = diskInfo    ! dir
 
   -- Составим структуры FileInfo из отдельных полей, прочитанных из архива
   let fileinfos = zipWith5 make_fi dir_numbers names sizes times dir_flags
