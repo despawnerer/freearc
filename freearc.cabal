@@ -81,6 +81,7 @@ executable freearc
         FileInfo
         FilePath
         Files
+        OldHash
         Options
         Process
         UI
@@ -92,7 +93,7 @@ executable freearc
 
     -- Other library packages from which modules are imported.
     build-depends:
-        array, hashtables, hashable, base ^>=4.17.0.0, process, directory, unix, old-time, old-locale
+        array, hashable, base ^>=4.17.0.0, process, directory, unix, old-time, old-locale
 
     -- Directories containing source files.
     hs-source-dirs:   app

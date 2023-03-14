@@ -8,7 +8,7 @@
 ----------------------------------------------------------------------------------------------------
 module ArhiveFileList where
 
-import Data.HashTable.IO as Hash
+import OldHash as Hash
 import Data.Ix
 import Data.List
 import Data.Maybe

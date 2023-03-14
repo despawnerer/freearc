@@ -10,7 +10,7 @@ import Prelude hiding (catch)
 import Control.Concurrent
 import Control.Monad
 import Control.Exception
-import Data.HashTable.IO as Hash
+import OldHash as Hash
 import Data.Int
 import Data.List
 import Data.Maybe

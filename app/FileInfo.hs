@@ -8,7 +8,7 @@ import Control.Exception
 import Control.Monad
 import Data.Bits
 import Data.Char
-import Data.HashTable.IO as Hash
+import OldHash as Hash
 import Data.Int
 import Data.IORef
 import Data.List
