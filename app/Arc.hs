@@ -33,6 +33,7 @@ import Control.Monad
 import Foreign
 import Foreign.C
 import Data.List
+import Data.Typeable
 import System.Mem
 import System.IO
 import GHC.Conc.Sync
@@ -64,20 +65,20 @@ doMain args  = do
   setCtrlBreakHandler $ do          -- Организуем обработку ^Break
   ensureCtrlBreak "resetConsoleTitle" (resetConsoleTitle) $ do
   args <- processCmdfile args       -- Заменить @cmdfile в командной строке на его содержимое
-  luaLevel "Program" [("command", args)] $ do
+  -- luaLevel "Program" [("command", args)] $ do
   uiStartProgram                    -- Открыть UI
   commands <- parseCmdline args     -- Превратить командную строку в список команд на выполнение
   mapM_ run commands                -- Выполнить каждую полученную команду
   uiDoneProgram                     -- Закрыть UI
 
  where
-  handler ex  = do
+  handler (ex :: SomeException)  = do
     whenM (val programFinished) $ do
       foreverM$ sleepSeconds 1      -- Если программа находится в shutdown, позволим ему завершить программу
     registerError$ GENERAL_ERROR$
-      case ex of
-        Deadlock    -> ["0011 No threads to run: infinite loop or deadlock?"]
-        ErrorCall s -> [s]
+      case cast ex of
+        Just Deadlock    -> ["0011 No threads to run: infinite loop or deadlock?"]
+        -- ErrorCall s -> [s]
         other       -> [show ex]
 
 
@@ -92,7 +93,7 @@ run command@Command
   use_global_queue global_queueing "org.FreeArc.GlobalQueue" $ do   -- Начнём как только нам предоставят глобальный Mutex
   performGC       -- почистить мусор после обработки предыдущих команд
   setup_command   -- выполнить настройки, необходимые перед началом выполнения команды
-  luaLevel "Command" [("command", cmd)] $ do
+  -- luaLevel "Command" [("command", cmd)] $ do
   case (cmd) of
     "create" -> find_archives  False           run_add     command
     "modify" -> find_archives  False           run_modify  command
@@ -130,7 +131,7 @@ find_archives scan_subdirs   -- искать архивы и в подкатал
                else return [arcspec]
   results <- foreach arclist $ \arcname -> do
     performGC   -- почистить мусор после обработки предыдущих архивов
-    luaLevel "Archive" [("arcname", arcname)] $ do
+    -- luaLevel "Archive" [("arcname", arcname)] $ do
     -- Если указана опция -ad, то добавить к базовому каталогу на диске имя архива (без расширения)
     let add_dir  =  opt_add_dir command  &&&  (</> takeBaseName arcname)
     run_command command { cmd_arcspec      = error "find_archives:cmd_arcspec undefined"  -- cmd_arcspec нам больше не понадобится.
