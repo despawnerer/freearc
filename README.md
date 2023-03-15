@@ -10,12 +10,13 @@ This project aims to take the latest released sources (0.67) and modernize them 
 - [x] Compiling Haskell parts
 - [x] Linking
 - [x] Running
-- [ ] Compressing or decompressing actual FreeArc archives
+- [x] Creating new FreeArc archives and extracting them
+- [ ] Extracting existing FreeArc archives
 
 ### Still needs to be done
 
-- Checking that compressing or decompressing something actually works
 - I have not looked at `Unarc` at all.
+- Would be great to get my hands on on some actual FreeArc archives that were created by the original program
 
 ### Removed
 
