@@ -509,8 +509,17 @@ raw_stat_mtime       = st_mtime
 dirCreate            = createDirectory     =<<. str2filesystem
 dirExist             = doesDirectoryExist  =<<. str2filesystem
 dirRemove            = removeDirectory     =<<. str2filesystem
-dirList dir          = str2filesystem dir >>= getDirectoryContents >>= mapM filesystem2str
+dirList dir          = str2filesystem dir >>= getDirectoryContentsSafe >>= mapM filesystem2str
 dirWildcardList wc   = dirList (takeDirectory wc)  >>==  filter (match$ takeFileName wc)
+
+-- ignore nonexistent directories
+getDirectoryContentsSafe :: FilePath -> IO [FilePath]
+getDirectoryContentsSafe path = catchIOError (getDirectoryContents path) handleIOError
+  where
+    handleIOError e
+      | isDoesNotExistError e = return []
+      | isPermissionError e   = return []
+      | otherwise             = ioError e
 
 -- kidnapped from System.Directory :)))
 fileWithStatus :: String -> FilePath -> (Ptr CStat -> IO a) -> IO a
