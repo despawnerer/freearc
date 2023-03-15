@@ -4,7 +4,7 @@ tempdir=$ctempdir$1$2$3
 mkdir -p $tempdir
 mkdir -p $ctempdir
 defines="-DFREEARC_PACKED_STRINGS"
-cd Compression
+cd clibs/Compression
 ./compile
 cd ..
 make
