@@ -283,9 +283,6 @@ resume_real_secs = do
 -- |Вычитает время, проведённое в паузе, из реального времени выполнения команды
 pauseTiming = bracket_ pause_real_secs resume_real_secs
 
--- |На время переводит Win7+ индикатор прогресса в состояние паузы
-pauseTaskbar = bracket_ taskbar_Pause taskbar_Resume
-
 {-# NOINLINE diffTimes #-}
 {-# NOINLINE show_ratio #-}
 {-# NOINLINE debugLog #-}
@@ -375,34 +372,6 @@ show_bytes3 n = show3 n ++ " bytes"
 ----------------------------------------------------------------------------------------------------
 ----- External functions ---------------------------------------------------------------------------
 ----------------------------------------------------------------------------------------------------
-
--- |Win7+ taskbar: display progress indicator
-foreign import ccall safe "Compression/Common.h Taskbar_SetWindowProgressValue"
-  taskbar_SetWindowProgressValue :: Ptr () -> Word64 -> Word64 -> IO ()
-
-foreign import ccall safe "Compression/Common.h Taskbar_SetProgressValue"
-  taskbar_SetProgressValue :: Word64 -> Word64 -> IO ()
-
--- |Win7+ taskbar: normal-state progress indicator
-foreign import ccall safe "Compression/Common.h Taskbar_Normal"
-  taskbar_Normal :: IO ()
-
--- |Win7+ taskbar: error-state progress indicator
-foreign import ccall safe "Compression/Common.h Taskbar_Error"
-  taskbar_Error :: IO ()
-
--- |Win7+ taskbar: pause progress indicator
-foreign import ccall safe "Compression/Common.h Taskbar_Pause"
-  taskbar_Pause :: IO ()
-
--- |Win7+ taskbar: restore progress indicator after pause
-foreign import ccall safe "Compression/Common.h Taskbar_Resume"
-  taskbar_Resume :: IO ()
-
--- |Win7+ taskbar: remove progress indicator
-foreign import ccall safe "Compression/Common.h Taskbar_Done"
-  taskbar_Done :: IO ()
-
 
 {-
   Структура UI:

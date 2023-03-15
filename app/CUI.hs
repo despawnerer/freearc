@@ -36,7 +36,6 @@ guiStartProgram = do
   -- Обновляем индикатор прогресса и заголовок окна раз в 0.5 секунды
   indicatorThread 0.5 $ \updateMode indicator indType title b bytes total processed p -> do
     setConsoleTitle title
-    taskbar_SetProgressValue (i bytes) (i total)
     withConsoleAccess $ do
       myPutStr$ back_percents indicator ++ p
       myFlushStdout
@@ -91,7 +90,7 @@ guiDoneProgram = do
   return ()
 
 -- |Pause progress indicator & timing while dialog runs
-pauseEverything  =  pauseTiming . pauseTaskbar
+pauseEverything  =  pauseTiming
 
 {-# NOINLINE guiStartProgram #-}
 {-# NOINLINE guiStartFile #-}
