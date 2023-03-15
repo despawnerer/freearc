@@ -70,7 +70,6 @@ arcExtract command arcinfo = do
   uiCompressedBytes (arcDirCBytes arcinfo)
   guiUpdateProgressIndicator
   uiStartFiles 0
-  if isSzArchive arcinfo  then szExtract command arcinfo can_be_extracted else do
   withPool $ \pool -> do
   -- Создадим треды для распаковки файлов и записи распакованных данных
   bracketedRunAsyncP (decompress_PROCESS command (uiCompressedBytes.i)) Nothing $ \decompress_pipe -> do
@@ -277,7 +276,7 @@ runCommentWrite command@Command{ cmd_filespecs   = filespecs
   let [outfile] = filespecs
   command <- (command.$ opt_cook_passwords) command ask_passwords  -- подготовить пароли в команде к использованию
   printLineLn$ "Writing archive comment of "++arcname++" to "++outfile
-  bracket (arcOpen command arcname) (arcOpenClose.fst) $ \(_,footer) -> do
+  bracket (arcOpen command arcname) (archiveClose.fst) $ \(_,footer) -> do
     unParseFile 'c' outfile (ftComment footer)
   return (0,0,0,0)
 
@@ -349,11 +348,9 @@ myMapM f = go 0 True undefined
   go total first lastSolidBlock [] = return total
   go total first lastSolidBlock (file:rest) = do
     let solidBlock = cfArcBlock file
-    let compsize = case cfCompsize file of
-                     Just compsize -> compsize
-                     Nothing       -> if first  ||  solidBlock /= lastSolidBlock
-                                        then blCompSize solidBlock
-                                        else 0
+    let compsize = if first  ||  solidBlock /= lastSolidBlock
+                      then blCompSize solidBlock
+                      else 0
     f file compsize
     (go $! total+compsize) False solidBlock rest
 

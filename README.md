@@ -8,13 +8,13 @@ This project aims to take the latest released sources (0.67) and modernize them 
 
 - [x] Compiling C++ parts
 - [x] Compiling Haskell parts
-- [ ] Linking
-- [ ] Running
+- [x] Linking
+- [x] Running
+- [ ] Compressing or decompressing actual FreeArc archives
 
 ### Still needs to be done
 
-- At the moment, some 7zip code parts are missing, so linking will fail.
-- As consequence, actually running hasn't been attempted yet either.
+- Checking that compressing or decompressing something actually works
 - I have not looked at `Unarc` at all.
 
 ### Removed
@@ -34,7 +34,6 @@ This project aims to take the latest released sources (0.67) and modernize them 
 - C++ compiler (clang works)
 - GHC (9+ definitely works)
 - Curl headers
-- Ncurses headers
 
 ## Building
 
@@ -48,3 +47,9 @@ This project aims to take the latest released sources (0.67) and modernize them 
    ```bash
    cabal build
    ```
+
+## Running
+
+```bash
+cabal run
+```

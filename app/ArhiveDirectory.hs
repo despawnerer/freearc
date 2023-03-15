@@ -38,7 +38,7 @@ import Arhive7zLib
 
 
 {-# NOINLINE archiveReadInfo #-}
--- |Прочитать каталог архива FreeArc/7z.dll
+-- |Прочитать каталог архива FreeArc
 archiveReadInfo command               -- выполняемая команда со всеми её опциями
                 arc_basedir           -- базовый каталог внутри архива ("" для команд добавления)
                 disk_basedir          -- базовый каталог на диске ("" для команд добавления/листинга)
@@ -47,35 +47,22 @@ archiveReadInfo command               -- выполняемая команда �
                 arcname = do          -- имя файла, содержащего архив
 
   (archive,footer) <- arcOpen command arcname
-  case archive of
-    Left  sz -> szReadInfo        sz footer filter_f processFooterInfo arcname
-    Right my -> myArchiveReadInfo my footer command arc_basedir disk_basedir filter_f processFooterInfo
+  myArchiveReadInfo archive footer command arc_basedir disk_basedir filter_f processFooterInfo
 
 
 {-# NOINLINE arcOpen #-}
--- |Открыть архив FreeArc/7z.dll
+-- |Открыть архив FreeArc
 arcOpen command arcname = do
   savedErr <- ref Nothing
   savedErrcodeHandler <- val errcodeHandler
   errcodeHandler =: (\err -> do savedErr =: Just err; fail "")
-  szArc <- try @SomeException $ szOpenArchive (Left command) arcname   -- попробуем открыть архив через 7z.dll
-  myArc <- try @SomeException $ myOpenArchive command arcname          -- ... а теперь как архив FreeArc
+  myArc <- try @SomeException $ myOpenArchive command arcname
   errcodeHandler =: savedErrcodeHandler
   err <- val savedErr
-  case (szArc,myArc,err) of                                -- а теперь выберем из них тот, что начинается раньше (поскольку внутри одного архива может быть другой и притом без сжатия)
-       (Left _,               Left _,       Just err)  ->  registerError err
-       (Left _,               Left my,             _)  ->  throwIO my
-       (Right (sz,szFooter),  Left _,              _)  ->  return (Left  sz, szFooter)
-       (Left _,               Right (my,myFooter), _)  ->  return (Right my, myFooter)
-       (Right (sz,szFooter),  Right (my,myFooter), _)  ->  if ftSFXSize szFooter < ftSFXSize myFooter  &&  False   -- fix01: на данный момент FreeArc распознаёт свои архивы только если сигнатура архива находится в самом конце файла
-                                                             then do archiveClose my; return (Left sz, szFooter)
-                                                             else do szArcClose   sz; return (Right my, myFooter)
-
-
--- |Закрытие архива FreeArc/7z.dll
-arcOpenClose (Left  sz) = szArcClose sz
-arcOpenClose (Right my) = archiveClose my
-
+  case (myArc,err) of                                -- а теперь выберем из них тот, что начинается раньше (поскольку внутри одного архива может быть другой и притом без сжатия)
+       (Left _,       Just err)  ->  registerError err
+       (Left my,             _)  ->  throwIO my
+       (Right (my,myFooter), _)  ->  return (my, myFooter)
 
 
 ----------------------------------------------------------------------------------------------------
@@ -115,7 +102,6 @@ myArchiveReadInfo archive footer command arc_basedir disk_basedir filter_f proce
                      , arcDirCBytes   = sum (map blCompSize dir_blocks)
                      , arcDataBytes   = sum (map blOrigSize data_blocks)
                      , arcDataCBytes  = sum (map blCompSize data_blocks)
-                     , arcSzArchive   = Nothing
                      , arcArchiveType = aFreeArc
                      }
 
@@ -349,7 +335,7 @@ archiveReadDir arc_basedir   -- базовый каталог в архиве
       scanningSum xs = 0 : scanl1 (+) (init xs)
 
   -- Теперь у нас готовы все компоненты для создания списка файлов, содержащихся в этом каталоге
-  let files = [ CompressedFile fileinfo arcblock pos crc Nothing
+  let files = [ CompressedFile fileinfo arcblock pos crc
               | (Just fileinfo, arcblock, pos, crc)  <-  zip4 fileinfos arcblocks positions crcs
               ]
 

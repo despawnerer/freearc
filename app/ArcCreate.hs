@@ -155,7 +155,6 @@ runArchiveCreate pretestArchive
   -- Сначала мы записываем содержимое создаваемого архива во временный файл и лишь затем, при успехе архивации - переименовываем его
   tempfile_wrapper arcname command deleteFiles pretestArchive $ \temp_arcname temp_arcnames' -> do
     ensureCtrlBreak "closeInputArchives" closeInputArchives $ do   -- Закроем входные архивы по завершении архивации
-      if (arctype /= aFreeArcInternalExt)   then szCompress command main_archive arcname temp_arcname temp_arcnames' diskfiles results   else do   -- Обратимся к 7z.dll для архивации в недефолтный формат
       bracketCtrlBreak "archiveClose:ArcCreate" (archiveCreateRW temp_arcname) (archiveClose) $ \archive -> do
         writeSFX (opt_sfx command) archive main_archive    -- Начнём создание архива с записи SFX-модуля
         -- Создание архива - последовательность отдельных процессов, передающих данные друг другу:

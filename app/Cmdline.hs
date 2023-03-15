@@ -26,7 +26,6 @@ import Charsets
 import Errors
 import FileInfo
 import Compression
-import Arhive7zLib
 import Options
 
 
@@ -46,7 +45,7 @@ parseCmdline cmdline  =  (`mapMaybeM` split ";" cmdline) $ \args -> do
     else do
 
   -- Additional filters for params of some options when required to resolve ambiguity
-  let option_checks  =  [("type", (\arctype -> (arctype `elem` ["--",aFreeArcExt]) || (arctype/="" && szCheckType arctype)))]
+  let option_checks  =  [("type", (\arctype -> (arctype `elem` ["--",aFreeArcExt])))]
 
   -- Прочитаем опции из переменной среды FREEARC или заданной в опции -env
   (o0, _) <- parseOptions options option_checks [] []
@@ -155,9 +154,9 @@ parseCmdline cmdline  =  (`mapMaybeM` split ";" cmdline) $ \args -> do
       test_opt              =  findNoArg    o "test"
 
       -- In absence of -tTYPE option, type of new archives is defined by the arcspec extension: "a a.zip" is the same as "a a.zip -tzip"
-      default_arctype   =  szFindFormatForArchiveName pure_arcspec ||| aFreeArcExt
+      default_arctype   =  aFreeArcExt
       archive_type      =  findReqArg o "type" "--"  .$  changeTo [("--", default_arctype)]
-      archive_extension =  if archive_type==aFreeArcInternalExt   then aDEFAULT_ARC_EXTENSION   else szDefaultExtension archive_type
+      archive_extension =  aDEFAULT_ARC_EXTENSION
 
       add_exclude_path  =  exclude_path .$ changeTo [("--", "9"), ("", "0")] .$ readInt
       dir_exclude_path  =  if                cmd=="e"          then 0
