@@ -101,6 +101,8 @@ executable freearc
     -- Base language which the package is written in.
     default-language: Haskell2010
 
+    ld-options: -optl-s -lstdc++ -lncurses -lcurl /tmp/out/FreeArc/CELS.o /tmp/out/FreeArc/C_4x4.o /tmp/out/FreeArc/C_BCJ.o /tmp/out/FreeArc/C_Delta.o /tmp/out/FreeArc/C_Dict.o /tmp/out/FreeArc/C_DisPack.o /tmp/out/FreeArc/C_Encryption.o /tmp/out/FreeArc/C_External.o /tmp/out/FreeArc/C_GRZip.o /tmp/out/FreeArc/C_LZ4.o /tmp/out/FreeArc/C_LZMA.o /tmp/out/FreeArc/C_LZP.o /tmp/out/FreeArc/C_MM.o /tmp/out/FreeArc/C_PPMD.o /tmp/out/FreeArc/C_REP.o /tmp/out/FreeArc/C_TTA.o /tmp/out/FreeArc/C_Tornado.o /tmp/out/FreeArc/Common.o /tmp/out/FreeArc/CompressionLibrary.o /tmp/out/FreeArc/Environment.o /tmp/out/FreeArc/URL.o /tmp/out/FreeArc/cels-rep.o
+
     default-extensions:
         BangPatterns,
         ConstrainedClassMethods,
