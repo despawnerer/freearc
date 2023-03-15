@@ -48,7 +48,7 @@ extra-doc-files:    CHANGELOG.md
 -- extra-source-files:
 
 common warnings
-    ghc-options: -Wall -iclibs/Compression/_TABI
+    ghc-options: -Wall
 
 executable freearc
     -- Import common warning flags.
@@ -56,6 +56,9 @@ executable freearc
 
     -- .hs or .lhs file containing the Main module.
     main-is:          Arc.hs
+
+    -- GHC options
+    ghc-options:      -threaded -rtsopts -iclibs/Compression/_TABI
 
     -- Modules included in this executable, other than Main.
     other-modules:
