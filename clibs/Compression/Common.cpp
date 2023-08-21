@@ -26,6 +26,7 @@ int g_allocCountBig = 0;
 #define alloc_debug_printf(x)
 #endif
 
+#include <sys/resource.h>
 #ifndef RUSAGE_THREAD
 
 #include <mach/mach_init.h>
