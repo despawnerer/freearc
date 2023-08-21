@@ -309,7 +309,7 @@ const int PRIME = 153191;     // or any other large prime number
 const int MAX_BLOCK = 8 * mb; // Макс. объём входных данных, читаемых за раз
 
 // Вычислить количество элементов хеша
-MemSize CalcHashSize(MemSize HashBits, MemSize BlockSize, int SmallestLen,
+inline MemSize CalcHashSize(MemSize HashBits, MemSize BlockSize, int SmallestLen,
                      int MinMatchLen, int ChunkSize, int Amplifier, int *L) {
   // Мин. длина строк, совпадения в которых нужно находить
   int Len = mymin(SmallestLen, MinMatchLen);
