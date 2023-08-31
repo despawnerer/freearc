@@ -96,7 +96,7 @@ executable freearc
 
     -- Other library packages from which modules are imported.
     build-depends:
-        array, hashable, base <4.17.0.0, process, directory, unix, old-time, old-locale, vector
+        array, hashable, base ^>=4.17.0.0, process, directory, unix, old-time, old-locale, vector
 
     -- Directories containing source files.
     hs-source-dirs:   app
